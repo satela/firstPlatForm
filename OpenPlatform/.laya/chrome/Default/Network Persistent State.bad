@@ -1,0 +1,5 @@
+<<<<<<< HEAD
+{"net":{"http_server_properties":{"servers":[],"version":5},"network_qualities":{"CAISCXh1amlhbmh1YRiAgICA+P////8B":"4G","CAISDENNQ0MtdjNrSC01RxiAgICA+P////8B":"4G"}}}
+=======
+{"net":{"http_server_properties":{"servers":[{"isolation":[],"server":"https://update.googleapis.com","supports_spdy":true}],"version":5},"network_qualities":{"CAISCXh1amlhbmh1YRiAgICA+P////8B":"4G","CAISDENNQ0MtdjNrSC01RxiAgICA+P////8B":"4G"}}}
+>>>>>>> branch_dev

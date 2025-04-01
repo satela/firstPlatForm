@@ -1,0 +1,673 @@
+<html>
+
+<head>
+    <title></title>
+	<link rel="shortcut icon" href="favicon.ico">
+	
+   
+	<link rel="stylesheet" href="css/CbcStyle.css">
+	<link href="videoTool/video-js.css" rel="stylesheet" />
+
+    <meta charset='utf-8' />
+    <meta name='renderer' content='webkit' />
+    <meta name='viewport' content='width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1,user-scalable=no'
+    />
+    <meta name='apple-mobile-web-app-capable' content='yes' />
+    <meta name='full-screen' content='true' />
+    <meta name='x5-fullscreen' content='true' />
+    <meta name='360-fullscreen' content='true' />
+    <meta name='laya' screenorientation='landscape' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1' />
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv='expires' content='0' />
+	<style>
+	
+	input::-webkit-input-placeholder{
+      color: #b1b1b1;
+    }
+    input::-moz-placeholder{
+      color:#b1b1b1;
+    }
+    input::-webkit-input-placeholder{
+      color:#b1b1b1;
+    }
+    input::-ms-input-placeholder{
+      color: #b1b1b1;
+    }
+
+
+  .qrcode {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+	 position: absolute;
+    left: 0;
+    right: 0;
+  }
+  
+  .comName{
+	position:absolute;
+	top:calc(50% + 80px);
+  }
+
+    input:focus{
+     /* background: #FFFFFF;
+      border: 1px solid #ff0000;
+      !* 解决input按钮自动填充后 浏览器渲染的默认背景问题 *!
+      box-shadow: inset 0 0 0 1000px #FFFFFF!important;*/
+      outline: none;
+    }
+	
+	</style>
+
+</head>
+<body bgcolor="#EFEFEF">
+
+<a href="https://xyt.xcc.cn/getpcInfo?sn=1700099982985515008&language=CN&certType=8&url=www.ps.vip" target="_blank" style="position: relative;display: inline-block;height: 38px;">
+<div style="width:100%;height:100%;position: absolute;top: 0;left: 0;"></div><embed src="https://program.xinchacha.com/web/1700099982985515008=www.ps.vip.svg"width="103" height="38" type="image/svg+xml" pluginspage="//www.adobe.com/svg/viewer/install/"/></a>
+
+<div  id="picBox" style="display:none;position:absolute;left:200px;top:480px">
+	<div class="cube" id="cube">
+		<div class="backPic">
+		  <img class="pic" id="backImg"  src="" draggable="false" width="800px" height="800px">
+		</div>
+		<div class="mediumPic">
+		  <img class="pic" id="maskImg"  src="" draggable="false" width="800px" height="800px">
+		</div>
+		<div class="frontPic">
+		  <img class="pic" id="frontImg" src="" draggable="false" width="800px" height="800px">
+		</div>
+	</div>
+</div>
+<canvas id="my-canvas" width="0" height="0" style="position: absolute; left: 1200px;"></canvas>
+
+
+<div id="unity-container" class="unity-desktop" style="position: absolute; left:30px;top:30px;right:30px;bottom:30px;-webkit-transform: translate(0%, 0%); transform: translate(0%, 0%);">
+      <canvas id="unity-canvas" style="width:100%;height:100%" tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>         
+</div>
+
+<div id="unity-paint-container" class="unity-desktop" style="position: absolute; left:360px;top:80px;right:360px;bottom:60px;-webkit-transform: translate(0%, 0%); transform: translate(0%, 0%);">
+      <canvas id="unity-paint-canvas" style="width:100%;height:100%" tabindex="-1"></canvas>
+      <div id="unity-paint-loading-bar">
+        <div id="unity-paint-logo"></div>
+        <div id="unity-paint-progress-bar-empty">
+          <div id="unity-paint-progress-bar-full"></div>
+        </div>
+      </div>        
+</div>
+<div id="codePt">
+	<div id='qrcode'>
+	
+	</div>
+	<div id="comName"></div>
+</div>
+
+<div id="div1" align="center"> 
+<progress value="0"  max="100" style="width: 30%;margin-top:100px">您的浏览器不支持progress元素</progress>
+</div>
+
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript" src="html2canvas.js"></script>
+
+    <script>
+	 document.onkeydown = KeyDown;
+	 function KeyDown()
+	 {
+	 
+	 var evt = window.event || arguments.callee.caller.arguments[0];
+	 if(evt.keyCode == 9)
+		evt.returnValue=false;
+	 }
+	 
+	 function getImagePixels(file)
+	 {
+	 	var picdata = ImageUtil.getImageData(file,getImageBack);
+
+		//var pixels = imgdata;
+	 }
+	 function getImageBack(picdata)
+	 {
+		if(picProcess != null)
+		{
+			picProcess.getCutCountLength(picdata);
+		}
+	 }
+	function goprogress(){
+        var pro=document.getElementsByTagName("progress")[0];
+        gotoend(pro,0);
+    }
+    function gotoend(pro,value){
+        var value=value+1;
+        pro.value=value;
+        if(value<95) {
+            setTimeout(function(){gotoend(pro, value);},60)
+        }else{
+            //setTimeout(function(){alert("任务完成")},20);
+        }		
+    }
+        function loadLib(url) {
+            var script = document.createElement("script");
+            script.async = false;
+            script.src = url;
+            document.body.appendChild(script);
+			goprogress();
+			script.onload  = function()
+			{
+			var pro=document.getElementsByTagName("progress")[0];
+			 	pro.value=100;
+			var parent=document.getElementById("div1");
+				parent.removeChild(pro);
+				//console.log("pass time:" + ((new Date()).valueOf() - nowtime));
+			}
+        }
+		
+		var verifyCode;
+		function loadVerifyCode(){
+		  verifyCode = new GVerify("v_container");
+		}
+		
+		function checkCode(txt){
+		
+		 var res = verifyCode.validate(txt);
+            
+		return res;
+		}
+		var xhr;
+		 function uploadPic(fileobj) {
+                     
+            //原生ajax实现文件上传
+            var formData = new FormData();
+            formData.append("path", fileobj.path);
+
+           // if (file) {
+			
+                formData.append("file", fileobj.file);
+          //  }
+
+            //得到xhr对象
+             xhr = null;
+            if (XMLHttpRequest) {
+                xhr = new XMLHttpRequest();
+            } else {
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xhr.open("post", fileobj.urlpath, true);//设置提交方式，url，异步提交
+            xhr.onload = function () {
+                var data = xhr.responseText;    //得到返回值
+               // alert(data);
+			   if(uploadApp != null)
+			   uploadApp.onCompleteUpload(data);
+            }
+			
+			xhr.upload.onprogress=function(d){
+					schedule = d.loaded/d.total*100;
+					schedule = schedule.toFixed(2);
+					if(uploadApp != null)
+						uploadApp.onProgressHandler(schedule);
+
+		   }
+
+
+			//req.addEventListener("load", transferComplete, false); req.addEventListener("error", transferFailed, false); req.addEventListener("abort", transferCanceled, false); 
+			
+            xhr.send(formData);
+        }
+		function cancelUpload()
+		{
+			if(clientOss != null)
+			{
+				clientOss.cancel();
+			}
+		
+		}
+		function createGroup(fileobj) {
+                     
+            //原生ajax实现文件上传
+            var formData = new FormData();
+            formData.append("cname", fileobj.cname);
+
+           
+			formData.append("caddr", fileobj.caddr);
+
+           formData.append("cshortname", fileobj.cshortname);
+         
+           formData.append("czoneid", fileobj.czoneid);
+		   formData.append("corgcode", fileobj.reditcode);
+           formData.append("cyyzz", fileobj.file);
+            //得到xhr对象
+            var xhr = null;
+            if (XMLHttpRequest) {
+                xhr = new XMLHttpRequest();
+            } else {
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xhr.open("post", fileobj.urlpath, true);//设置提交方式，url，异步提交
+            xhr.onload = function () {
+                var data = xhr.responseText;    //得到返回值
+               // alert(data);
+			   if(uploadApp != null)
+			   uploadApp.onSaveCompnayBack(data);
+            }
+					
+			
+            xhr.send(formData);
+        }
+		//var point = 0;
+		var clientOss;
+		function createossClient(clientparam)
+		{
+			if(typeof(OSS) != "undefined")
+				clientOss = new OSS(clientparam);
+			else
+			{
+				//alert("oss null");
+			}
+
+		}
+		function ossUpload(filedata,point,callbackparam,filename)
+		{					
+			
+			clientOss.multipartUpload(filename, filedata.file, {
+				parallel: 5, //并行上传的分片个数
+				partSize:  1024000, //分片大小不能小于1024*100
+				checkpoint: point,
+				progress: async function(p, checkpoint, res) {
+					point = checkpoint;
+					//console.log("回调 point" +JSON.stringify(point));
+
+					if(uploadApp != null)
+						uploadApp.onProgressHandler(point,(p*100).toFixed(2));
+					//console.log("回调 point 11" +JSON.stringify(point));
+				},
+				mime: filedata.file.type, //文件格式
+				meta:  null, //标识
+				callback: callbackparam
+			}).then(function(result) {//上传成功
+				console.log(result);
+				 if(uploadApp != null)
+					uploadApp.onCompleteUpload(result);
+			}).catch(function(err) {//上传失败或者回调失败
+				console.log(err);
+				if(uploadApp != null)
+			   uploadApp.onUploadError(err);
+			});
+		}
+				
+		function UnityIsReady()
+		{
+			console.log("is ready");
+			
+			Unity3dWeb.UnityIsReady();
+			UnityPaintWeb.UnityIsReady();
+
+		}
+		
+		function selectCharacter(index)
+		{
+			console.log("selectCharacter");
+			UnityPaintWeb.selectCharacter(index);
+		}
+		window.onload = function() {
+		
+			ImageUtil.initCanvas();
+			Unity3dWeb.createUnity();
+			document.querySelector("#unity-container").style.display = "none";
+
+		}
+		var timeid;
+		function showCbc(show)
+		{
+			if(show)
+			{
+				$("#picBox")[0].style.display = "";
+				$("#frontImg")[0].style.display = "none";
+				$("#backImg")[0].style.display = "none";
+				$("#maskImg")[0].style.display = "none";
+				angles = 0;
+				document.body.appendChild( $("#picBox")[0]);
+				$("#cube")[0].style.transform="rotateY(0deg)";
+				mouseDown = false;
+				window.onmousedown =function(event){
+					mouseDown = true;
+					lastMouseX = event.screenX;		
+				};
+				window.onmouseup =function(event){
+					mouseDown = false;
+				};
+				window.onmousemove =function(event){
+					if(mouseDown)
+					{
+						angles+= event.screenX - lastMouseX;
+						lastMouseX = event.screenX;
+						$("#cube")[0].style.transform="rotateY(" + angles +"deg)";
+					}
+				};
+				
+				timeid = setInterval(function(){
+				
+					$("#cube")[0].style.transform="rotateY(" + angles-- +"deg)";
+					
+				}, 50);
+		
+		
+			}
+			else
+			{
+				$("#picBox")[0].style.display = "none";
+				window.onmousedown = null;
+				window.onmousemove = null;
+				window.onmouseup = null;
+				$("#frontImg").css("-webkit-mask-image","none");
+				$("#backImg").css("-webkit-mask-image","none");
+				$("#maskImg").css("-webkit-mask-image","none");				
+				clearInterval(timeid);
+			}
+		}
+		
+		function setMaskImg(imgUrl)
+		{
+			if(imgUrl == "")
+			{
+				$("#frontImg").css("-webkit-mask-image","");
+				$("#backImg").css("-webkit-mask-image","");
+				$("#maskImg").css("-webkit-mask-image","");
+				return;
+			}
+			ImageUtil.convertImageToPng(imgUrl,function(imgwidth,imgheight){
+				
+				
+				$("#frontImg").css("-webkit-mask-size",imgwidth + "px " + imgheight + "px");
+				$("#backImg").css("-webkit-mask-size",imgwidth + "px " + imgheight + "px");
+				$("#maskImg").css("-webkit-mask-size",imgwidth + "px " + imgheight + "px");
+
+					ImageUtil.changeWhiteToTransparent(imgwidth,imgheight,false,function(pngimgdata){
+					
+						$("#frontImg").css("-webkit-mask-image","url(" + pngimgdata+")");
+						$("#backImg").css("-webkit-mask-image","url(" + pngimgdata+")");
+						$("#maskImg").css("-webkit-mask-image","url(" + pngimgdata+")");
+
+					});
+					
+				
+				});
+				
+			
+
+		}
+		function readLocalImg(imgUrl,imgId,ismask)
+		{
+			
+				if(imgUrl == "")
+				{
+					$("#" + imgId)[0].style.display = "none";
+					return;
+
+				}
+				$("#" + imgId)[0].style.display = "";
+				ImageUtil.convertImageToPng(imgUrl,function(imgwidth,imgheight){
+				
+				
+				$("#"+imgId).css("height",imgheight +"px");
+				$("#"+imgId).css("width",imgwidth + "px");		
+				
+
+				$("#cube").css("width",imgwidth + "px");
+				$("#cube").css("height",imgheight + "px");
+
+					ImageUtil.changeWhiteToTransparent(imgwidth,imgheight,ismask,function(pngimgdata){
+					
+						//uploadApp.readImageBack(pngimgdata);
+						$("#"+imgId)[0].onload= null;
+						$("#"+imgId).attr("src",pngimgdata);
+					});
+					
+				
+				});
+			//}
+			
+		}
+		function getYixingTransparent(imgUrl,ismask,callback)
+		{
+			
+				if(imgUrl == "")
+				{
+					$("#maskImg")[0].style.display = "none";
+					return;
+
+				}
+				$("#maskImg")[0].style.display = "";
+				ImageUtil.convertImageToPng(imgUrl,function(imgwidth,imgheight){
+				
+				
+				$("#maskImg").css("height",imgheight +"px");
+				$("#maskImg").css("width",imgwidth + "px");		
+				
+
+					ImageUtil.changeWhiteToTransparent(imgwidth,imgheight,ismask,function(pngimgdata){
+					callback.call(uploadApp,pngimgdata);
+					/*if(uploadApp != null)
+						uploadApp.readImageBack(pngimgdata);*/
+						
+					});
+					
+				
+				});
+			//}
+			
+		}
+		
+		var mouseDown= false;
+		var lastMouseX;
+		var angles = 0;
+		
+		function exportToExcel(excelData,fileName)
+		{
+			const tHeader = ["订单号", "下单日期", "产品序号", "文件名","材料","尺寸","工艺","数量","价格","交货日期"];
+			const filterVal = ["orderId", "orderDate", "seq", "filename","prod_name","size","process","item_number","price","deliverydate"];
+			//const headerWs = XLSX.utils.aoa_to_sheet(tHeader);
+			
+			const sheetData1 = excelData.map(item => ({
+				'订单号': item.orderId,
+				'输出中心':item.manufacture,
+				'下单日期': item.orderDate,
+				'产品序号': item.seq,
+				'文件名': item.fileName,
+				'材料': item.prodName,
+				'尺寸': item.size,
+				'工艺': item.process,
+				'数量': item.itemNum,
+				'订单价格': item.price,
+				'物流费':item.deliveryFee,
+				'交货日期': item.deliverydate,
+
+				
+			  }));
+  
+			const ws = XLSX.utils.json_to_sheet(sheetData1);
+
+			/* 新建空的工作表 */
+			const wb = XLSX.utils.book_new();
+
+			// 可以自定义下载之后的sheetname
+			XLSX.utils.book_append_sheet(wb, ws, '订单数据');
+
+			const wopts = { bookType: 'xlsx', bookSST: false, type: 'binary' };
+ 
+                downloadExl();
+                function s2ab(s) {
+                    var buf = new ArrayBuffer(s.length);
+                    var view = new Uint8Array(buf);
+                    for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+                    return buf;
+                }
+                function saveAs(obj, fileName) {//自定义下载文件方式
+                    var tmpa = document.createElement("a");
+                    tmpa.download = fileName || "订单表格";
+                    tmpa.href = URL.createObjectURL(obj); //绑定a标签
+                    tmpa.click(); //模拟点击实现下载
+                    setTimeout(function () { //延时释放
+                        URL.revokeObjectURL(obj); //用URL.revokeObjectURL()来释放这个object URL
+                    }, 100);
+                }
+                function downloadExl() {
+                    //const wb = { SheetNames: ['Sheet1'], Sheets: {}, Props: {} };
+                    //wb.Sheets['Sheet1'] = XLSX.utils.json_to_sheet(data);//通过json_to_sheet转成单页(Sheet)数据
+                    saveAs(new Blob([s2ab(XLSX.write(wb, wopts))], { type: "application/octet-stream" }), fileName + '.' + (wopts.bookType == "biff2" ? "xls" : wopts.bookType));
+				}
+		
+		}
+		
+		function getUploadFiles(e){
+		
+			 fileStop(e);
+		
+		}
+		
+		function initTeachingVideo()
+		{		
+			VideoTool.initVideo();		
+		}
+		function disposeVideo()
+		{
+		
+			VideoTool.disposeVideo();		
+
+		}
+	
+		function createQrCode(url)
+		{
+			$('#codePt')[0].style.display = "flex";
+			document.body.appendChild($('#codePt')[0]);
+			$('#codePt')[0].style.position = "absolute";
+			$('#codePt')[0].style.width = "100%";
+			$('#codePt')[0].style.height = "100%";
+			$('#codePt')[0].style.top = "0";
+			$("#codePt").css("justify-content", "center");
+			$("#codePt").css("align-items", "center");
+			$("#codePt").css("background-color", "white");
+			$("#comName").css("position", "absolute");
+			$("#comName").css("top", "calc(50% + 80px)");
+
+	
+			 $('#qrcode').qrcode({
+				width: 128,
+				height: 128,
+				text: url
+			});
+			
+		}
+		/*var canupload = false;
+		var uploadHandle = null;
+		window.addEventListener('dragenter', function () {
+				console.log('进入');
+			})
+			window.addEventListener('dragleave', function () {
+				console.log('离开');
+			})
+			window.addEventListener('dragover', function (ev) {
+				ev.preventDefault();
+			})
+			window.addEventListener('drop', function (ev) {
+				ev.preventDefault();
+				if(canupload && uploadHandle != null)
+				{
+					uploadHandle.dragFileToUpload();
+					fileStop(ev);
+				}
+				
+				//console.log(file);
+				
+				//console.log('file', file);//在这里可以拿到上传文件的信息
+				// 紧接着可以将此文件上传到服务器
+			})
+
+	const fileStop = async (e,getfileback) => {
+    let array = await loopFile(e);	
+    console.log(array);
+
+  }
+
+  // 循环获取file
+   const loopFile = (e) => {
+    let array = [];
+    return new Promise(resolve => {
+      // 可以同时拖拽多个文件（文件夹）因此e.dataTransfer.items循环一下拖拽的文件夹
+      for (let index = 0; index < e.dataTransfer.items.length; index++) {
+        const webkitGetAsEntry = e.dataTransfer.items[index].webkitGetAsEntry();
+        // 判断是不是文件夹
+        // loopOver = index == e.dataTransfer.items.length - 1 如果是最后一个则true,但是文件还要再次去判断
+        if (webkitGetAsEntry.isDirectory) {
+          setfolder(webkitGetAsEntry, index == e.dataTransfer.items.length - 1, webkitGetAsEntry.fullPath);
+        } else {
+          setfile(webkitGetAsEntry, index == e.dataTransfer.items.length - 1, webkitGetAsEntry.fullPath)
+        }
+      }
+      // 处理文件夹
+      function setfolder(webkitGetAsEntry, loopOver, path) {
+        const dirReader = webkitGetAsEntry.createReader();
+        dirReader.readEntries((entries) => {
+          entries.forEach((item, ind) => {
+            if (item.isFile) {
+              // loopOver传入的为true,则文件夹中最后一个文件夹，那就再去循环
+              setfile(item, loopOver && ind == entries.length - 1, path)
+            } else {
+              setfolder(item, loopOver, path)
+            }
+          })
+        })
+      }
+      // 处理文件
+      function setfile(webkitGetAsEntry, loopOver, path) {
+        webkitGetAsEntry.file(file => {
+          // 只获取图片
+          const fileFilter = file.type && 'image/gif,image/jpeg,image/jpg,image/png,image/bmp'.indexOf(file.type) > -1;
+          if (fileFilter) {
+            // 这里将路径重新进行整理
+            //let name = webkitGetAsEntry.fullPath.replace(path + '/', '');
+            // 重新创建file数据格式，加入type和path放入到fileArr中
+            const newFile = new File([file], webkitGetAsEntry.name, { type: file.type });
+			if(uploadHandle)
+				uploadHandle.addFile(newFile);
+           // array.push(newFile);
+          }
+        });
+        // 如果loopOver为true则抛出数据
+        if (loopOver) {
+          resolve(array);
+        }
+      }
+    })
+  }*/
+  
+		
+		
+    </script>
+	
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="jquery.qrcode.min.js"></script>
+	<script type="text/javascript" src="GVerify.js"></script>
+	<script type="text/javascript" src="aliOss.min.js"></script>
+    <script type="text/javascript" src="index.js?randomId=131"></script>
+	<script type="text/javascript" src="imageUtil.js?randomId=127"></script>
+	<script type="text/javascript" src="videoTool/videoTool.js?randomId=127"></script>
+
+	<script type="text/javascript" src="excelUtil/xlsx.core.min.js?randomId=125"></script>
+	<script type="text/javascript" src="videoTool/video.min.js"></script>
+	<script type="text/javascript" src="webglout/u3dWeb.js?randomId=127"></script>
+	<script type="text/javascript" src="paintWeb/u3dPaintWeb.js?randomId=126"></script>
+
+
+</body>
+
+</html>

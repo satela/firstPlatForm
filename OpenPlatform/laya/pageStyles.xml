@@ -1,0 +1,94 @@
+<page>
+   <parsererror style="display: block; white-space: pre; border: 2px solid #c77; padding: 0 1em 0 1em; margin: 1em; background-color: #fdd; color: black">
+      <h3>This page contains the following errors:                                                                                                                                                                                                                                                                                          </h3>
+      <div style="font-family:monospace;font-size:12px">error on line 3 at column 2: StartTag: invalid element name
+                                                                                                                                                                                                                                                                                          </div>
+      <h3>Below is a rendering of the page up to the first error.                                                                                                                                                                                                                                                                                          </h3>
+   </parsererror>
+   <parsererror style="display: block; white-space: pre; border: 2px solid #c77; padding: 0 1em 0 1em; margin: 1em; background-color: #fdd; color: black">
+                                                                                                                                             </parsererror>
+   <item name="inuoView/MaterialAdProcFlowPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="login/LogPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="common/TipPanel.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="picManager/PicCheckPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/PicManagerPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoPicStore/PicShortItemNuo.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/SetRelatedConfirmPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="prefabs/CmykInput.prefab" props="" ifExport="内嵌模式" aName=""/>
+   <item name="FirstPagePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/OutPutCenter.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/OrderItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/OrderPicManagerPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/items/MatProcessItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/MaterialListPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/items/MatCategoryItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/MaterialNameItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/ProcListPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/TechorItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/OrderAddressItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/SelectAddressPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="uploadpic/UpLoadItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="uploadpic/UpLoadPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="orderlist.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="orderList/OrderListPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/CutImageItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/InputCutNumPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/SelectAttchPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/MyWorkPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/TabChooseBtn.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/DakouItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/DakouPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/OrderListItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/NewAddressPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/EnterPrizeInfoPane.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/ChargePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/items/SmallPictureItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/PackageEditItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/PackageOrderItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/PackageNumItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/PackageOrderPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/SimpleOrderItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/ChooseDeliveryTimePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/DeliverySelItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/AddressItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/CompanyInfoEditPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/OrderQuestItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/OrderDetailPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/AccountSettingPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/AverageCutPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/AvgCutImageItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/AIImageItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="order/CbcPreViewPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="login/RegisterPhonePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="login/LogPhonePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="PopUpDialog.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="PopUpPhoneDialog.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/VideoPlayPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="login/ResetPwdPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="common/TipPicturePanel.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/EffectPreviewPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/DeliveryPackageItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/DeliveryQueryPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="characterpaint/ColorLblItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="characterpaint/CharacterPaint.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="characterpaint/CavingOderItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="characterpaint/BackImgItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="login/RegisterPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/ApplyJoinMgrPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/OrganizeItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/ApplyJoinItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/OrganizeMemberItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/MatAndProcEffectPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/items/PicSimpleItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/RelatedPicChoosePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/QrCodePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="order/ConfirmOrderPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="lailiao/LailiaoOrderPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="inuoView/OrderTypePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="dengxiang/DengxiangOrderPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/CustomManagerPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/items/CustomeItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="inuoView/items/CustomPicCell.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/CustomerAddressItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/AddressMgrPanel.scene" props="" ifExport="分离模式" aName=""/>
+</page>

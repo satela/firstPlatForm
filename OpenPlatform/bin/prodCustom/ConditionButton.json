@@ -1,0 +1,1 @@
+{"type":"View","props":{"width":60,"height":22},"compId":2,"child":[{"type":"Button","props":{"var":"btn","top":0,"skin":"commers/btn3.png","sizeGrid":"5,5,5,5","right":0,"left":0,"labelSize":18,"labelColors":"#223344,#FFFFFF,#FFFFFF","label":"蓝色","bottom":0},"compId":3}],"loadList":["commers/btn3.png"],"loadList3D":[]}

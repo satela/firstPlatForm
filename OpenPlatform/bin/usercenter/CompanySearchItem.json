@@ -1,0 +1,1 @@
+{"type":"View","props":{"width":380,"height":40},"compId":2,"child":[{"type":"Button","props":{"width":380,"stateNum":2,"skin":"commers/btnact2.png","labelSize":18,"labelFont":"SimSun","labelColors":"#223322,#2eb212,#223322","labelAlign":"left","label":"上海红印科技有限公司","height":40},"compId":5}],"loadList":["commers/btnact2.png"],"loadList3D":[]}

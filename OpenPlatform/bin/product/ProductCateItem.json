@@ -1,0 +1,1 @@
+{"type":"View","props":{"width":0,"height":0},"compId":2,"child":[{"type":"Button","props":{"y":0,"x":0,"width":194,"var":"catebtn","stateNum":3,"skin":"order1/selection.png","sizeGrid":"3,3,3,3","labelSize":16,"labelFont":"SimHei","labelColors":"#262B2E,#463B4E,#262B2E","label":"户内PP背胶（户内写真）","height":42},"compId":3}],"loadList":["order1/selection.png"],"loadList3D":[]}

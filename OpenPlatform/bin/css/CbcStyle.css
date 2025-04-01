@@ -1,0 +1,48 @@
+html{
+  perspective: 800px;
+
+}
+.picBox{
+  width: 100%;
+  height: 100vh;
+  position: relative;
+	
+}
+.cube{
+  
+   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+
+  width: 800px;
+  height: 800px;  
+  transform-style: preserve-3d;
+}
+.cube > div
+{
+  position: absolute;
+  opacity: 1;
+}
+.backPic{
+  transform:  translateZ(0px);
+    -webkit-mask-repeat: no-repeat;
+
+}
+.frontPic{
+  transform:  translateZ(2px);
+    -webkit-mask-repeat: no-repeat;
+
+}
+.mediumPic{
+  transform:  translateZ(1px);
+    -webkit-mask-repeat: no-repeat;
+
+}
+
+
+
+
+
