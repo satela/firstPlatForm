@@ -3,20 +3,31 @@ package ui.usercenter {
 	import laya.ui.*;
 	import laya.display.*;
 	import script.usercenter.EnterPrizeInfoControl;
+	import script.prefabScript.CmykInputControl;
 
 	public class EnterPrizeInfoPaneUI extends View {
 		public var leaveGroupBtn:Button;
 		public var searchBox:Image;
 		public var companyList:List;
-		public var leaveGrpPanel:Box;
-		public var verifyCode:TextInput;
-		public var confirmLeave:Button;
-		public var closeLeaveBtn:Button;
 		public var companyName:Label;
 		public var shortName:Label;
 		public var companyAddr:Label;
 		public var reditCode:Label;
 		public var changeCompanyInfo:Button;
+		public var addBusinessman:Button;
+		public var businessList:List;
+		public var rightpanel:Panel;
+		public var leaveGrpPanel:Box;
+		public var verifyCode:TextInput;
+		public var confirmLeave:Button;
+		public var closeLeaveBtn:Button;
+		public var addBusinessManPanel:Box;
+		public var businessName:TextInput;
+		public var delBtn:Button;
+		public var contactPhone:TextInput;
+		public var delBtn:Button;
+		public var confrimAddMan:Button;
+		public var closeAdd:Button;
 
 		override protected function createChildren():void {
 			super.createChildren();

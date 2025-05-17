@@ -36,7 +36,8 @@ package model.orderModel
 		public static const ATTACH_JPG:String = "SPjpg";
 		public static const ATTACH_PNG:String = "SPpng";
 		public static const ATTACH_PEIJIAN:String = "SPpeijian";
-		
+		public static const ATTACH_PEIJIAN_MAT:String = "SPMat";//材料配件
+
 		public static const ATTACH_PJZZ:String = "SPzz";//遮罩图片
 		public static const ATTACH_PJSM:String = "SPsm";//双面图片
 

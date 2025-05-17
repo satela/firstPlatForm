@@ -24,6 +24,7 @@ package ui.inuoView {
 		public var freshbtn:Button;
 		public var refreshTxt:Text;
 		public var radiosel:CheckBox;
+		public var tifAi:Button;
 		public var picList:List;
 		public var upgradestore:Box;
 		public var prgcap:ProgressBar;

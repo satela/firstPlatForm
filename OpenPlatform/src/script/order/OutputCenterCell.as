@@ -4,6 +4,7 @@ package script.order
 	
 	import laya.events.Event;
 	
+	import model.Userdata;
 	import model.orderModel.OrderConstant;
 	import model.users.FactoryInfoVo;
 	
@@ -18,8 +19,10 @@ package script.order
 			
 			factoryVo = factdata;
 			//checkselect.on(Event.CHANGE,this,onSelectFactory);
-			checkselect.selected = true;
+			checkselect.selected = Userdata.instance.defaultManufactureSelected;
 			
+			factoryVo.isSelected = Userdata.instance.defaultManufactureSelected;
+				
 			qqContact.on(Event.CLICK,this,onClickOpenQQ);
 			factorytxt.text = factdata.name;
 			holaday.text = "";

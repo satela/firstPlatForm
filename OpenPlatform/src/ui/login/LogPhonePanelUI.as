@@ -28,6 +28,7 @@ package ui.login {
 		public var icp:Text;
 		public var loginedBox:Box;
 		public var gotoFirst:Button;
+		public var companyPic:Image;
 
 		override protected function createChildren():void {
 			super.createChildren();

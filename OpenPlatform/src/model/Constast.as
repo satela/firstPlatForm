@@ -40,6 +40,7 @@ package model
 		public static const PREVILIGE_LIST:Array= ["order:submit","order:submit-with-balances","order:price:display","order:list:self","order:list:org","asset:log:list"];
 		
 
+		public static const PAY_TYPE_NAME:Array = ["预充","月结","现金"];
 
 	}
 }

@@ -12,6 +12,7 @@ package ui.order {
 		public var step2:Box;
 		public var step3:Box;
 		public var step4:Box;
+		public var curCustomer:Label;
 		public var deliverdateBoc:HBox;
 		public var deliveryDate0:Label;
 		public var deliveryDate1:Label;

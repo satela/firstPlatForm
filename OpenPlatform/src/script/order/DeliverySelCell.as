@@ -46,11 +46,17 @@ package script.order
 				
 				for(var i:int=0;i < deltypelist.length;i++)
 				{
+					if(PaintOrderModel.instance.curOrderCustomer != null && PaintOrderModel.instance.selectAddress != null && PaintOrderModel.instance.selectAddress.defaultDeliveryType != "" && deltypelist[i].indexOf(PaintOrderModel.instance.selectAddress.defaultDeliveryType) >= 0)
+					{
+						commondelType.selectedIndex = i;
+						PaintOrderModel.instance.curCommmonDeliveryType[deliveryData.manufacturer_code] = PaintOrderModel.instance.selectAddress.defaultDeliveryType;
+						break;
+					}
 					if(deltypelist[i].indexOf(OrderConstant.DELIVERY_TYPE_BY_MANUFACTURER) >= 0)
 					{
 						commondelType.selectedIndex = i;
 						PaintOrderModel.instance.curCommmonDeliveryType[deliveryData.manufacturer_code] = OrderConstant.DELIVERY_TYPE_BY_MANUFACTURER;
-						break;
+						//break;
 					}
 				}
 				
@@ -134,11 +140,18 @@ package script.order
 					
 					for(var i:int=0;i < deltypelist.length;i++)
 					{
+						if(PaintOrderModel.instance.curOrderCustomer != null && PaintOrderModel.instance.selectAddress != null && deltypelist[i].indexOf(PaintOrderModel.instance.selectAddress.defaultDeliveryType) >= 0)
+						{
+							commondelType.selectedIndex = i;
+							PaintOrderModel.instance.curCommmonDeliveryType[deliveryData.manufacturer_code] = PaintOrderModel.instance.selectAddress.defaultDeliveryType;
+							break;
+						}
+						
 						if(deltypelist[i].indexOf(OrderConstant.DELIVERY_TYPE_BY_MANUFACTURER) >= 0)
 						{
 							commondelType.selectedIndex = i;
 							PaintOrderModel.instance.curCommmonDeliveryType[deliveryData.manufacturer_code] = OrderConstant.DELIVERY_TYPE_BY_MANUFACTURER;
-							break;
+							//break;
 						}
 					}
 					

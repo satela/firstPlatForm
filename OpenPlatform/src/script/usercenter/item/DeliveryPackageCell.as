@@ -31,6 +31,9 @@ package script.usercenter.item
 		
 		private function onGetOrderNumberBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

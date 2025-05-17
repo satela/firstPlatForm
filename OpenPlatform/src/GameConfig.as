@@ -55,7 +55,10 @@ package {
 	import script.order.SelectMaterialControl;
 	import script.order.SelectPackAddressController;
 	import script.order.SelectPicControl;
+	import script.usercenter.CustomerTransactController;
 	import script.usercenter.MyOrderControl;
+	import script.usercenter.StatisticalAnalyController;
+	import script.usercenter.WriteOffController;
 	import script.picUpload.BuyStorageController;
 	import script.picUpload.PictureCheckControl;
 	import utils.PopUpWindowControl;
@@ -84,6 +87,7 @@ package {
 	import script.usercenter.AddressEditControl;
 	import script.usercenter.OrderDetailControl;
 	import script.usercenter.PublicChargeRecordController;
+	import script.usercenter.OrderPriceSettingController;
 	import script.usercenter.TransactionControl;
 	import script.usercenter.UserMainControl;
 	/**
@@ -96,7 +100,7 @@ package {
 		public static var screenMode:String = "none";
 		public static var alignV:String = "top";
 		public static var alignH:String = "left";
-		public static var startScene:* = "orderList/OrderListPanel.scene";
+		public static var startScene:* = "login/RegisterPhonePanel.scene";
 		public static var sceneRoot:String = "";
 		public static var debug:Boolean = false;
 		public static var stat:Boolean = false;
@@ -158,7 +162,10 @@ package {
 			reg("script.order.SelectMaterialControl",SelectMaterialControl);
 			reg("script.order.SelectPackAddressController",SelectPackAddressController);
 			reg("script.order.SelectPicControl",SelectPicControl);
+			reg("script.usercenter.CustomerTransactController",CustomerTransactController);
 			reg("script.usercenter.MyOrderControl",MyOrderControl);
+			reg("script.usercenter.StatisticalAnalyController",StatisticalAnalyController);
+			reg("script.usercenter.WriteOffController",WriteOffController);
 			reg("script.picUpload.BuyStorageController",BuyStorageController);
 			reg("script.picUpload.PictureCheckControl",PictureCheckControl);
 			reg("utils.PopUpWindowControl",PopUpWindowControl);
@@ -187,6 +194,7 @@ package {
 			reg("script.usercenter.AddressEditControl",AddressEditControl);
 			reg("script.usercenter.OrderDetailControl",OrderDetailControl);
 			reg("script.usercenter.PublicChargeRecordController",PublicChargeRecordController);
+			reg("script.usercenter.OrderPriceSettingController",OrderPriceSettingController);
 			reg("script.usercenter.TransactionControl",TransactionControl);
 			reg("script.usercenter.UserMainControl",UserMainControl);
 		}

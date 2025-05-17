@@ -42,6 +42,11 @@ package model.picmanagerModel
 			rootDir = new PicInfoVo({dirName:"根目录",dpath:"",dirId:"0"},0);
 		}
 		
+		public function resetData():void
+		{
+			directoryList = [];
+			haselectPic = {};
+		}
 
 		
 		public function addNewTopDir(dir:Object):void

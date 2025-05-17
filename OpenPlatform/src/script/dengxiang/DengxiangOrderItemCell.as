@@ -69,11 +69,13 @@ package script.dengxiang
 			{
 				this.deletBtn.x = 1466;
 				this.total.x = 1314;
+				this.unitPrice.x = 1223;
 			}
 			else
 			{
 				this.deletBtn.x = 1566;
-				this.total.x = 1364;
+				this.total.x = 1415;
+				this.unitPrice.x = 1324;
 			}
 		}
 		public function initItem():void
@@ -174,16 +176,15 @@ package script.dengxiang
 			
 			this.addmsg.underline = true;
 			this.addmsg.underlineColor = "#222222";
-			this.price.text = "0";
 			this.addmsg.on(Event.CLICK,this,onAddComment);
 			
 			//this.price.visible = Userdata.instance.accountType == 1;
 			this.total.visible = !Userdata.instance.isHidePrice();
-			
-			this.mattxt.text = "";
-			this.changemat.underline = true;
-			this.changemat.underlineColor = "#222222";
-			this.changemat.on(Event.CLICK,this,onShowMaterialView);
+			this.unitPrice.text = "0";
+//			this.mattxt.text = "";
+//			this.changemat.underline = true;
+//			this.changemat.underlineColor = "#222222";
+//			this.changemat.on(Event.CLICK,this,onShowMaterialView);
 			//this.changearchitxt.on(Event.CLICK,this,onchangeTech);
 			this.inputnum.on(Event.INPUT,this,onNumChange);
 			
@@ -280,13 +281,11 @@ package script.dengxiang
 			
 			
 			
-			if(provo.measureUnit == OrderConstant.MEASURE_UNIT_AREA)
-				this.price.text = (provo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/area * discount).toFixed(1);
-			else
-				this.price.text = (provo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/perimeter * discount).toFixed(1);
+			
 			
 			
 			this.total.text = (parseInt(this.inputnum.text) *provo.getTotalPrice(finalWidth/100,finalHeight/100,false,ordervo,true) *  discount).toFixed(1) + "";
+			this.unitPrice.text = this.ordervo.orderData.unitPrice;
 			
 			//this.mattxt.text = provo.prodName;
 			
@@ -329,11 +328,11 @@ package script.dengxiang
 		
 		public function reset():void
 		{
-			this.mattxt.text = "";
+			//this.mattxt.text = "";
 			this.architype.text = "";
-			this.price.text = "0";
+			//this.price.text = "0";
 			this.total.text = "0";
-			
+			this.unitPrice.text = "0";
 			this.ordervo.orderData = null;
 			this.ordervo.productVo = null;
 			this.curproductvo = null;
@@ -510,7 +509,7 @@ package script.dengxiang
 			this.yixingimg.y = this.height/2;
 			
 			this.filename.y = (this.height - this.filename.height)/2;
-			this.matbox.y = (this.height - 42)/2;
+			//this.matbox.y = (this.height - 42)/2;
 			this.editbox.y = (this.height - this.editbox.height)/2;
 			//this.viprice.y = (this.height - this.viprice.height)/2;
 			this.numbox.y = (this.height)/2 - 12;
@@ -540,14 +539,14 @@ package script.dengxiang
 				var area:Number = (finalHeight * finalWidth)/10000;
 				var perimeter:Number = (finalHeight + finalWidth)*2/100;
 				//var longside:Number = Math.max(finalHeight,finalWidth)/100;
-				
-				//				if(area < 0.1)
-				//					area = 0.1;
-				//				
-				if(curproductvo.measureUnit == OrderConstant.MEASURE_UNIT_AREA)
-					this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/area * discount).toFixed(1);
-				else
-					this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/perimeter * discount).toFixed(1);
+
+//				if(area < 0.1)
+//					area = 0.1;
+//				
+//				if(curproductvo.measureUnit == OrderConstant.MEASURE_UNIT_AREA)
+//					this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/area * discount).toFixed(1);
+//				else
+//					this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/perimeter * discount).toFixed(1);
 				
 				
 				this.total.text = (parseInt(this.inputnum.text) *curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,false,ordervo,true) * discount).toFixed(1) + "";
@@ -648,10 +647,10 @@ package script.dengxiang
 					//				if(area < 0.1)
 					//					area = 0.1;
 					//				
-					if(curproductvo.measureUnit == OrderConstant.MEASURE_UNIT_AREA)
-						this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/area * discount).toFixed(1);
-					else
-						this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/perimeter * discount).toFixed(1);
+//					if(curproductvo.measureUnit == OrderConstant.MEASURE_UNIT_AREA)
+//						this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/area * discount).toFixed(1);
+//					else
+//						this.price.text = (curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,true,ordervo)/perimeter * discount).toFixed(1);
 					
 					
 					this.total.text = (parseInt(this.inputnum.text) *curproductvo.getTotalPrice(finalWidth/100,finalHeight/100,false,ordervo,true) * discount).toFixed(1) + "";
@@ -797,6 +796,10 @@ package script.dengxiang
 			
 			orderitemdata.discountProcessPrice = productVo.getDiscountProcessPrice(finalWidth/100,finalHeight/100,false,ordervo);
 			orderitemdata.materialPrice = this.ordervo.orderPrice - orderitemdata.discountProcessPrice;
+			orderitemdata.unitPrice = this.ordervo.orderPrice - productVo.getAllAttachPrice(finalWidth/100,finalHeight/100,false,ordervo);
+			
+			orderitemdata.unitPrice = orderitemdata.unitPrice/(finalWidth/100*finalHeight/100);
+			orderitemdata.unitPrice = orderitemdata.unitPrice.toFixed(2);
 			
 			orderitemdata.one_mat_cost = productVo.getMaterialPrice(finalWidth/100,finalHeight/100,false,ordervo);
 			var cost:Array = productVo.getProcessAndGrossPrices(finalWidth/100,finalHeight/100,false,ordervo);

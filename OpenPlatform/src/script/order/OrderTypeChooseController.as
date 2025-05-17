@@ -64,6 +64,9 @@ package script.order
 			//uiSkin.zipaiBtn.disabled= true;
 
 			PaintOrderModel.instance.resetData();
+			PaintOrderModel.instance.curOrderCustomer = customer;
+
+			
 			uiSkin.paintOrderBtn.on(Event.CLICK,this,function(){
 				
 				if(PaintOrderModel.instance.selectAddress == null)
@@ -82,6 +85,12 @@ package script.order
 				{
 					num++;
 				}
+				var manufacurerList:Array = PaintOrderModel.instance.getSelectedOutPutCenter();
+				if(manufacurerList.length == 0)
+				{
+					ViewManager.showAlert("请选择一个输出中心");
+					return;
+				}
 				getProdcategory(OrderConstant.PAINTING);
 				if(num == 0)
 					EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[OrderPicManagerPanelUI,0,customer]);
@@ -93,6 +102,13 @@ package script.order
 				
 			uiSkin.zipaiBtn.on(Event.CLICK,this,function(){
 				
+				var manufacurerList:Array = PaintOrderModel.instance.getSelectedOutPutCenter();
+				if(manufacurerList.length == 0)
+				{
+					ViewManager.showAlert("请选择一个输出中心");
+					return;
+				}
+				
 				getProdcategory(OrderConstant.CUTTING);
 
 				PaintOrderModel.instance.orderType = OrderConstant.CUTTING;
@@ -102,6 +118,13 @@ package script.order
 			})
 				
 			uiSkin.kailiaoBtn.on(Event.CLICK,this,function(){
+				
+				var manufacurerList:Array = PaintOrderModel.instance.getSelectedOutPutCenter();
+				if(manufacurerList.length == 0)
+				{
+					ViewManager.showAlert("请选择一个输出中心");
+					return;
+				}
 				
 				getProdcategory(OrderConstant.KAILIAO_ORDER);
 
@@ -113,6 +136,13 @@ package script.order
 				
 			uiSkin.biaoPinBtn.on(Event.CLICK,this,function(){
 				
+				var manufacurerList:Array = PaintOrderModel.instance.getSelectedOutPutCenter();
+				if(manufacurerList.length == 0)
+				{
+					ViewManager.showAlert("请选择一个输出中心");
+					return;
+				}
+				
 				getProdcategory(OrderConstant.BIAOPIN_ORDER);
 				
 				PaintOrderModel.instance.orderType = OrderConstant.BIAOPIN_ORDER;
@@ -123,6 +153,13 @@ package script.order
 				
 			uiSkin.dengxiangBtn.on(Event.CLICK,this,function(){
 				
+				var manufacurerList:Array = PaintOrderModel.instance.getSelectedOutPutCenter();
+				if(manufacurerList.length == 0)
+				{
+					ViewManager.showAlert("请选择一个输出中心");
+					return;
+				}
+				
 				getProdcategory(OrderConstant.DENGXIANG_ORDER);
 				
 				PaintOrderModel.instance.orderType = OrderConstant.DENGXIANG_ORDER;
@@ -132,6 +169,13 @@ package script.order
 			})
 				
 			uiSkin.productBtn.on(Event.CLICK,this,function(){
+				
+				var manufacurerList:Array = PaintOrderModel.instance.getSelectedOutPutCenter();
+				if(manufacurerList.length == 0)
+				{
+					ViewManager.showAlert("请选择一个输出中心");
+					return;
+				}
 				
 				getProdcategory(OrderConstant.CHENGPIN_ORDER);
 
@@ -168,6 +212,9 @@ package script.order
 		
 		private function getCustomerAddressBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -179,7 +226,8 @@ package script.order
 				{
 					addressList.push(new AddressVo(result.data.expressList[i]));
 					addressList[i].customerId = customer.id;
-
+					addressList[i].customerName = customer.customerName;
+					addressList[i].defaultPayType = customer.defaultPayment;
 				}
 				if(addressList.length > 0)
 				{
@@ -282,7 +330,8 @@ package script.order
 
 				if(customvo != null && PaintOrderModel.instance.selectAddress.customerId == customvo.id)
 					customer = customvo;
-				
+				PaintOrderModel.instance.curOrderCustomer = customer;
+
 				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getOuputAddr + "addr_id=" + PaintOrderModel.instance.selectAddress.zoneid + "&manufacturer_type=喷印输出中心" + "&client_code=" + Userdata.instance.clientCode,this,onGetOutPutAddress,null,null);
 			}
 		}
@@ -391,18 +440,21 @@ package script.order
 			var result:Object = JSON.parse(data as String);
 			if(!result.hasOwnProperty("status"))
 			{
-				var product:Array = result[0].children as Array;
-				
-				PaintOrderModel.instance.productList = [];
-				
-				var hasMatName:Array = [];
-				for(var i:int=0;i < product.length;i++)
+				if(result.length > 0)
 				{
-					if( hasMatName.indexOf(product[i].prodCat_name) < 0)
+					var product:Array = result[0].children as Array;
+					
+					PaintOrderModel.instance.productList = [];
+					
+					var hasMatName:Array = [];
+					for(var i:int=0;i < product.length;i++)
 					{
-						var matvo:MatetialClassVo = new MatetialClassVo(product[i]);
-						PaintOrderModel.instance.productList.push(matvo);
-						hasMatName.push(product[i].prodCat_name);
+						if( hasMatName.indexOf(product[i].prodCat_name) < 0)
+						{
+							var matvo:MatetialClassVo = new MatetialClassVo(product[i]);
+							PaintOrderModel.instance.productList.push(matvo);
+							hasMatName.push(product[i].prodCat_name);
+						}
 					}
 				}
 			}

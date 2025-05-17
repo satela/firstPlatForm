@@ -69,7 +69,6 @@ package script.workpanel
 			uiSkin.effectBtn.on(Event.CLICK,this,showEffectPanel);
 			
 			EventCenter.instance.on(EventCenter.SHOW_SELECT_TECH,this,initTechView);
-			EventCenter.instance.on(EventCenter.CLOSE_PANEL_VIEW,this,onUpdateTechDes);
 			//EventCenter.instance.on(EventCenter.SELECT_PIC_ORDER,this,checkShowEffectImg);
 			//EventCenter.instance.on(EventCenter.CLOSE_PANEL_VIEW,this,checkShowEffectImg);
 			EventCenter.instance.on(EventCenter.CANCEL_CHOOSE_ATTACH,this,onCancaleChooseAttach);
@@ -325,10 +324,6 @@ package script.workpanel
 
 			
 		}
-		private function onUpdateTechDes():void
-		{
-			
-		}
 		
 		private function onCancaleChooseAttach():void
 		{
@@ -382,7 +377,7 @@ package script.workpanel
 			
 			for(var i:int=0;i < hasSelectedTech.length;i++)
 			{
-				if(hasSelectedTech[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0)
+				if(hasSelectedTech[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0 || hasSelectedTech[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT) >=0)
 				{
 					if(hasSelectedTech[i].selectAttachVoList == null || hasSelectedTech[i].selectAttachVoList.length == 0 )
 					{
@@ -548,7 +543,6 @@ package script.workpanel
 		public override function onDestroy():void
 		{
 			EventCenter.instance.off(EventCenter.SHOW_SELECT_TECH,this,initTechView);
-			EventCenter.instance.off(EventCenter.CLOSE_PANEL_VIEW,this,onUpdateTechDes);
 			//EventCenter.instance.on(EventCenter.SELECT_PIC_ORDER,this,checkShowEffectImg);
 			//EventCenter.instance.on(EventCenter.CLOSE_PANEL_VIEW,this,checkShowEffectImg);
 			EventCenter.instance.off(EventCenter.CANCEL_CHOOSE_ATTACH,this,onCancaleChooseAttach);

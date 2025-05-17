@@ -154,7 +154,14 @@
 		private function onConfigLoaded():void {
 			//加载场景
 			
-
+			
+			
+			var u = new Browser.window.URL(Browser.window.location.href);
+			var tt = u.searchParams.get('orderID');
+			
+			trace("id:" + tt);
+			
+			
 			//Laya.stage.addChild(new LoginViewUI());
 			//var pageurl:String = Browser.window.location.href;
 			//if(pageurl.indexOf("ps") >= 0)

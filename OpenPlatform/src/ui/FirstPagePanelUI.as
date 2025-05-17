@@ -20,6 +20,8 @@ package ui {
 		public var settingBtn:Button;
 		public var coverbg:Image;
 		public var customBtn:Button;
+		public var transactionBtn:Button;
+		public var statisticalBtn:Button;
 		public var contentPanel:Panel;
 		public var shrinkBtn:Image;
 		public var arrow:Image;

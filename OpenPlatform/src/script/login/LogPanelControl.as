@@ -49,6 +49,9 @@ package script.login
 			//uiSKin.mainpanel.width = Browser.width;
 			//uiSKin.mainpanel.height = Browser.height;
 			uiSKin.mainpanel.vScrollBarSkin = "";
+			
+			uiSKin.companyPic.skin = "bigImg/companyPic.png?" + Userdata.instance.version;
+			
 			//this.uiSKin.height = Browser.clientHeight *1280/Browser.clientWidth;
 
 			//uiSKin.pwdBtn.on(Event.CLICK,this,onPwdLogin);
@@ -474,6 +477,9 @@ package script.login
 		}
 		private function onLoginBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			//if(result.status == 0)
 
@@ -488,6 +494,8 @@ package script.login
 				Userdata.instance.step = result.data.step;
 				Userdata.instance.firstOrder = result.data.firstOrder;
 
+				Userdata.instance.orgAudit = result.data.needAuditOrg;
+				Userdata.instance.orgAuditState = result.data.orgAuditState;
 				
 				Userdata.instance.accountType = result.data.userType;
 				Userdata.instance.privilege = result.data.userPermisson;
@@ -529,7 +537,7 @@ package script.login
 		{
 			
 			var result:Object = JSON.parse(data as String);
-			if(result.code == "1056")
+			if(result.code == "1058")
 			{
 				ViewManager.instance.openView(ViewManager.VIEW_REGPANEL,true,{"step":2});	
 				//ViewManager.instance.openView(ViewManager.VIEW_POPUPDIALOG,false,{msg:"您尚未加入公司",tips:"请申请注册公司,若已申请，请等待审核"});

@@ -169,6 +169,9 @@ package script.order
 		
 		private function onGetAccessorylistBack(data:String):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Array = JSON.parse(data as String) as Array;
 			if(result)
 			{

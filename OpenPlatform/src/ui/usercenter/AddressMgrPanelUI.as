@@ -4,11 +4,30 @@ package ui.usercenter {
 	import laya.display.*;
 
 	public class AddressMgrPanelUI extends View {
+		public var customerBox:Box;
+		public var customeName:Label;
+		public var addressTab:Button;
+		public var groupTab:Button;
+		public var addressbox:Panel;
 		public var addlist:List;
 		public var numAddress:Label;
 		public var btnaddAddress:Button;
-		public var customerBox:Box;
-		public var customeName:Label;
+		public var defaultDelivery:Label;
+		public var addressPageTxt:Label;
+		public var prevBtn:Button;
+		public var nextBtn:Button;
+		public var groupBox:Panel;
+		public var addGroup:Button;
+		public var groupList:List;
+		public var searchGroupInput:TextInput;
+		public var searchGrpBtn:Button;
+		public var grPageNum:Label;
+		public var gpPrevPage:Button;
+		public var gpNextPage:Button;
+		public var createGroupBox:Box;
+		public var newGroupName:TextInput;
+		public var confirmCreateGroup:Button;
+		public var closeNewGroup:Button;
 
 		override protected function createChildren():void {
 			super.createChildren();

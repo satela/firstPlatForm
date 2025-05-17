@@ -151,6 +151,8 @@ package script.login
 			uiSkin.createAccountInput.maxChars = 11;
 			uiSkin.createAccountInput.restrict = "0-9";
 			
+			uiSkin.codeValid.visible = false;
+			
 			uiSkin.commentInput.maxChars = 8;
 			
 			uiSkin.applyEnter.on(Event.CLICK,this,function(){
@@ -408,6 +410,8 @@ package script.login
 		
 		private function onGetPhoneCodeBack(data:String):void
 		{
+			if(this.destroyed)
+				return;
 			var result:Object = JSON.parse(data);
 			coutdown = 60;
 			if(result.code == "0")
@@ -433,6 +437,8 @@ package script.login
 				uiSkin.btnGetCode.disabled = false;
 				uiSkin.btnGetCode.label = "获取验证码";
 				Laya.timer.clear(this,countdownCode);
+				uiSkin.codeValid.visible = true;
+
 			}
 		}
 		private function onRefreshVerify(e:Event):void
@@ -601,6 +607,8 @@ package script.login
 		
 		private function onRegisterBack(data:String):void
 		{
+			if(this.destroyed)
+				return;
 			// TODO Auto Generated method stub
 			var result:Object = JSON.parse(data);
 			if(result.code == 0)
@@ -633,6 +641,8 @@ package script.login
 		
 		private function onLoginBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -644,7 +654,10 @@ package script.login
 				Userdata.instance.privilege = result.data.userPermisson;
 				Userdata.instance.token = result.data.token;
 				Userdata.instance.userName = result.data.nickName;
+				Userdata.instance.orgAudit = result.data.needAuditOrg;
+				Userdata.instance.orgAuditState = result.data.orgAuditState;
 
+				
 				Userdata.instance.step = result.data.step;
 				Userdata.instance.firstOrder = result.data.firstOrder;
 
@@ -657,6 +670,8 @@ package script.login
 					
 				}
 				
+				
+				updateAuditState();
 				//ViewManager.showAlert("登陆成功");
 				EventCenter.instance.event(EventCenter.LOGIN_SUCESS, uiSkin.input_phone.text);
 				UtilTool.setLocalVar("useraccount",uiSkin.input_phone.text);
@@ -690,6 +705,51 @@ package script.login
 			uiSkin.input_companyname.focus = true;
 			curStep = 1;
 			updateStep();
+			updateAuditState();
+
+		}
+		private function updateAuditState():void
+		{
+			if(Userdata.instance.orgAudit)
+				uiSkin.applyBtn.label = "提交审核";
+			
+			if(Userdata.instance.orgAuditState == 0)
+			{
+				uiSkin.applyBtn.disabled = true;
+				uiSkin.applyBtn.label = "审核中...";
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAuditInfo,this,getAuditInfoBack,null,null);
+				uiSkin.applyEnter.visible = false;
+
+			}
+			else
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=0",this,initView,null,null);
+
+			if(Userdata.instance.orgAuditState == 2)
+			{
+				uiSkin.auditTips.visible = true;
+			}
+			else
+				uiSkin.auditTips.visible = false;
+			
+		}
+		private function getAuditInfoBack(data:*):void
+		{
+			if(this.destroyed)
+				return;
+			var result:Object = JSON.parse(data as String);
+			if(result.code == "0")
+			{
+				uiSkin.input_companyname.text = result.data.name;
+				uiSkin.contactName.text = result.data.cnee;
+				uiSkin.contactPhone.text = result.data.mobileNumber;
+				uiSkin.detail_addr.text = result.data.addr;
+				
+				proid = (result.data.regionId as String).slice(0,2) + "0000";
+				cityid = (result.data.regionId as String).slice(0,4) + "00";
+				areaid = (result.data.regionId as String).slice(0,6);
+				townid = result.data.regionId;
+				
+			}
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=0",this,initView,null,null);
 
 		}
@@ -762,6 +822,9 @@ package script.login
 		
 		private function initView(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			//WaitingRespond.instance.hideWaitingView();
 			var result:Object = JSON.parse(data as String);
 			
@@ -807,6 +870,7 @@ package script.login
 			{
 				if(uiSkin == null || uiSkin.citytxt == null || uiSkin.destroyed)
 					return;
+				
 				var result:Object = JSON.parse(data as String);
 				
 				uiSkin.cityList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
@@ -1044,7 +1108,17 @@ package script.login
 			{
 				Userdata.instance.firstOrder = "1";
 				Userdata.instance.isLogin = false;
-				onCloseScene();
+				
+				if(Userdata.instance.orgAudit)
+				{
+					ViewManager.showAlert("公司信息提交成功，请等待审核");
+					uiSkin.applyBtn.label = "审核中...";
+					uiSkin.applyBtn.disabled = true;
+					uiSkin.applyEnter.visible = false;
+
+				}
+				else
+					onCloseScene();
 
 			}
 			else

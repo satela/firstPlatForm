@@ -11,11 +11,15 @@ package script
 	import model.Constast;
 	import model.HttpRequestUtil;
 	import model.Userdata;
+	import model.orderModel.PaintOrderModel;
+	import model.picmanagerModel.DirectoryFileModel;
 	
 	import ui.FirstPagePanelUI;
 	import ui.inuoView.MyWorkPanelUI;
 	import ui.inuoView.PicManagerPanelUI;
+	import ui.orderList.CustomerTransactionPanelUI;
 	import ui.orderList.OrderListPanelUI;
+	import ui.orderList.StatisticalAnalyPanelUI;
 	import ui.usercenter.AccountSettingPanelUI;
 	import ui.usercenter.ChargePanelUI;
 	import ui.usercenter.CustomManagerPanelUI;
@@ -52,10 +56,9 @@ package script
 			uiSkin.contentPanel.vScrollBarSkin = "";
 
 			uiSkin.accountlbl.text = Userdata.instance.userName;// + Userdata.instance.userAccount;
+			viewArr = [MyWorkPanelUI,PicManagerPanelUI,OrderListPanelUI,EnterPrizeInfoPaneUI,ChargePanelUI,AccountSettingPanelUI,CustomManagerPanelUI,CustomerTransactionPanelUI,StatisticalAnalyPanelUI];
 			
-			viewArr = [MyWorkPanelUI,PicManagerPanelUI,OrderListPanelUI,EnterPrizeInfoPaneUI,ChargePanelUI,AccountSettingPanelUI,CustomManagerPanelUI];
-			
-			menuBtnList = [uiSkin.workBtn,uiSkin.picBtn,uiSkin.orderbtn,uiSkin.companyBtn,uiSkin.moneyBtn,uiSkin.settingBtn,uiSkin.customBtn];
+			menuBtnList = [uiSkin.workBtn,uiSkin.picBtn,uiSkin.orderbtn,uiSkin.companyBtn,uiSkin.moneyBtn,uiSkin.settingBtn,uiSkin.customBtn,uiSkin.transactionBtn,uiSkin.statisticalBtn];
 			
 			for(var i:int=0;i < menuBtnList.length;i++)
 			{
@@ -85,6 +88,9 @@ package script
 			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getMaintainMsg,this,ongetMaintianBack,"","");
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getCompanyInfo,this,getCompanyInfoBack,null,null,null);
 
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getPlatformConfig,this,getPlatformConfig,null,null,null);
+
+			
 			//EventCenter.instance.on(EventCenter.PAUSE_SCROLL_VIEW,this,onPauseScroll);
 			//if(Userdata.instance.step == "0")
 			//{
@@ -126,7 +132,7 @@ package script
 				Userdata.instance.initMyAddress(result.data.expressList as Array);
 				Userdata.instance.defaultAddId = result.data.defaultId;
 			}
-			else if(result.code == "205" || result.code　== "404")
+			else if(result.code == "1058" || result.code　== "404")
 			{
 				//ViewManager.instance.openView(ViewManager.VIEW_USERCENTER,true);
 				ViewManager.instance.openView(ViewManager.VIEW_REGPANEL,true);
@@ -149,6 +155,16 @@ package script
 				Userdata.instance.companyShort = result.data.shortName;
 				Userdata.instance.founderPhone = result.data.founderMobileNumber;
 				
+			}
+		}
+		
+		private function getPlatformConfig(data:*):void
+		{
+			var result:Object = JSON.parse(data as String);
+			if(result.code == "0")
+			{
+				Userdata.instance.setPlatformConfig(result.data);
+					
 			}
 		}
 		
@@ -320,7 +336,8 @@ package script
 			{
 				UtilTool.setLocalVar("userToken","");
 				//UtilTool.setLocalVar("userpwd","");
-				
+				PaintOrderModel.instance.resetData();
+				DirectoryFileModel.instance.resetData();
 				Userdata.instance.isLogin = false;
 				Userdata.instance.resetData();
 				ViewManager.instance.openView(ViewManager.VIEW_lOGPANEL,true);

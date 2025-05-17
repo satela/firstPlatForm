@@ -2,11 +2,11 @@
     "x":0,
     "type":"View",
     "selectedBox":207,
-    "selecteID":254,
+    "selecteID":256,
     "searchKey":"View",
     "props":{"width":1080,"sceneColor":"#ffffff","height":1920},
     "nodeParent":-1,
-    "maxID":255,
+    "maxID":257,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -83,14 +83,13 @@
                     "props":{"y":131,"x":200},
                     "nodeParent":3,
                     "label":"Box",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":208,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,firstStep",
                             "props":{"y":0,"x":0,"width":97.5,"var":"firstStep","skin":"uiCommonUpdate/Ellipse215.png","height":97.5},
@@ -103,7 +102,6 @@
                             "compId":109,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"valign":"middle","top":0,"text":"1","right":0,"left":0,"fontSize":48,"font":"SimHei","color":"#fbf9f9","bottom":0,"align":"center"},
@@ -120,7 +118,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,firstLine",
                             "props":{"y":48,"x":94,"width":430,"var":"firstLine","skin":"uiCommonUpdate/greenLine.png"},
@@ -136,7 +133,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,sencondStep",
                             "props":{"y":0,"x":520,"width":97.5,"var":"sencondStep","skin":"uiCommonUpdate/Ellipse215.png","height":97.5},
@@ -149,7 +145,6 @@
                             "compId":111,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"valign":"middle","top":0,"text":"2","right":0,"left":0,"fontSize":48,"font":"SimHei","color":"#fbf9f9","bottom":0,"align":"center"},
@@ -166,7 +161,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":122,"x":497,"text":"收货地址","fontSize":36,"font":"SimHei"},
@@ -181,7 +175,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":122,"x":-23.25,"text":"注册账号","fontSize":36,"font":"SimHei"},
@@ -204,13 +197,14 @@
                     "props":{"var":"step1Panel","top":235,"right":0,"left":0},
                     "nodeParent":3,
                     "label":"step1Panel",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":151,
                     "child":[
                         {
+                            "x":45,
                             "type":"Image",
                             "selectedBox":25,
                             "selecteID":60,
@@ -309,6 +303,7 @@
                             "$HIDDEN":false
                         },
                         {
+                            "x":45,
                             "type":"Image",
                             "selectedBox":25,
                             "selecteID":47,
@@ -407,6 +402,7 @@
                             "$HIDDEN":true
                         },
                         {
+                            "x":45,
                             "type":"Image",
                             "selectedBox":25,
                             "selecteID":60,
@@ -505,6 +501,7 @@
                             "$HIDDEN":false
                         },
                         {
+                            "x":45,
                             "type":"Image",
                             "selectedBox":25,
                             "selecteID":60,
@@ -603,6 +600,7 @@
                             "$HIDDEN":true
                         },
                         {
+                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":351,"x":530,"width":274,"skin":"uiCommonUpdate/codebg.jpg","height":78},
@@ -681,6 +679,7 @@
                                 }]
                         },
                         {
+                            "x":45,
                             "type":"Image",
                             "selectedBox":25,
                             "selecteID":60,
@@ -779,6 +778,7 @@
                             "$HIDDEN":false
                         },
                         {
+                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btnGetCode",
                             "props":{"y":492,"x":530,"width":267,"var":"btnGetCode","skin":"uiCommonUpdate/greenBtn.png","labelSize":36,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","labelAlign":"center","label":"获取验证码","height":66},
@@ -793,6 +793,22 @@
                             "$HIDDEN":false
                         },
                         {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label,codeValid",
+                            "props":{"y":499,"x":811,"wordWrap":true,"width":243,"var":"codeValid","text":"未收到短信验证码，可输入\"d5n9t2\"注册。","height":55,"fontSize":24,"font":"SimHei","color":"#003dc6"},
+                            "nodeParent":151,
+                            "label":"codeValid",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":255,
+                            "child":[
+                                ],
+                            "$HIDDEN":false
+                        },
+                        {
+                            "x":45,
                             "type":"Image",
                             "selectedBox":25,
                             "selecteID":60,
@@ -891,6 +907,7 @@
                             "$HIDDEN":false
                         },
                         {
+                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"y":406,"x":835.5},
@@ -903,6 +920,7 @@
                             "compId":148,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"y":0,"x":0,"text":"看不清？","fontSize":24,"font":"SimHei","color":"#003dc6"},
@@ -917,6 +935,7 @@
                                     "$HIDDEN":false
                                 },
                                 {
+                                    "x":60,
                                     "type":"Text",
                                     "selectedBox":3,
                                     "searchKey":"Text,txtRefresh",
@@ -961,6 +980,7 @@
                             "$HIDDEN":false
                         },
                         {
+                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,gotoNext",
                             "props":{"y":618,"x":704.5,"width":328,"var":"gotoNext","skin":"uiCommonUpdate/greenBtn.png","labelSize":36,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","labelAlign":"center","label":"完成并下一步","height":66},
@@ -1779,7 +1799,7 @@
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":1024,"text":"本网站下单会根据收货地址匹配最近的生产中心","left":71,"fontSize":32,"font":"SimHei","color":"#101010","bold":true},
+                            "props":{"y":1059,"text":"本网站下单会根据收货地址匹配最近的生产中心","left":71,"fontSize":32,"font":"SimHei","color":"#101010","bold":true},
                             "nodeParent":207,
                             "label":"Label",
                             "isOpen":false,
@@ -2061,6 +2081,22 @@
                                     "$HIDDEN":false
                                 }],
                             "$HIDDEN":true
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label,auditTips",
+                            "props":{"y":1008,"var":"auditTips","text":"审核拒绝，可修改信息重新提交审核","left":545,"fontSize":32,"font":"SimHei","color":"#FF0000","bold":true},
+                            "nodeParent":207,
+                            "label":"auditTips",
+                            "isOpen":false,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":256,
+                            "child":[
+                                ],
+                            "$HIDDEN":false
                         }],
                     "$HIDDEN":false
                 }],

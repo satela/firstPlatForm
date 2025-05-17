@@ -7,6 +7,7 @@ package model.orderModel
 	import model.picmanagerModel.PicInfoVo;
 	import model.users.AddressVo;
 	import model.users.CityAreaVo;
+	import model.users.CustomVo;
 	import model.users.FactoryInfoVo;
 	
 	import script.ViewManager;
@@ -80,6 +81,8 @@ package model.orderModel
 		public var rawPrice:String = "0";//订单原价
 		
 		public var tempPicOrderItemVoList:Vector.<PicOrderItemVo>;
+		
+		public var curOrderCustomer:CustomVo;//当前代客下单客户
 				
 		public function PaintOrderModel()
 		{
@@ -104,6 +107,7 @@ package model.orderModel
 			batchOrders = {};
 			PaintOrderModel.instance.rawPrice = "0";
 			tempPicOrderItemVoList = new Vector.<PicOrderItemVo>();
+			curOrderCustomer = null;
 		}
 		public function initOutputAddr(addrobj:Array):void
 		{
@@ -743,7 +747,12 @@ package model.orderModel
 					var packdata:Object = {};
 					packdata.packageName = packvo.packageName;
 					if(packageList.length == 1)
-						packdata.consignee =   Userdata.instance.companyShort + "#" + packvo.address.receiverName;
+					{
+						if(curOrderCustomer != null && curOrderCustomer.id != "0")
+							packdata.consignee =   curOrderCustomer.customerName + "#" + packvo.address.receiverName;
+						else
+							packdata.consignee =   Userdata.instance.companyShort + "#" + packvo.address.receiverName;
+					}
 					else
 						packdata.consignee = packvo.address.receiverName;
 
@@ -772,7 +781,11 @@ package model.orderModel
 						
 					}
 					if(packdata.itemList.length == 0)
+					{
+						ViewManager.showAlert("包裹产品项数量不能都是0");
 						return false
+
+					}
 					
 					finalOrderData[i].packageList.push(packdata);
 					

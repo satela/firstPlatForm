@@ -19,10 +19,10 @@ package ui.usercenter {
 		public var delBtn:Button;
 		public var customPhone:TextInput;
 		public var delBtn:Button;
-		public var contactName:TextInput;
-		public var delBtn:Button;
 		public var confirmAddCustom:Button;
 		public var closeAddBtn:Button;
+		public var payType:ComboBox;
+		public var businessMan:ComboBox;
 
 		override protected function createChildren():void {
 			super.createChildren();

@@ -45,6 +45,7 @@ package script.login
 			uiSkin.inputphone.maxChars = 11;
 			uiSkin.inputphone.restrict = "0-9";
 			uiSkin.inputcode.maxChars = 6;
+			uiSkin.codeValid.visible = false;
 			
 			uiSkin.inputcfmpwd.maxChars = 20;
 			//uiSkin.inputcfmpwd.type = Input.TYPE_PASSWORD;
@@ -118,6 +119,8 @@ package script.login
 			{
 				uiSkin.btngetcode.disabled = false;
 				uiSkin.btngetcode.label = "获取验证码";
+				uiSkin.codeValid.visible = true;
+
 				Laya.timer.clear(this,countdownCode);
 			}
 		}

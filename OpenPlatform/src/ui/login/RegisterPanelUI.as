@@ -32,6 +32,7 @@ package ui.login {
 		public var inputCode:TextInput;
 		public var delBtn:Button;
 		public var btnGetCode:Button;
+		public var codeValid:Label;
 		public var input_phonecode:TextInput;
 		public var delBtn:Button;
 		public var txtRefresh:Text;
@@ -45,6 +46,7 @@ package ui.login {
 		public var delBtn:Button;
 		public var contactPhone:TextInput;
 		public var delBtn:Button;
+		public var auditTips:Label;
 		public var applyEnter:Button;
 		public var applyBtn:Button;
 		public var btnSelProv:Button;

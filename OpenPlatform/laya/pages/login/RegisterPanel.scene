@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":3,
+    "selectedBox":207,
+    "selecteID":254,
     "searchKey":"View",
     "props":{"width":1920,"sceneColor":"#ffffff","height":1080},
     "nodeParent":-1,
-    "maxID":253,
+    "maxID":255,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -98,14 +98,13 @@
                     "props":{"y":43,"x":651},
                     "nodeParent":3,
                     "label":"Box",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":208,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,firstStep",
                             "props":{"y":0,"x":0,"width":97.5,"var":"firstStep","skin":"uiCommonUpdate/Ellipse215.png","height":97.5},
@@ -118,7 +117,6 @@
                             "compId":109,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"valign":"middle","top":0,"text":"1","right":0,"left":0,"fontSize":48,"font":"SimHei","color":"#fbf9f9","bottom":0,"align":"center"},
@@ -135,7 +133,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,firstLine",
                             "props":{"y":48,"x":94,"width":430,"var":"firstLine","skin":"uiCommonUpdate/greenLine.png"},
@@ -151,7 +148,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,sencondStep",
                             "props":{"y":0,"x":520,"width":97.5,"var":"sencondStep","skin":"uiCommonUpdate/Ellipse215.png","height":97.5},
@@ -164,7 +160,6 @@
                             "compId":111,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"valign":"middle","top":0,"text":"2","right":0,"left":0,"fontSize":48,"font":"SimHei","color":"#fbf9f9","bottom":0,"align":"center"},
@@ -181,7 +176,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":122,"x":494,"text":"收货地址","fontSize":36,"font":"SimHei"},
@@ -196,7 +190,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":122,"x":-23.25,"text":"注册账号","fontSize":36,"font":"SimHei"},
@@ -796,13 +789,28 @@
                         {
                             "type":"Button",
                             "searchKey":"Button,btnGetCode",
-                            "props":{"y":492,"x":704.5,"width":267,"var":"btnGetCode","skin":"uiCommonUpdate/greenBtn.png","labelSize":36,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","labelAlign":"center","label":"获取验证码","height":66},
+                            "props":{"y":491,"x":704.5,"width":267,"var":"btnGetCode","skin":"uiCommonUpdate/greenBtn.png","labelSize":36,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","labelAlign":"center","label":"获取验证码","height":66},
                             "nodeParent":151,
                             "label":"btnGetCode",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":76,
+                            "child":[
+                                ],
+                            "$HIDDEN":false
+                        },
+                        {
+                            "type":"Label",
+                            "searchKey":"Label,codeValid",
+                            "props":{"y":498,"x":990,"wordWrap":true,"width":243,"var":"codeValid","text":"未收到短信验证码，可输入\"d5n9t2\"注册。","height":55,"fontSize":24,"font":"SimHei","color":"#003dc6"},
+                            "nodeParent":151,
+                            "label":"codeValid",
+                            "isOpen":true,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":253,
                             "child":[
                                 ],
                             "$HIDDEN":false
@@ -1418,11 +1426,28 @@
                         },
                         {
                             "x":45,
+                            "type":"Label",
+                            "searchKey":"Label,auditTips",
+                            "props":{"y":839,"var":"auditTips","text":"审核拒绝，可修改信息重新提交审核","left":1094,"fontSize":32,"font":"SimHei","color":"#FF0000","bold":true},
+                            "nodeParent":207,
+                            "label":"auditTips",
+                            "isOpen":false,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":254,
+                            "child":[
+                                ],
+                            "$HIDDEN":false
+                        },
+                        {
+                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,applyEnter",
                             "props":{"y":134.75,"x":1071,"width":328,"var":"applyEnter","skin":"uiCommonUpdate/greenBtn.png","labelSize":36,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","labelAlign":"center","label":"申请加入公司","height":66},
                             "nodeParent":207,
                             "label":"applyEnter",
+                            "isOpen":true,
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
@@ -2063,7 +2088,8 @@
                                     "child":[
                                         ],
                                     "$HIDDEN":false
-                                }]
+                                }],
+                            "$HIDDEN":true
                         }],
                     "$HIDDEN":false
                 }],

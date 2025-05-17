@@ -9,6 +9,7 @@ package script.usercenter
 	
 	import model.HttpRequestUtil;
 	import model.users.AddressGroupVo;
+	import model.users.AddressVo;
 	import model.users.VipAddressVo;
 	
 	import script.ViewManager;
@@ -27,6 +28,7 @@ package script.usercenter
 		
 		private var curPage:int = 1;
 		private var totalPage:int = 1;
+		private var pageSize:int = 30;
 		
 		private var province:Object;
 		
@@ -72,7 +74,7 @@ package script.usercenter
 			uiSkin.provList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.provList.selectEnable = true;
 			uiSkin.provList.selectHandler = new Handler(this, selectProvince);
-			uiSkin.provList.array = [{id:0,areaname:"空"}];
+			uiSkin.provList.array = [{id:0,areaName:"空"}];
 			
 			//uiSkin.provList.array = ChinaAreaModel.instance.getAllProvince();
 			//uiSkin.provList.refresh();
@@ -85,7 +87,7 @@ package script.usercenter
 			
 			uiSkin.cityList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.cityList.selectHandler = new Handler(this, selectCity);
-			uiSkin.cityList.array = [{id:0,areaname:"空"}];
+			uiSkin.cityList.array = [{id:0,areaName:"空"}];
 			
 			
 			uiSkin.areaList.itemRender = CitySearchItem;
@@ -96,7 +98,7 @@ package script.usercenter
 			
 			uiSkin.areaList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.areaList.selectHandler = new Handler(this, selectArea);
-			uiSkin.areaList.array = [{id:0,areaname:"空"}];
+			uiSkin.areaList.array = [{id:0,areaName:"空"}];
 			
 			uiSkin.btnSelProv.on(Event.CLICK,this,onShowProvince);
 			uiSkin.btnSelCity.on(Event.CLICK,this,onShowCity);
@@ -112,7 +114,7 @@ package script.usercenter
 			uiSkin.searchInput.maxChars = 20;
 			uiSkin.searchbtn.on(Event.CLICK,this,onSearchAddress);
 			uiSkin.okbtn.on(Event.CLICK,this,onAddAddress);
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,initAddr,"parentid=0","post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer +"parentId=0" ,this,initAddr,null,null);
 			
 			uiSkin.dragImg.on(Event.MOUSE_DOWN,this,startDragPanel);
 			//uiSkin.dragImg.on(Event.MOUSE_OUT,this,stopDragPanel);
@@ -187,11 +189,14 @@ package script.usercenter
 		}
 		private function initAddr(data:String):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			
-			(result.status as Array).unshift({id:0,areaname:"空"});
+			(result.data as Array).unshift({id:0,areaName:"空"});
 			
-			uiSkin.provList.array = result.status as Array;//ChinaAreaModel.instance.getAllProvince();
+			uiSkin.provList.array = result.data as Array;//ChinaAreaModel.instance.getAllProvince();
 			//var selpro:int = 0;
 			
 			//selectProvince(selpro);
@@ -202,35 +207,37 @@ package script.usercenter
 		{
 			province = uiSkin.provList.array[index];
 			uiSkin.provbox.visible = false;
-			uiSkin.province.text = province.areaname;
+			uiSkin.province.text = province.areaName;
 			
 			uiSkin.cityList.selectedIndex = 0;
 			this.selectCity(0);
 			if(province.id == 0)
 			{
 				
-				uiSkin.cityList.array = [{id:0,areaname:"空"}];
+				uiSkin.cityList.array = [{id:0,areaName:"空"}];
 				return;
 				
 			}
 			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,function(data:String)
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=" + province.id,this,function(data:String)
 			{
+				if(uiSkin.destroyed)
+					return;
 				var result:Object = JSON.parse(data as String);
 				
-				(result.status as Array).unshift({id:0,areaname:"空"});
+				(result.data as Array).unshift({id:0,areaName:"空"});
 				
-				uiSkin.cityList.array = result.status as Array;//ChinaAreaModel.instance.getAllCity(province.id);
+				uiSkin.cityList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
 				uiSkin.cityList.refresh();
 				
 				//				var cityindex:int = 0;
 				//				
-				//				uiSkin.citytxt.text = uiSkin.cityList.array[cityindex].areaname;
+				//				uiSkin.citytxt.text = uiSkin.cityList.array[cityindex].areaName;
 				//				uiSkin.cityList.selectedIndex = cityindex;
 				//				selectCity(cityindex);
 				//zoneid = uiSkin.cityList.array[0].id;
 				
-			},"parentid=" + province.id,"post");
+			},null,null);
 			
 			//trace(province);
 			//province = uiSkin.provList.cells[index].cityname;
@@ -255,7 +262,7 @@ package script.usercenter
 		{
 			uiSkin.citybox.visible = false;
 			
-			uiSkin.citytxt.text = uiSkin.cityList.array[index].areaname;
+			uiSkin.citytxt.text = uiSkin.cityList.array[index].areaName;
 			
 			uiSkin.areaList.selectedIndex = 0;
 			
@@ -263,31 +270,34 @@ package script.usercenter
 			
 			if(uiSkin.cityList.array[index].id == 0)
 			{
-				uiSkin.areaList.array = [{id:0,areaname:"空"}];
+				uiSkin.areaList.array = [{id:0,areaName:"空"}];
 				
 				return;
 			}
 			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,function(data:String)
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer +"parentId=" + uiSkin.cityList.array[index].id,this,function(data:String)
 			{
+				if(uiSkin.destroyed)
+					return;
+				
 				var result:Object = JSON.parse(data as String);
 				
-				(result.status as Array).unshift({id:0,areaname:"空"});
+				(result.data as Array).unshift({id:0,areaName:"空"});
 				
-				uiSkin.areaList.array = result.status as Array;//ChinaAreaModel.instance.getAllCity(province.id);
+				uiSkin.areaList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
 				uiSkin.areaList.refresh();
 				
 				//				var cityindex:int = 0;
 				//				
 				//				
-				//				uiSkin.areatxt.text = uiSkin.areaList.array[cityindex].areaname;
+				//				uiSkin.areatxt.text = uiSkin.areaList.array[cityindex].areaName;
 				//				uiSkin.areaList.selectedIndex = cityindex;
 				//				selectArea(cityindex);
 				//				
 				//				areaid = uiSkin.areaList.array[cityindex].id;
 				
 				
-			},"parentid=" + uiSkin.cityList.array[index].id,"post");
+			},null,null);
 			
 			
 			
@@ -301,7 +311,7 @@ package script.usercenter
 			areaid  = uiSkin.areaList.array[index].id;
 			
 			
-			uiSkin.areatxt.text = uiSkin.areaList.array[index].areaname;
+			uiSkin.areatxt.text = uiSkin.areaList.array[index].areaName;
 			
 			uiSkin.areabox.visible = false;
 			
@@ -367,47 +377,73 @@ package script.usercenter
 		private function updateList():void
 		{
 			var addr:String = "";
-			if(uiSkin.provList.selectedIndex > 0)
+			if(uiSkin.areaList.selectedIndex > 0)
 			{
-				addr += uiSkin.province.text;
-				if(uiSkin.cityList.selectedIndex > 0)
-					addr +=" " + uiSkin.citytxt.text;
-				if(uiSkin.areaList.selectedIndex > 0)
-					addr += " " + uiSkin.areatxt.text;
+				addr = uiSkin.areaList.array[uiSkin.areaList.selectedIndex].id;
+				
 			}
-			var hidden:int = uiSkin.hidebtn.selected ? 1:0;
+			else if(uiSkin.cityList.selectedIndex > 0)
+				addr = uiSkin.cityList.array[uiSkin.cityList.selectedIndex].id;
+			else if(uiSkin.provList.selectedIndex > 0)
+				addr = uiSkin.provList.array[uiSkin.provList.selectedIndex].id;
+				
+
 			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page=" + curPage +"&hidden=" + hidden +"&addr=" + addr + "&keyword=" + uiSkin.searchInput.text,"post");
+			var paramdata:String = "customerId=" + grpVo.customerId + "&pageNo=" + curPage + "&pageSize=" + pageSize + "&region=" + addr + "&keyword=" + uiSkin.searchInput.text;
+			
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listCustomerAddress + paramdata,this,getMyAddressBack,null,null,null);
+			
+			//var hidden:int = uiSkin.hidebtn.selected ? 1:0;
+			
+			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page=" + curPage +"&hidden=" + hidden +"&addr=" + addr + "&keyword=" + uiSkin.searchInput.text,"post");
 			
 		}
 		private function getMyAddressBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
-			if(result.status == 0)
+			if(result.code == "0")
 			{
-				var addressList = [];
-				for(var i:int=0;i < result.data.length;i++)
+				//Userdata.instance.initMyAddress(result.data.expressList as Array);
+				//Userdata.instance.defaultAddId = result.data.defaultId;
+				
+				var addressList:Array = [];
+				for(var i:int=0;i < result.data.expressList.length;i++)
 				{
-					addressList.push(new VipAddressVo(result.data[i]));
+					addressList.push(new AddressVo(result.data.expressList[i]));
 				}			
 				
-				//var tempAdd:Array = Userdata.instance.addressList;
-				//tempAdd.sort(compareAddress);
-				uiSkin.addressList.array = addressList;
-				totalPage = result.totalpage;
+				totalPage = Math.ceil(result.data.totalCount/pageSize);
 				if(totalPage < 1)
 					totalPage = 1;
 				uiSkin.pageNum.text = curPage + "/" + totalPage;
-				refreshNum();
-
+				
+				//var tempAdd:Array = Userdata.instance.addressList;
+				addressList.sort(compareAddress);
+				uiSkin.addressList.array = addressList;
+				//uiSkin.numAddress.text = "已经保存" + addressList.length + "条地址";
+				
+				
 			}
+		}
+		
+		private function compareAddress(a:AddressVo,b:AddressVo):int
+		{
+		
+			return parseInt(a.id) < parseInt(b.id) ? -1:1;
 		}
 		
 		private function onAddAddress():void
 		{
 			if(hasSelectAddressId.length > 0)
 			{
-				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.insertGroupAddress,this,addAddressBack,"opt=add&id=" + grpVo.groupId + "&ids=" + hasSelectAddressId.join(","),"post");
+				var postdata:Object = {};
+				postdata.expressGroupId = grpVo.groupId;
+				postdata.expressIds = hasSelectAddressId;
+				
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.insertGroupAddress,this,addAddressBack,JSON.stringify(postdata),"post");
 
 			}
 			else
@@ -420,9 +456,9 @@ package script.usercenter
 		private function addAddressBack(data:*):void
 		{
 			var result:Object = JSON.parse(data as String);
-			if(result.status == 0)
+			if(result.code == "0")
 			{
-				EventCenter.instance.event(EventCenter.INSERT_ADDRESS_TO_GROUP,[result.totalcount]);
+				EventCenter.instance.event(EventCenter.INSERT_ADDRESS_TO_GROUP,[parseInt(result.data.expressCount)]);
 				closeView();
 			}
 		}

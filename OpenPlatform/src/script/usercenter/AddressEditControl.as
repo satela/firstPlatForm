@@ -40,7 +40,7 @@ package script.usercenter
 		
 		private var httpUrl:String;
 		private var customer:CustomVo;
-
+		private var deliveryList:Array;
 		public function AddressEditControl()
 		{
 			super();
@@ -67,7 +67,7 @@ package script.usercenter
 			uiSkin.height = Browser.clientHeight *1920/Browser.clientWidth;
 
 			
-			uiSkin.input_username.maxChars = 5;
+			uiSkin.input_username.maxChars = 8;
 			uiSkin.input_phone.maxChars = 20;
 			uiSkin.input_phone.restrict = "0-9" + "-";
 			uiSkin.input_address.maxChars = 50;
@@ -129,6 +129,9 @@ package script.usercenter
 				uiSkin.input_username.text = address.receiverName;
 				uiSkin.input_phone.text = address.phone;
 				uiSkin.input_address.text = address.address;
+				
+				
+				
 			}
 			uiSkin.on(Event.CLICK,this,hideAddressPanel);
 			
@@ -141,6 +144,26 @@ package script.usercenter
 			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer +"parentId=0" ,this,initAddr,null,null);
 			EventCenter.instance.on(EventCenter.BROWER_WINDOW_RESIZE,this,onResizeBrower);
+			
+			uiSkin.getDeliveryList.on(Event.CLICK,this,function(){
+				
+				if(zoneid != null)
+				{
+					var params:String = "clientCode=" + Userdata.instance.clientCode + "&addrId="+zoneid + "&webCode=" + Userdata.instance.webCode;
+					HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getDeaultDeliveryList + params ,this,getDeliveryListBack,null,null);
+				
+				}
+
+				
+			})
+				
+			if((customer != null && customer.id != "0") || !isAddOrEdit)
+			{
+				uiSkin.deliveryBox.visible = true;
+			}
+			else
+				uiSkin.deliveryBox.visible = false;
+
 			
 		}
 		
@@ -164,6 +187,38 @@ package script.usercenter
 			uiSkin.height = Browser.clientHeight *1920/Browser.clientWidth;
 
 			
+		}
+		
+		private function getDeliveryListBack(data:*):void
+		{
+			if(this.destroyed)
+				return;
+			var result:Object = JSON.parse(data as String);
+			
+			var allDelviery:Array = result as Array;
+			if(allDelviery != null)
+			{
+				var deliveryStr:String = "";
+				var defaultIndex:int = -1;
+				for(var i:int=0;i < allDelviery.length;i++)
+				{
+					deliveryStr += allDelviery[i].name;
+					if(i < allDelviery.length - 1)
+						deliveryStr += ",";
+					if(address != null && address.defaultDeliveryType == allDelviery[i].name)
+						defaultIndex = i;
+
+				}
+				uiSkin.defaulDeliveryType.labels = deliveryStr;
+				if(deliveryStr.length > 0)
+					uiSkin.defaulDeliveryType.selectedIndex = defaultIndex >=0?defaultIndex:0;
+				else
+				{
+					uiSkin.defaulDeliveryType.labels = " ";
+					uiSkin.defaulDeliveryType.selectedIndex = 0;
+				}
+				deliveryList = allDelviery;
+			}
 		}
 		private function hideAddressPanel(e:Event):void
 		{
@@ -217,6 +272,9 @@ package script.usercenter
 		}
 		private function initAddr(data:String):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			
 			uiSkin.provList.array = result.data as Array;//ChinaAreaModel.instance.getAllProvince();
@@ -228,7 +286,7 @@ package script.usercenter
 				{
 					for(var i:int=0;i < uiSkin.provList.array.length;i++)
 					{
-						if(uiSkin.provList.array[i].areaname == curprov[0])
+						if(uiSkin.provList.array[i].areaName == curprov[0])
 						{
 							selpro = i;
 							break;
@@ -268,6 +326,9 @@ package script.usercenter
 			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=" + province.id ,this,function(data:String)
 			{
+				if(uiSkin.destroyed)
+					return;
+				
 				var result:Object = JSON.parse(data as String);
 				
 				uiSkin.cityList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
@@ -322,6 +383,9 @@ package script.usercenter
 			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer+"parentId=" + uiSkin.cityList.array[index].id,this,function(data:String)
 			{
+				if(uiSkin.destroyed)
+					return;
+				
 				var result:Object = JSON.parse(data as String);
 				
 				uiSkin.areaList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
@@ -380,12 +444,18 @@ package script.usercenter
 			areaid  = uiSkin.areaList.array[index].id;
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=" + uiSkin.areaList.array[index].id ,this,function(data:String)
 			{
+				if(uiSkin.destroyed)
+					return;
 				var result:Object = JSON.parse(data as String);
 				
 				uiSkin.btnSelTown.visible = result.data.length > 0;
 				if(result.data.length == 0)
 				{
 					zoneid = areaid;
+					
+					var params:String = "clientCode=" + Userdata.instance.clientCode + "&addrId="+ zoneid + "&webCode=" + Userdata.instance.webCode;
+					HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getDeaultDeliveryList + params ,this,getDeliveryListBack,null,null);
+					
 					return;
 				}
 					
@@ -414,6 +484,8 @@ package script.usercenter
 				//uiSkin.townList.selectedIndex = cityindex;
 				zoneid = uiSkin.townList.array[cityindex].id;
 				
+				var params:String = "clientCode=" + Userdata.instance.clientCode + "&addrId="+ zoneid + "&webCode=" + Userdata.instance.webCode;
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getDeaultDeliveryList + params ,this,getDeliveryListBack,null,null);
 				//companyareaId = uiSkin.townList.array[0].id;
 				
 			},null,null);
@@ -436,11 +508,15 @@ package script.usercenter
 		{
 			if( index == -1 )
 				return;
+			
 			hasinit = true;
 			
 			uiSkin.townbox.visible = false;
 			uiSkin.towntxt.text = uiSkin.townList.array[index].areaName;
 			zoneid = uiSkin.townList.array[index].id;
+			
+			var params:String = "clientCode=" + Userdata.instance.clientCode + "&addrId="+ zoneid + "&webCode=" + Userdata.instance.webCode;
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getDeaultDeliveryList + params ,this,getDeliveryListBack,null,null);
 			
 			//companyareaId = uiSkin.townList.array[index].id;
 			
@@ -481,13 +557,20 @@ package script.usercenter
 			requestStr.regionName = fullcityname;
 			if(customer != null)
 				requestStr.customerId = customer.id;
-
+			if(uiSkin.defaulDeliveryType.selectedIndex >= 0 && deliveryList != null)
+			{
+				if(deliveryList[uiSkin.defaulDeliveryType.selectedIndex] != null)
+					requestStr.defaultDelivery = deliveryList[uiSkin.defaulDeliveryType.selectedIndex].name;
+			}
 //			"cnee=" + uiSkin.input_username.text + "&mobileNumber=" + uiSkin.input_phone.text + "&zone=" + zoneid + "|" + thirdid +
 //				"&addr=" + uiSkin.input_address.text + "&zoneName=" + fullcityname;
 			if(isAddOrEdit == false)
 				requestStr.id=  address.id;
-			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + httpUrl,this,addAddressback,JSON.stringify(requestStr),"post");
+			if(isAddOrEdit)
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + httpUrl,this,addAddressback,JSON.stringify(requestStr),"post");
+			else
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + httpUrl,this,addAddressback,JSON.stringify(requestStr),"post");
+
 			
 			
 			//ViewManager.instance.closeView(ViewManager.VIEW_ADD_NEW_ADDRESS);
@@ -501,8 +584,8 @@ package script.usercenter
 				{
 					if(isAddOrEdit)
 						Userdata.instance.addNewAddress(result.data);
-					else
-						Userdata.instance.updateAddress(result.data);
+					//else
+					//	Userdata.instance.updateAddress(result.data);
 				}
 				EventCenter.instance.event(EventCenter.UPDATE_MYADDRESS_LIST,Userdata.instance.addressList[Userdata.instance.addressList.length - 1]);
 

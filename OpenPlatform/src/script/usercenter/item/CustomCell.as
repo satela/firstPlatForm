@@ -4,8 +4,10 @@ package script.usercenter.item
 	
 	import laya.events.Event;
 	
+	import model.Constast;
 	import model.HttpRequestUtil;
 	import model.users.CustomVo;
+	
 	import script.ViewManager;
 	
 	import ui.usercenter.items.CustomeItemUI;
@@ -18,8 +20,10 @@ package script.usercenter.item
 		{
 			super();
 			this.deleteTxt.on(Event.CLICK,this,onDelete);
+			this.updateInfoTxt.on(Event.CLICK,this,onEditCustomer);
+
 			this.addressTxt.on(Event.CLICK,this,onSelectAddress);
-			this.updateInfoTxt.visible = false;
+			this.updateInfoTxt.visible = true;
 		}
 		
 		public function setData(data:CustomVo):void
@@ -28,6 +32,10 @@ package script.usercenter.item
 			this.customName.text = customData.customerName;
 			this.phoneNumber.text = customData.mobileNumber;
 			this.selectImg.visible = false;
+			this.businessManlbl.text = customData.salerName;
+			this.balancelbl.text = customData.balanceMoney.toFixed(2);
+			this.defaultPayType.text = Constast.PAY_TYPE_NAME[customData.defaultPayment - 1];
+			
 
 		}
 		
@@ -36,10 +44,18 @@ package script.usercenter.item
 			this.selectImg.visible = this.customData != null && this.customData.id == id;
 		}
 		
+		private function onEditCustomer():void
+		{
+			EventCenter.instance.event(EventCenter.EDIT_CUSTOMER_INFO,customData);
+
+		}
+		
+		
 		private function onDelete():void
 		{
 			ViewManager.instance.openView(ViewManager.VIEW_POPUPDIALOG,false,{msg:"确定删除【" + customData.customerName + "】客户吗?",caller:this,callback:confirmDelete});
 		}
+		
 		
 		private function confirmDelete(b:Boolean):void
 		{

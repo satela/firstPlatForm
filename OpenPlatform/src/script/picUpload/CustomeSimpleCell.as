@@ -2,6 +2,7 @@ package script.picUpload
 {
 	import laya.events.Event;
 	
+	import model.Constast;
 	import model.users.CustomVo;
 	
 	import ui.inuoView.items.CustomPicCellUI;
@@ -29,6 +30,10 @@ package script.picUpload
 		{
 			customerVo = data;
 			this.customName.text = customerVo.customerName;
+			if(parseInt(customerVo.id) > 0)
+			{
+				this.customName.text += "(" + Constast.PAY_TYPE_NAME[customerVo.defaultPayment - 1] + ")";
+			}
 			this.phoneNum.text = customerVo.mobileNumber;
 		}
 	}

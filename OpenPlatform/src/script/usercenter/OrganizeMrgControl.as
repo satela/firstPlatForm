@@ -106,6 +106,9 @@ package script.usercenter
 		
 		private function onGetAllOrganizeBack(data:*):void{
 			
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -189,6 +192,9 @@ package script.usercenter
 		
 		private function onGetOrganizeMembersBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -225,6 +231,9 @@ package script.usercenter
 		
 		private function onGetOrganizeMemberAuthBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -317,6 +326,9 @@ package script.usercenter
 		}
 		private function onMoveOrganizeMemberBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

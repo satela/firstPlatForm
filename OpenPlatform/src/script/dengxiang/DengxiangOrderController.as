@@ -164,11 +164,14 @@ package script.dengxiang
 			{
 				uiSkin.opeBox.x = 1456;
 				uiSkin.pricelbl.x = 1364;
+				uiSkin.unitpricelbl.x = 1273;
+
 			}
 			else
 			{
 				uiSkin.opeBox.x = 1556;
-				uiSkin.pricelbl.x= 1414;
+				uiSkin.pricelbl.x= 1468;
+				uiSkin.unitpricelbl.x = 1373;
 			}
 		}
 		private function resetOrderInfo():void
@@ -205,7 +208,7 @@ package script.dengxiang
 					{
 						orderdata = {};
 						orderdata.order_sn = PaintOrderModel.getOrderSn();
-						orderdata.client_code = "CL10600";
+						orderdata.client_code = Userdata.instance.clientCode;
 						orderdata.consignee = Userdata.instance.companyShort + "#" + PaintOrderModel.instance.selectAddress.receiverName;
 						orderdata.tel = PaintOrderModel.instance.selectAddress.phone;
 						orderdata.address = PaintOrderModel.instance.selectAddress.proCityArea;
@@ -469,6 +472,8 @@ package script.dengxiang
 		
 		private function ongetUidsBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -661,7 +666,7 @@ package script.dengxiang
 				{
 					orderdata = {};
 					orderdata.orderSn = PaintOrderModel.getOrderSn();
-					orderdata.clientCode = "CL10600";
+					orderdata.clientCode = Userdata.instance.clientCode;//"CL10600";
 					orderdata.userCode = Userdata.instance.userAccount;
 					orderdata.userOrgCode = Userdata.instance.founderPhone;
 					orderdata.customerId = PaintOrderModel.instance.selectAddress.customerId.toString();

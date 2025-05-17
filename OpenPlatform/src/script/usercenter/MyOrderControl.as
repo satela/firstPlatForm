@@ -8,15 +8,16 @@ package script.usercenter
 	import laya.utils.Browser;
 	import laya.utils.Handler;
 	
+	import model.Constast;
 	import model.HttpRequestUtil;
 	import model.Userdata;
+	import model.users.BusinessManVo;
 	import model.users.CustomVo;
 	
 	import script.ViewManager;
 	
 	import ui.inuoView.OrderTypePanelUI;
 	import ui.orderList.OrderListPanelUI;
-	import ui.usercenter.MyOrdersPanelUI;
 	
 	import utils.UtilTool;
 	
@@ -32,6 +33,15 @@ package script.usercenter
 		
 		private var curCustomer:CustomVo;
 		
+		private var picList:Array;
+		private var base64Arr:Array;
+		private var excelData:Array = [];
+		
+		private var businessManlist:Array;
+		private var orderManlist:Array;
+
+		private var orderHistory:Object;
+		
 		public function MyOrderControl()
 		{
 			super();
@@ -42,14 +52,17 @@ package script.usercenter
 			uiSkin = this.owner as OrderListPanelUI;
 			
 			uiSkin.customListPanel.visible = false;
-			uiSkin.curCustomName.text = Userdata.instance.company;
+			uiSkin.curCustomName.text = "全部";
+			
 			uiSkin.curCustomName.editable = false;
 			
 			uiSkin.showCustomList.on(Event.CLICK,this,function(){
 				
 				uiSkin.customListPanel.visible = !uiSkin.customListPanel.visible;
 			})
-				
+			
+			orderHistory = {};
+			
 			uiSkin.orderList.itemRender = OrderCheckListItem;
 			
 			//uiSkin.orderList.vScrollBarSkin = "";
@@ -67,6 +80,8 @@ package script.usercenter
 			//uiSkin.yearCombox.scrollBarSkin = "";
 			
 			uiSkin.orderList.mouseThrough = true;
+			uiSkin.writeOffRadio.selectedIndex = 2;
+			
 			Laya.timer.frameLoop(1,this,updateDateInputPos);
 			
 			var curdate:Date = new Date();
@@ -77,26 +92,26 @@ package script.usercenter
 			//uiSkin.monthCombox.selectedIndex = curmonth;
 			var lastday:Date = new Date(curdate.getTime() - 24 * 3600 * 1000);
 			
-			var param:String = "beginDate=" + UtilTool.formatFullDateTime(lastday,false) + " 00:00:00&endDate=" + UtilTool.formatFullDateTime(new Date(),false) + " 23:59:59&option=2&page=1";
+			var param:String = "beginDate=" + UtilTool.formatFullDateTime(lastday,false) + " 00:00:00&endDate=" + UtilTool.formatFullDateTime(new Date(),false) + " 23:59:59&option=2&page=1&customerId=-1&customerPayment=-1&cleared=-1";
 			//if(curmonth + 1 < 10 )
 			//	param = "begindate=" + curyear + "0" + (curmonth + 1) + "enddate=" + curyear + "0" + (curmonth + 1) + "&type=2&curpage=1";
 			
 			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getOrderRecordList,this,onGetOrderListBack,param,"post");
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getOrderRecordList + param,this,onGetOrderListBack,null,null);
-
+			
 			//uiSkin.lastyearbtn.on(Event.CLICK,this,onLastYear);
 			//uiSkin.nextyearbtn.on(Event.CLICK,this,onNextYear);
 			
 			//uiSkin.lastmonthbtn.on(Event.CLICK,this,onLastMonth);
 			//uiSkin.nextmonthbtn.on(Event.CLICK,this,onNextMonth);
-						
+			
 			
 			uiSkin.lastpage.on(Event.CLICK,this,onLastPage);
 			uiSkin.nextpage.on(Event.CLICK,this,onNextPage);
 			uiSkin.orderBtn.on(Event.CLICK,this,function(){
 				
 				EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[OrderTypePanelUI,0]);
-
+				
 				
 			})
 			
@@ -107,7 +122,8 @@ package script.usercenter
 			uiSkin.paytype.selectedIndex = 2;
 			
 			uiSkin.paytype.on(Event.CHANGE,this,queryOrderList);
-			
+			uiSkin.writeOffRadio.on(Event.CHANGE,this,queryOrderList);
+
 			uiSkin.orderList.on(Event.MOUSE_DOWN,this,onMouseDwons);
 			
 			uiSkin.orderList.on(Event.MOUSE_UP,this,onMouseUpHandler);
@@ -127,8 +143,10 @@ package script.usercenter
 			EventCenter.instance.on(EventCenter.DELETE_ORDER_BACK,this,getOrderListAgain);
 			EventCenter.instance.on(EventCenter.CANCEL_PAY_ORDER,this,onCancelPayOrder);
 			EventCenter.instance.on(EventCenter.SELECT_CUSTOMER,this,onSelectCustomer);
-
 			
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listBusinessMan,this,getBusinessManBack,null,null);
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listOrderMakers,this,getOrderMakersBack,null,null);
+
 			this.initDateSelector();
 		}
 		
@@ -191,7 +209,7 @@ package script.usercenter
 			dateInput.style.color = "#003dc6";
 			dateInput.style.border ="2px solid #003dc6";
 			dateInput.style.borderRadius  ="5px";
-
+			
 			dateInput.value = UtilTool.formatFullDateTime(curdate,false);
 			Browser.document.body.appendChild(dateInput);//添加到舞台
 			
@@ -225,8 +243,8 @@ package script.usercenter
 			dateInput2.style.color = "#003dc6";
 			dateInput2.style.border ="2px solid #003dc6";
 			dateInput2.style.borderRadius  ="5px";
-
-
+			
+			
 			//			if(param && param.type == "License")
 			//				file.multiple="";
 			//			else			
@@ -268,20 +286,20 @@ package script.usercenter
 				var pt:Point = uiSkin.ordertime.localToGlobal(new Point(uiSkin.ordertime.x,uiSkin.ordertime.y),true);
 				
 				var scaleNum:Number = Browser.clientWidth/1920;
-
-				var offset:Number = 0;
-
 				
-				dateInput.style.width = scaleNum * 222/Browser.pixelRatio;
-				dateInput.style.height = scaleNum * 44/Browser.pixelRatio;
+				var offset:Number = 0;
+				
+				
+				dateInput.style.width = scaleNum * 222;//Browser.pixelRatio;
+				dateInput.style.height = scaleNum * 44;///Browser.pixelRatio;
 				
 				dateInput.style.fontSize = 24*scaleNum;
 				dateInput2.style.fontSize = 24*scaleNum;
-
 				
 				
-				dateInput2.style.width = scaleNum * 222/Browser.pixelRatio;
-				dateInput2.style.height = scaleNum * 44/Browser.pixelRatio;
+				
+				dateInput2.style.width = scaleNum * 222;///Browser.pixelRatio;
+				dateInput2.style.height = scaleNum * 44;///Browser.pixelRatio;
 				
 				
 				dateInput.style.top = (pt.y - 121)*scaleNum + "px";
@@ -324,7 +342,10 @@ package script.usercenter
 			
 			curCustomer = custom;
 			uiSkin.curCustomName.text = custom.customerName;
-			
+			if(parseInt(curCustomer.id) > 0)
+			{
+				uiSkin.curCustomName.text += "(" + Constast.PAY_TYPE_NAME[curCustomer.defaultPayment - 1] + ")";
+			}
 			getOrderListAgain();
 		}
 		
@@ -336,6 +357,28 @@ package script.usercenter
 			var param:String = "beginDate=" + dateInput.value + " 00:00:00&endDate=" + dateInput2.value + " 23:59:59&option=" + uiSkin.paytype.selectedIndex + "&page=" + curpage;
 			if(curCustomer != null)
 				param +="&customerId=" + curCustomer.id;
+			else
+				param +="&customerId=-1";
+			if(uiSkin.writeOffRadio.selectedIndex == 2)
+				param +="&cleared=-1";
+			else
+				param +="&cleared="+uiSkin.writeOffRadio.selectedIndex;
+			
+			if(uiSkin.businessCombo.selectedIndex > 0)
+			{
+				param +="&salerId="+ businessManlist[uiSkin.businessCombo.selectedIndex -1].id;
+			}
+			else
+				param +="&salerId=0";
+			param +="&customerPayment=-1";
+
+			if(uiSkin.orderPlaceCombo.selectedIndex > 0)
+			{
+				param +="&userId="+ orderManlist[uiSkin.orderPlaceCombo.selectedIndex -1].userId;
+			}
+			else
+				param +="&userId=0";
+			
 			//if(curmonth + 1 < 10 )
 			//	param = "begindate=" + curyear + "0" + (curmonth + 1) + "enddate=" + curyear + "0" + (curmonth + 1) + "&type=2&curpage=1";
 			
@@ -365,15 +408,22 @@ package script.usercenter
 			
 			var param:String = "beginDate=" + dateInput.value + " 00:00:00&endDate=" + dateInput2.value + " 23:59:59&option=" + uiSkin.paytype.selectedIndex + "&page=" + curpage;
 			
-			
+			if(curCustomer != null)
+				param +="&customerId=" + curCustomer.id;
+			else
+				param +="&customerId=-1";
 			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getOrderRecordList + param,this,onGetOrderListBack,null,null);
 			ViewManager.instance.closeView(ViewManager.VIEW_CHOOSE_DELIVERY_TIME_PANEL);
-
+			
 			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.checkOrderList,this,onGetOrderListBack,null,"post");
 		}
 		private function onGetOrderListBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
+			
 			if (data == null || data == "")
 				return;
 			
@@ -394,6 +444,8 @@ package script.usercenter
 				if(Userdata.instance.isHidePrice())
 					uiSkin.ordertotalMoney.text = "****";
 				
+				orderHistory[curpage.toString()] = result.data.orders;
+				
 				uiSkin.pagenum.text = curpage + "/" + totalPage;
 				uiSkin.orderList.array = (result.data.orders as Array);
 			}
@@ -412,21 +464,35 @@ package script.usercenter
 		
 		private function exportExcel():void
 		{
-			var orderData:Array = uiSkin.orderList.array;
+			Browser.window.uploadApp = this;
+			
+			var orderData:Array = [];
+			
+			for(var pageNum in orderHistory)
+			{
+				
+				if(parseInt(pageNum) <= curpage)
+				{
+					orderData = orderData.concat(orderHistory[pageNum]);
+
+				}
+			}
+			
 			if(orderData == null || orderData.length == 0)
 			{
 				ViewManager.showAlert("没有可导出的数据");
 				return;
 			}
-			if(totalPage > 1)
+			if(orderData.length > 1000)
 			{
-				ViewManager.showAlert("页数大于1页不支持导出，请尝试缩短查询时间");
+				ViewManager.showAlert("订单数量不能超过1000条，请尝试减少翻页数");
 				return;
 			}
-			var excelData:Array = [];
+			picList = [];
+			excelData = [];
 			for(var i:int=0;i<orderData.length;i++)
 			{
-				if(orderData[i].status == 1)
+				//if(orderData[i].status == 1)
 				{
 					var orderdata:Object = JSON.parse(orderData[i].detail);
 					var allproduct:Array = orderdata.orderItemList as Array;
@@ -440,7 +506,9 @@ package script.usercenter
 						
 						
 						proddata.orderId = orderData[i].id;
-						proddata.manufacture = orderdata.manufacturerName;
+						proddata.customerName = orderData[i].customerName;
+						
+						//proddata.manufacture = orderdata.manufacturerName;
 						proddata.orderDate = orderData[i].createdAt;
 						proddata.seq = allproduct[j].itemSeq;
 						proddata.fileName = allproduct[j].conponent.filename;
@@ -448,6 +516,7 @@ package script.usercenter
 						proddata.size = sizearr[0] + "*" + sizearr[1] + "(cm)";
 						
 						
+						picList.push(allproduct[j].conponent.thumbnailsPath);
 						
 						var techstr:String =  "";
 						if(allproduct[j].conponent.procInfoList != null)
@@ -456,13 +525,24 @@ package script.usercenter
 								techstr += allproduct[j].conponent.procInfoList[m].procDescription + "-";
 						}
 						proddata.process  = techstr;
-						proddata.itemNum  = allproduct[j].itemNumber;
 						
+						proddata.itemNum  = allproduct[j].itemNumber;
+						proddata.area = (parseFloat(sizearr[0]) * parseFloat(sizearr[1])/10000).toFixed(2);
+						//proddata.unitPrice = (parseFloat(allproduct[j].itemPrice)/parseFloat(proddata.area)).toFixed(2);
+						
+						
+						proddata.unitSalePrice = (allproduct[j].unitSalesPrice != null && allproduct[j].unitSalesPrice != "")?allproduct[j].unitSalesPrice:allproduct[j].itemPrice;
+						
+						proddata.totalSalesPrice = (allproduct[j].totalSalesPrice != null && allproduct[j].totalSalesPrice != "")?allproduct[j].totalSalesPrice:(parseFloat(allproduct[j].itemPrice)*parseFloat(allproduct[j].itemNumber)).toFixed(2);
+
 						if(j==allproduct.length - 1)
 						{
-							proddata.price = orderdata.orderAmount;
-							proddata.deliveryFee = orderdata.shippingFee;
-							
+							proddata.deliveryFee = (orderdata.deliveryFee != null && orderdata.deliveryFee != "")?orderdata.deliveryFee:orderdata.shippingFee;
+							proddata.installationFee = (orderdata.installationFee != null && orderdata.installationFee != "")?orderdata.installationFee:"0";
+							proddata.designFee = (orderdata.designFee != null && orderdata.designFee != "")?orderdata.designFee:"0";
+							proddata.otherFee = (orderdata.otherFee != null && orderdata.otherFee != "")?orderdata.otherFee:"0";
+							proddata.price = (orderdata.totalSalesPrice != null && orderdata.totalSalesPrice != "")?orderdata.totalSalesPrice: orderdata.orderAmount;
+
 						}
 						else
 						{
@@ -475,13 +555,49 @@ package script.usercenter
 						else
 							proddata.deliverydate = "";
 						
+						proddata.picWidth = sizearr[0];
+						proddata.picHeight = sizearr[1];
+						
 						excelData.push(proddata);
 					}
 				}
 			}
 			uiSkin.exportExcel.disabled = true;
 			
-			Browser.window.exportToExcel(excelData,dateInput.value + "至" + dateInput2.value +"订单数据");
+			//base64Arr = []
+			//getAllImgBase64();
+			
+			exportExcelData();
+
+		}
+		
+		private function getAllImgBase64():void
+		{
+			if(picList.length > 0)
+			{
+				Browser.window.getImgBase64(picList[0],getImageBase64Back);
+				picList.splice(0,1);
+			}
+			else
+			{
+				for(var i:int=0;i < base64Arr.length;i++)
+				{
+					excelData[i].imgBase64 = base64Arr[i];
+				}
+				exportExcelData();
+				
+			}
+		}
+		
+		private function getImageBase64Back(base64Img:Object):void
+		{
+			this.base64Arr.push(base64Img);
+			getAllImgBase64();
+			
+		}
+		private function exportExcelData():void
+		{
+			Browser.window.exportExcelJs(excelData,dateInput.value + "至" + dateInput2.value +"订单数据");
 			
 			Laya.timer.once(30000,this,function(){
 				
@@ -489,13 +605,64 @@ package script.usercenter
 				
 			})
 		}
-		
 		private function sortProduct(a:Object,b:Object):int
 		{
 			if(parseInt(a.item_seq) > parseInt(b.item_seq))
 				return 1;
 			else
 				return -1;
+		}
+		
+		private function getBusinessManBack(data:Object):void
+		{
+			if(this.destroyed)
+				return;
+			
+			var result:Object = JSON.parse(data as String);
+			
+			var mans:Array = result.data as Array;
+			var businessMan:Array = [];
+			var businessManName:String="全部";
+			if(mans.length > 0)
+				businessManName += ",";
+			for(var i:int=0;i < mans.length;i++)
+			{
+				businessMan.push(new BusinessManVo(mans[i]));
+				
+				businessManName += businessMan[i].name+"_" + businessMan[i].mobileNumber;
+				if(i < mans.length - 1)
+					businessManName +=",";
+			}
+			uiSkin.businessCombo.labels = businessManName;
+			uiSkin.businessCombo.selectedIndex = 0;
+			businessManlist = businessMan;
+			
+			
+		}
+		
+		private function getOrderMakersBack(data:*):void
+		{
+			if(this.destroyed)
+				return;
+			
+			var result:Object = JSON.parse(data as String);
+			
+			var mans:Array = result.data as Array;
+			var businessMan:Array = [];
+			var userName:String="全部";
+			if(mans.length > 0)
+				userName += ",";
+			for(var i:int=0;i < mans.length;i++)
+			{
+				//businessMan.push(new BusinessManVo(mans[i]));
+				
+				userName += mans[i].nickName+"_" + mans[i].mobileNumber;
+				if(i < mans.length - 1)
+					userName +=",";
+			}
+			uiSkin.orderPlaceCombo.labels = userName;
+			uiSkin.orderPlaceCombo.selectedIndex = 0;
+			orderManlist = mans;
 		}
 		
 		public override function onDestroy():void
@@ -513,7 +680,9 @@ package script.usercenter
 			EventCenter.instance.off(EventCenter.COMMON_CLOSE_PANEL_VIEW,this,onshowInputDate);
 			EventCenter.instance.off(EventCenter.OPEN_PANEL_VIEW,this,onHideInputDate);
 			EventCenter.instance.off(EventCenter.SELECT_CUSTOMER,this,onSelectCustomer);
-
+			
 		}
 	}
 }
+
+

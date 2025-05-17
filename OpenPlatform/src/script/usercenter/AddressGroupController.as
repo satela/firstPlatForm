@@ -228,6 +228,9 @@ package script.usercenter
 		}
 		
 		private function deleteAddressBack(data:*):void{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.status == 0)
 			{
@@ -260,6 +263,9 @@ package script.usercenter
 		
 		private function getMyAddressBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.status == 0)
 			{
@@ -308,6 +314,9 @@ package script.usercenter
 		}
 		private function initAddr(data:String):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			
 			(result.status as Array).unshift({id:0,areaname:"空"});
@@ -337,6 +346,8 @@ package script.usercenter
 
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,function(data:String)
 			{
+				if(uiSkin.destroyed)
+					return;
 				var result:Object = JSON.parse(data as String);
 				
 				(result.status as Array).unshift({id:0,areaname:"空"});
@@ -391,6 +402,9 @@ package script.usercenter
 			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,function(data:String)
 			{
+				if(uiSkin.destroyed)
+					return;
+				
 				var result:Object = JSON.parse(data as String);
 				
 				(result.status as Array).unshift({id:0,areaname:"空"});
@@ -502,6 +516,9 @@ package script.usercenter
 		}
 		private function createGroupBack(data:String):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.status == 0)
 			{
@@ -531,6 +548,9 @@ package script.usercenter
 		
 		private function listGroupBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.status == 0)
 			{

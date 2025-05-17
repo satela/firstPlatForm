@@ -9,10 +9,12 @@ package script.order
 	import laya.utils.Handler;
 	
 	import model.HttpRequestUtil;
+	import model.Userdata;
 	import model.orderModel.PackageVo;
 	import model.orderModel.PaintOrderModel;
 	import model.users.AddressGroupVo;
 	import model.users.AddressVo;
+	import model.users.CustomVo;
 	import model.users.VipAddressVo;
 	
 	import script.ViewManager;
@@ -39,6 +41,8 @@ package script.order
 		private var curPage:int = 1;
 		private var totalPage:int = 1;
 		
+		private var addressPageSize = 20;
+		
 		private var province:Object;
 		
 		private var zoneid:String;
@@ -47,9 +51,13 @@ package script.order
 		private var grpCurPage:int = 1;
 		private var grpTotalPage = 1;
 		private var hasinit = false;
+		private var pageSize:int = 50;
 		
 		private var param:Object;
 		private var MAX_NUM:int = 100;
+		
+		private var curCustomer:CustomVo;
+		
 		public function SelectPackAddressController()
 		{
 			super();
@@ -58,6 +66,10 @@ package script.order
 		override public function onStart():void
 		{
 			uiSkin = this.owner as SelectPackAddresstPanelUI;
+			
+			curCustomer = param as CustomVo;
+			if(curCustomer == null || curCustomer.id == "0")
+				uiSkin.groupTab.visible = false;
 			
 			tabBtns.push(uiSkin.addressTab);
 			tabBtns.push(uiSkin.groupTab);
@@ -91,7 +103,7 @@ package script.order
 			uiSkin.provList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.provList.selectEnable = true;
 			uiSkin.provList.selectHandler = new Handler(this, selectProvince);
-			uiSkin.provList.array = [{id:0,areaname:"空"}];
+			uiSkin.provList.array = [{id:0,areaName:"空"}];
 			
 			//uiSkin.provList.array = ChinaAreaModel.instance.getAllProvince();
 			//uiSkin.provList.refresh();
@@ -104,7 +116,7 @@ package script.order
 			
 			uiSkin.cityList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.cityList.selectHandler = new Handler(this, selectCity);
-			uiSkin.cityList.array = [{id:0,areaname:"空"}];
+			uiSkin.cityList.array = [{id:0,areaName:"空"}];
 			
 			
 			uiSkin.areaList.itemRender = CitySearchItem;
@@ -115,7 +127,7 @@ package script.order
 			
 			uiSkin.areaList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.areaList.selectHandler = new Handler(this, selectArea);
-			uiSkin.areaList.array = [{id:0,areaname:"空"}];
+			uiSkin.areaList.array = [{id:0,areaName:"空"}];
 			
 			uiSkin.btnSelProv.on(Event.CLICK,this,onShowProvince);
 			uiSkin.btnSelCity.on(Event.CLICK,this,onShowCity);
@@ -130,7 +142,7 @@ package script.order
 			uiSkin.nextPage.on(Event.CLICK,this,onNextPage);
 			uiSkin.searchInput.maxChars = 20;
 			uiSkin.searchbtn.on(Event.CLICK,this,onSearchAddress);
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,initAddr,"parentid=0","post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer+ "parentId=0",this,initAddr,null,null);
 			
 			//分组
 			hasSelectGroup = {};
@@ -147,6 +159,8 @@ package script.order
 			uiSkin.groupList.array = arr;
 			
 			uiSkin.searchGroupInput.maxChars = 20;
+			
+			uiSkin.pageNum.text = "1/1";
 			
 			uiSkin.gpPrevPage.on(Event.CLICK,this,onGpPrevPage);
 			uiSkin.gpNextPage.on(Event.CLICK,this,onGpNextPage);
@@ -239,9 +253,9 @@ package script.order
 		{
 			var result:Object = JSON.parse(data as String);
 			
-			(result.status as Array).unshift({id:0,areaname:"空"});
+			(result.data as Array).unshift({id:0,areaName:"空"});
 			
-			uiSkin.provList.array = result.status as Array;//ChinaAreaModel.instance.getAllProvince();
+			uiSkin.provList.array = result.data as Array;//ChinaAreaModel.instance.getAllProvince();
 			//var selpro:int = 0;
 			
 			//selectProvince(selpro);
@@ -252,30 +266,30 @@ package script.order
 		{
 			province = uiSkin.provList.array[index];
 			uiSkin.provbox.visible = false;
-			uiSkin.province.text = province.areaname;
+			uiSkin.province.text = province.areaName;
 			
 			uiSkin.cityList.selectedIndex = 0;
 			this.selectCity(0);
 			if(province.id == 0)
 			{
 				
-				uiSkin.cityList.array = [{id:0,areaname:"空"}];
+				uiSkin.cityList.array = [{id:0,areaName:"空"}];
 				return;
 				
 			}
 			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,function(data:String)
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer +"parentId=" + province.id,this,function(data:String)
 			{
 				var result:Object = JSON.parse(data as String);
 				
-				(result.status as Array).unshift({id:0,areaname:"空"});
+				(result.data as Array).unshift({id:0,areaName:"空"});
 				
-				uiSkin.cityList.array = result.status as Array;//ChinaAreaModel.instance.getAllCity(province.id);
+				uiSkin.cityList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
 				uiSkin.cityList.refresh();
 				
 				
 				
-			},"parentid=" + province.id,"post");
+			},null,null);
 			
 			
 			
@@ -285,7 +299,7 @@ package script.order
 		{
 			uiSkin.citybox.visible = false;
 			
-			uiSkin.citytxt.text = uiSkin.cityList.array[index].areaname;
+			uiSkin.citytxt.text = uiSkin.cityList.array[index].areaName;
 			
 			uiSkin.areaList.selectedIndex = 0;
 			
@@ -293,22 +307,22 @@ package script.order
 			
 			if(uiSkin.cityList.array[index].id == 0)
 			{
-				uiSkin.areaList.array = [{id:0,areaname:"空"}];
+				uiSkin.areaList.array = [{id:0,areaName:"空"}];
 				
 				return;
 			}
 			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer ,this,function(data:String)
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=" + uiSkin.cityList.array[index].id,this,function(data:String)
 			{
 				var result:Object = JSON.parse(data as String);
 				
-				(result.status as Array).unshift({id:0,areaname:"空"});
+				(result.data as Array).unshift({id:0,areaName:"空"});
 				
-				uiSkin.areaList.array = result.status as Array;//ChinaAreaModel.instance.getAllCity(province.id);
+				uiSkin.areaList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
 				uiSkin.areaList.refresh();
 								
 				
-			},"parentid=" + uiSkin.cityList.array[index].id,"post");
+			},null,null);
 			
 			
 			
@@ -322,7 +336,7 @@ package script.order
 			areaid  = uiSkin.areaList.array[index].id;
 			
 			
-			uiSkin.areatxt.text = uiSkin.areaList.array[index].areaname;
+			uiSkin.areatxt.text = uiSkin.areaList.array[index].areaName;
 			
 			uiSkin.areabox.visible = false;
 			
@@ -398,9 +412,76 @@ package script.order
 			}
 			
 			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page=" + curPage +"&hidden=0&addr=" + addr + "&keyword=" + uiSkin.searchInput.text,"post");
+			if(curCustomer == null || curCustomer.id == "0")
+			{
+				if(Userdata.instance.passedAddress.length == 0)
+				{
+					HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.addressListUrl,this,getMyAddressBack,"page=1",null,null);
+					
+				}
+				else
+					uiSkin.addressList.array = Userdata.instance.passedAddress;
+			}
+			else
+				updateCustomeList();
+			
+			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page=" + curPage +"&hidden=0&addr=" + addr + "&keyword=" + uiSkin.searchInput.text,"post");
 			
 		}
+		
+		private function updateCustomeList():void
+		{
+			var addr:String = "";
+			if(uiSkin.areaList.selectedIndex > 0)
+			{
+				addr = uiSkin.areaList.array[uiSkin.areaList.selectedIndex].id;
+				
+			}
+			else if(uiSkin.cityList.selectedIndex > 0)
+				addr = uiSkin.cityList.array[uiSkin.cityList.selectedIndex].id;
+			else if(uiSkin.provList.selectedIndex > 0)
+				addr = uiSkin.provList.array[uiSkin.provList.selectedIndex].id;
+			
+			var paramdata:String = "customerId=" + curCustomer.id + "&pageNo=" + curPage + "&pageSize=" + addressPageSize + "&region=" + addr + "&keyword=" + uiSkin.searchInput.text;
+				
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listCustomerAddress + paramdata,this,getCustomerAddressBack,null,null,null);
+			
+		}
+		private function getCustomerAddressBack(data:Object):void
+		{
+			if(this.destroyed)
+				return;
+			
+			var result:Object = JSON.parse(data as String);
+			if(result.code == "0")
+			{
+				//Userdata.instance.initMyAddress(result.data.expressList as Array);
+				//Userdata.instance.defaultAddId = result.data.defaultId;
+				
+				var addressList:Array = [];
+				for(var i:int=0;i < result.data.expressList.length;i++)
+				{
+					addressList.push(new AddressVo(result.data.expressList[i]));
+					addressList[i].customerId = curCustomer.id;
+					addressList[i].customerName = curCustomer.customerName;
+					addressList[i].defaultPayType = curCustomer.defaultPayment;
+					
+				}			
+				
+				totalPage = Math.ceil(result.data.totalCount/pageSize);
+				if(totalPage < 1)
+					totalPage = 1;
+				uiSkin.pageNum.text = curPage + "/" + totalPage;
+				
+				
+				//var tempAdd:Array = Userdata.instance.addressList;
+				
+				uiSkin.addressList.array = addressList;
+				
+				
+			}
+		}
+		
 		private function getMyAddressBack(data:Object):void
 		{
 			var result:Object = JSON.parse(data as String);
@@ -459,26 +540,30 @@ package script.order
 		}
 		private function refreshGroupList():void
 		{
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressGroupManageUrl,this,listGroupBack,"opt=list&page=" + grpCurPage + "&keyword=" + uiSkin.searchGroupInput.text,"post");
+			var paramdata:String = "customerId=" + curCustomer.id + "&name=" + uiSkin.searchGroupInput.text + "&pageNo=" + grpCurPage + "&pageSize=" + pageSize;
+			
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressGroupManageList+paramdata,this,listGroupBack,null,null);
 			
 		}
 		
 		private function listGroupBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
-			if(result.status == 0)
+			if(result.code == "0")
 			{
 				var groupList = [];
-				for(var i:int=0;i < result.data.length;i++)
+				for(var i:int=0;i < result.data.expressGroupList.length;i++)
 				{
-					groupList.push(new AddressGroupVo(result.data[i]));
-					groupList[i].selected = hasSelectGroup.hasOwnProperty(groupList[i].groupId);
+					groupList.push(new AddressGroupVo(result.data.expressGroupList[i]));
 				}			
 				
 				//var tempAdd:Array = Userdata.instance.addressList;
 				//tempAdd.sort(compareAddress);
 				uiSkin.groupList.array = groupList;
-				grpTotalPage = result.totalpage;
+				grpTotalPage = Math.ceil(result.data.totalCount/pageSize);
 				if(grpTotalPage < 1)
 					grpTotalPage = 1;
 				
@@ -508,10 +593,11 @@ package script.order
 			var selectgroup:Array= [];
 			for(var key:* in hasSelectGroup)
 				selectgroup.push(key);
+			var postdata:Object = {"expressGroupIds":selectgroup};
 			
 			if(selectgroup.length > 0)
 			{
-				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listGroupsAddress,this,getGroupAddressBack,"id=" + selectgroup.join(","),"post");
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listGroupsAddress,this,getGroupAddressBack,JSON.stringify(postdata),"post");
 
 			}
 			else
@@ -521,12 +607,12 @@ package script.order
 		private function getGroupAddressBack(data:Object):void
 		{
 			var result:Object = JSON.parse(data as String);
-			if(result.status == 0)
+			if(result.code == "0")
 			{
 				var addressList = [];
-				for(var i:int=0;i < result.addrs.length;i++)
+				for(var i:int=0;i < result.data.length;i++)
 				{
-					addressList.push(new VipAddressVo(result.addrs[i]));
+					addressList.push(new VipAddressVo(result.data[i]));
 				}
 				sendAddressToPackage(addressList);
 			}

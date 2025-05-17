@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":55,
-    "selecteID":50,
+    "selectedBox":76,
+    "selecteID":41,
     "searchKey":"View",
     "props":{"width":1920,"sceneColor":"#f9f8f8","height":1080},
     "nodeParent":-1,
@@ -49,28 +49,28 @@
                     "props":{"x":0,"width":620,"top":0,"skin":"uiCommonUpdate/greenBar.png","bottom":0},
                     "nodeParent":39,
                     "label":"Image",
-                    "isDirectory":false,
+                    "isOpen":true,
+                    "isDirectory":true,
                     "isAniNode":true,
-                    "hasChild":false,
+                    "hasChild":true,
                     "compId":76,
                     "child":[
-                        ],
+                        {
+                            "x":45,
+                            "type":"Image",
+                            "searchKey":"Image,companyPic",
+                            "props":{"visible":true,"var":"companyPic","top":0,"right":0,"left":0,"bottom":0},
+                            "nodeParent":76,
+                            "label":"companyPic",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":41,
+                            "child":[
+                                ],
+                            "$LOCKED":false
+                        }],
                     "$HIDDEN":false
-                },
-                {
-                    "x":30,
-                    "type":"Image",
-                    "searchKey":"Image",
-                    "props":{"y":122,"x":85,"width":450,"visible":true,"skin":"uiCommonUpdate/logogreen.png","height":133},
-                    "nodeParent":39,
-                    "label":"Image",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":41,
-                    "child":[
-                        ],
-                    "$LOCKED":false
                 },
                 {
                     "x":30,

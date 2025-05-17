@@ -15,6 +15,7 @@ package ui.dengxiang {
 		public var step2:Box;
 		public var step3:Box;
 		public var step4:Box;
+		public var unitpricelbl:Label;
 		public var pricelbl:Label;
 		public var selectAll:CheckBox;
 		public var btnaddpic:Button;

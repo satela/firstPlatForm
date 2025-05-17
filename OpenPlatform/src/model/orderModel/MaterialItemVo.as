@@ -190,7 +190,7 @@ package model.orderModel
 				}
 			}
 			//if(curselectProduct != null && allpics.length > 0)			
-			if(allpics.length > 0)
+			if(allpics != null && allpics.length > 0)
 			{				
 				
 				if(this._nextMatList.length > 0)

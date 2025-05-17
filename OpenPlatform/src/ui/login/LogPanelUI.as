@@ -9,6 +9,7 @@ package ui.login {
 
 	public class LogPanelUI extends View {
 		public var mainpanel:Panel;
+		public var companyPic:Image;
 		public var logBox:Box;
 		public var pwdImg:Image;
 		public var input_pwd:TextInput;

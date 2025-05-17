@@ -28,6 +28,8 @@ package script.workpanel
 			
 			uiSkin = this.owner as EffectPreviewPanelUI; 
 			u3ddiv = Browser.document.querySelector("#unity-container");
+			u3ddiv.style.display = "";
+
 			uiSkin.closeBtn.on(Event.CLICK,this,closeView);
 			Browser.document.body.appendChild(u3ddiv);
 			Browser.window.layaCaller = this;

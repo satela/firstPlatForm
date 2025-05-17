@@ -9,6 +9,7 @@ package script.order
 	import laya.utils.Browser;
 	import laya.utils.Handler;
 	
+	import model.Constast;
 	import model.HttpRequestUtil;
 	import model.Userdata;
 	import model.orderModel.PaintOrderModel;
@@ -40,7 +41,7 @@ package script.order
 			customer = param as CustomVo;
 			
 			if(customer != null && customer.id != "0")
-				uiSkin.curCustomName.text = customer.customerName;
+				uiSkin.curCustomName.text = customer.customerName  + "(" + Constast.PAY_TYPE_NAME[customer.defaultPayment - 1] + ")";
 			else
 				uiSkin.curCustomName.text = Userdata.instance.company;
 
@@ -123,6 +124,9 @@ package script.order
 		
 		private function getMyAddressBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -236,7 +240,7 @@ package script.order
 			uiSkin.list_address.selectedIndex = -1;
 			
 			customer = custom;
-			uiSkin.curCustomName.text = custom.customerName;
+			uiSkin.curCustomName.text = custom.customerName + "(" + Constast.PAY_TYPE_NAME[custom.defaultPayment - 1] + ")";;
 			
 			if(customer.id == "0")
 			{
@@ -263,6 +267,9 @@ package script.order
 		}
 		private function getCustomerAddressBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -274,6 +281,9 @@ package script.order
 				{
 					addressList.push(new AddressVo(result.data.expressList[i]));
 					addressList[i].customerId = customer.id;
+					addressList[i].customerName = customer.customerName;
+					addressList[i].defaultPayType = customer.defaultPayment;
+
 				}			
 				
 				//var tempAdd:Array = Userdata.instance.addressList;

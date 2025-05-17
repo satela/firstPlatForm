@@ -104,6 +104,18 @@ package script.workpanel
 			resetOrderInfo();
 			updateLblPos(Userdata.instance.shrinkState);
 			
+			if(PaintOrderModel.instance.selectAddress.customerId != "0")
+			{
+				uiSkin.curCustomer.text = "当前客户：" + PaintOrderModel.instance.selectAddress.customerName;
+				uiSkin.curCustomer.visible = true;
+				if(PaintOrderModel.instance.selectAddress.defaultPayType >= 0)
+				{
+					uiSkin.curCustomer.text +="(" + Constast.PAY_TYPE_NAME[PaintOrderModel.instance.selectAddress.defaultPayType - 1] + ")";
+				}
+			}
+			else
+				uiSkin.curCustomer.visible = false;
+			
 			if(Userdata.instance.company == null || Userdata.instance.company == "")
 				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getCompanyInfo ,this,getCompanyInfo,null,null);
 			
@@ -115,11 +127,14 @@ package script.workpanel
 			{
 				uiSkin.opeBox.x = 1456;
 				uiSkin.pricelbl.x = 1364;
+				uiSkin.unitpricelbl.x = 1273;
+
 			}
 			else
 			{
 				uiSkin.opeBox.x = 1556;
-				uiSkin.pricelbl.x= 1414;
+				uiSkin.pricelbl.x= 1468;
+				uiSkin.unitpricelbl.x = 1373;
 			}
 		}
 		private function resetOrderInfo():void
@@ -206,8 +221,8 @@ package script.workpanel
 				//orderdata.money_paidStr =  "0.01";//totalMoney.toString();
 				for each(var odata in orderFactory)
 				{
-					if( (odata.order_amountStr as Number) < 2)
-						odata.order_amountStr = 2.00;
+					if( (odata.order_amountStr as Number) < Userdata.instance.orderBasePrice)
+						odata.order_amountStr = Userdata.instance.orderBasePrice;
 					
 					total += (Number)((odata.order_amountStr as Number).toFixed(2));
 					
@@ -420,6 +435,9 @@ package script.workpanel
 		
 		private function ongetUidsBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -439,10 +457,11 @@ package script.workpanel
 				}
 				//ViewManager.instance.setViewVisible(ViewManager.VIEW_PAINT_ORDER,false);
 				
-				//EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[PackageOrderPanelUI,0,itemlist]);
+				EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[PackageOrderPanelUI,0,itemlist]);
 				
-				initPackage(itemlist);
-				//ViewManager.instance.openView(ViewManager.VIEW_PACKAGE_ORDER_VIP_PANEL,false,itemlist);
+				
+				//不走打包
+				//initPackage(itemlist);
 				
 			}
 		}
@@ -675,15 +694,15 @@ package script.workpanel
 			var arr:Array = [];
 			for each(var odata in orderFactory)
 			{
-				if( (odata.order_amountStr as Number) < 2)
+				if( (odata.order_amountStr as Number) < Userdata.instance.orderBasePrice)
 				{
-					odata.orderAmount = 2.00;
+					odata.orderAmount = Userdata.instance.orderBasePrice;
 					var itemarr:Array = odata.orderItemList;
 					if(itemarr.length > 0)
 					{
-						var eachprice:Number = Number((2/itemarr.length).toFixed(2));
+						var eachprice:Number = Number((Userdata.instance.orderBasePrice/itemarr.length).toFixed(2));
 						
-						var overflow:Number = 2 - eachprice*itemarr.length;
+						var overflow:Number = Userdata.instance.orderBasePrice - eachprice*itemarr.length;
 						for(var j:int=0;j < itemarr.length;j++)
 						{
 							if(j==0)

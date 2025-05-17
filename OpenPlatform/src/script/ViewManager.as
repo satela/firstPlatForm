@@ -49,6 +49,7 @@ package script
 	import ui.order.SelectMaterialPanelUI;
 	import ui.order.SelectPackAddresstPanelUI;
 	import ui.order.SelectPicPanelUI;
+	import ui.orderList.WriteOffOrderPanelUI;
 	import ui.picManager.BuyStoragePanelUI;
 	import ui.picManager.PicCheckPanelUI;
 	import ui.prodCustom.CustomEditPanelUI;
@@ -67,6 +68,7 @@ package script
 	import ui.usercenter.NewAddressPanelUI;
 	import ui.usercenter.OrderDetailPanelUI;
 	import ui.usercenter.PublicChargeRecordPanelUI;
+	import ui.usercenter.SellPriceSettingPanelUI;
 	import ui.usercenter.UserMainPanelUI;
 
 	public class ViewManager
@@ -181,6 +183,11 @@ package script
 		public static const RELATED_PIC_CHOOSE_PANEL:String = "RELATED_PIC_CHOOSE_PANEL";//关联图片选择界面
 		public static const PRODUCT_PROC_EFFECT_PANEL:String = "PRODUCT_PROC_EFFECT_PANEL";//材料工艺效果图界面
 
+		public static const ORDER_PRICE_SETTING_PANEL:String = "ORDER_PRICE_SETTING_PANEL";//订单售价设置界面
+
+		public static const WRITE_OFF_ORDER_PANEL:String = "WRITE_OFF_ORDER_PANEL";//订单销账界面
+
+		
 		public var viewDict:Object;
 		private var curZorder:int = 0;
 		public static function get instance():ViewManager
@@ -287,9 +294,11 @@ package script
 			viewDict[APPLY_JOIN_LIST_PANEL] = ApplyJoinMgrPanelUI;
 			viewDict[RELATED_PIC_CHOOSE_PANEL] = RelatedPicChoosePanelUI;
 			viewDict[PRODUCT_PROC_EFFECT_PANEL] = MatAndProcEffectPanelUI;
+			viewDict[ORDER_PRICE_SETTING_PANEL] = SellPriceSettingPanelUI;
+			
+			viewDict[WRITE_OFF_ORDER_PANEL] = WriteOffOrderPanelUI;
 
 			
-
 //			viewDict[VIEW_PRODUCT_CUSTOMIZATION_PANEL] = CustomEditPanelUI;
 //			viewDict[VIEW_PRODUCT_CATEGORY_PANEL] = CustomerProdCategoryPanelUI;
 //			

@@ -145,8 +145,18 @@ package eventUtil
 		//客户删除
 		public static const UPDATE_CUSTOMER_LIST:String = "UPDATE_CUSTOMER_LIST";//
 		public static const SELECT_CUSTOMER:String = "SELECT_CUSTOMER";//
+		public static const EDIT_CUSTOMER_INFO:String = "EDIT_CUSTOMER_INFO";//
+
 		
-		
+		public static const UPDATE_ORDER_PRICE:String = "UPDATE_ORDER_PRICE";//
+
+		public static const DELETE_CUSTOMER_TRANSACTION:String = "DELETE_CUSTOMER_TRANSACTION";//
+		public static const CUSTOMER_LIST_INIT_SUCESS:String = "CUSTOMER_LIST_INIT_SUCESS";//
+		public static const CHANGE_WRITEOFF_ORDER_SELECTED:String = "CHANGE_WRITEOFF_ORDER_SELECTED";//
+
+		public static const UPDATE_BUSINESSMAN_LIST:String = "UPDATE_BUSINESSMAN_LIST";//
+
+		public static const UPDATE_CUSTOMER_BALANCE:String = "UPDATE_CUSTOMER_BALANCE";//更新客户余额
 
 		private static var _eventCenter:EventCenter;
 		

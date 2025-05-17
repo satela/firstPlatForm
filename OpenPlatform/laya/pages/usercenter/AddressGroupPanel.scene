@@ -2,6 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":2,
+    "selecteID":29,
     "searchKey":"View",
     "props":{"width":980,"sceneColor":"#ffffff","height":800},
     "nodeParent":-1,
@@ -91,14 +92,13 @@
             "props":{"y":63,"x":10,"var":"addressbox"},
             "nodeParent":2,
             "label":"addressbox",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":27,
             "child":[
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image",
                     "props":{"y":36,"x":0,"width":961,"skin":"commers/grayback.jpg","sizeGrid":"2,2,2,2","height":40,"alpha":1},
@@ -114,7 +114,6 @@
                     "$HIDDEN":false
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "searchKey":"Label",
                     "props":{"y":48,"x":54,"text":"联系人","fontSize":14,"font":"SimHei","color":"#152320","bold":false},
@@ -128,7 +127,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "searchKey":"Label",
                     "props":{"y":48,"x":201,"width":56,"text":"联系电话","height":14,"fontSize":14,"font":"SimHei","color":"#152320","bold":false},
@@ -142,7 +140,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "searchKey":"Label",
                     "props":{"y":48,"x":463,"text":"详细地址","fontSize":14,"font":"SimHei","color":"#152320","bold":false},
@@ -156,7 +153,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "searchKey":"Label",
                     "props":{"y":48,"x":840,"text":"操作","fontSize":14,"font":"SimHei","bold":false},
@@ -170,7 +166,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"List",
                     "searchKey":"List,addressList",
                     "props":{"y":75,"x":0,"width":961,"var":"addressList","vScrollBarSkin":"upload1/vscroll.png","height":513},
@@ -184,7 +179,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,searchInput",
                     "props":{"y":1,"x":565,"width":98,"var":"searchInput","text":"华为","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","promptColor":"输入信息搜索","height":23,"fontSize":16,"font":"SimHei"},
@@ -198,7 +192,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,searchAddressBtn",
                     "props":{"y":-0.5,"x":672,"width":64,"var":"searchAddressBtn","skin":"commers/btn1.png","sizeGrid":"3,3,3,3","labelSize":16,"labelFont":"SimHei","labelColors":"#FFFFFF,#262B2E,,#262B2E,","labelBold":false,"labelAlign":"center","label":"搜索","height":29},
@@ -212,7 +205,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"CheckBox",
                     "searchKey":"CheckBox,selectall",
                     "props":{"y":7.5,"x":14,"var":"selectall","skin":"commers/multicheck.png","labelSize":16,"labelFont":"SimHei","label":"全选"},
@@ -226,7 +218,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,delBatchBtn",
                     "props":{"y":2.5,"x":83,"width":65,"var":"delBatchBtn","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","labelSize":14,"labelFont":"SimHei","labelColors":"#262B2E,#445566,,#262B2E,","labelBold":false,"label":"删除已选","height":23},
@@ -240,7 +231,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,btnSelProv",
                     "props":{"y":-0.5,"x":169,"width":120,"var":"btnSelProv","stateNum":"3","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","height":30},
@@ -253,7 +243,6 @@
                     "compId":47,
                     "child":[
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button",
                             "props":{"y":10,"x":94,"skin":"commers/pagedown.png"},
@@ -267,7 +256,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,province",
                             "props":{"y":0,"x":0,"width":120,"var":"province","valign":"middle","text":"空","height":30,"fontSize":16,"font":"SimHei","color":"#262B2E","borderColor":"#3e3939","align":"center"},
@@ -284,7 +272,6 @@
                     "$HIDDEN":false
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,btnSelCity",
                     "props":{"y":0,"x":301,"width":120,"var":"btnSelCity","stateNum":"3","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","height":30},
@@ -297,7 +284,6 @@
                     "compId":48,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,citytxt",
                             "props":{"y":0,"x":0,"width":120,"var":"citytxt","valign":"middle","text":"空","height":30,"fontSize":16,"font":"SimHei","color":"#262B2E","borderColor":"#3e3939","align":"center"},
@@ -313,7 +299,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button",
                             "props":{"y":10,"x":94,"skin":"commers/pagedown.png"},
@@ -329,7 +314,6 @@
                     "$HIDDEN":false
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,btnSelArea",
                     "props":{"y":0,"x":434,"width":120,"var":"btnSelArea","stateNum":"3","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","height":30},
@@ -342,7 +326,6 @@
                     "compId":49,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,areatxt",
                             "props":{"y":0,"x":0,"width":120,"var":"areatxt","valign":"middle","text":"空","height":30,"fontSize":16,"font":"SimHei","color":"#262B2E","borderColor":"#3e3939","align":"center"},
@@ -357,7 +340,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button",
                             "props":{"y":10,"x":94,"skin":"commers/pagedown.png"},
@@ -373,7 +355,6 @@
                     "$HIDDEN":false
                 },
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image,provbox",
                     "props":{"y":32,"x":164,"width":122,"var":"provbox","skin":"commers/commonpopbg.png","sizeGrid":"3,3,3,3","height":278,"alpha":1},
@@ -386,7 +367,6 @@
                     "compId":50,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"top":0,"skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0},
@@ -400,7 +380,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"List",
                             "searchKey":"List,provList",
                             "props":{"var":"provList","top":0,"right":0,"left":0,"bottom":0},
@@ -417,7 +396,6 @@
                     "$HIDDEN":true
                 },
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image,citybox",
                     "props":{"y":32,"x":299,"width":122,"var":"citybox","skin":"commers/commonpopbg.png","sizeGrid":"3,3,3,3","height":278,"alpha":1},
@@ -430,7 +408,6 @@
                     "compId":51,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"top":0,"skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0},
@@ -445,7 +422,6 @@
                             "$HIDDEN":true
                         },
                         {
-                            "x":45,
                             "type":"List",
                             "searchKey":"List,cityList",
                             "props":{"var":"cityList","top":0,"right":0,"left":0,"bottom":0},
@@ -462,7 +438,6 @@
                     "$HIDDEN":true
                 },
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image,areabox",
                     "props":{"y":32,"x":433,"width":122,"var":"areabox","skin":"commers/commonpopbg.png","sizeGrid":"3,3,3,3","height":278,"alpha":0.8},
@@ -475,7 +450,6 @@
                     "compId":52,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":0,"x":0,"top":0,"skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0},
@@ -489,7 +463,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"List",
                             "searchKey":"List,areaList",
                             "props":{"var":"areaList","top":0,"right":0,"left":0,"bottom":0},
@@ -506,7 +479,6 @@
                     "$HIDDEN":true
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":595,"x":350},
@@ -519,7 +491,6 @@
                     "compId":66,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,pageNum",
                             "props":{"y":3,"x":85,"width":60,"var":"pageNum","text":"1/10","height":21,"fontSize":16,"font":"SimHei","color":"#152320","bold":false,"align":"center"},
@@ -533,7 +504,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,prePage",
                             "props":{"width":77,"var":"prePage","skin":"commers/btn3.png","sizeGrid":"3,3,3,3","labelSize":14,"labelFont":"SimHei","labelColors":"#262B2E,#FFFFFF,,#262B2E,","labelBold":false,"label":"上一页","height":26},
@@ -548,7 +518,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,nextPage",
                             "props":{"x":153,"width":77,"var":"nextPage","skin":"commers/btn3.png","sizeGrid":"3,3,3,3","labelSize":14,"labelFont":"SimHei","labelColors":"#262B2E,#FFFFFF,,#262B2E,","labelBold":false,"label":"下一页","height":26},
@@ -562,7 +531,7 @@
                                 ]
                         }]
                 }],
-            "$HIDDEN":false
+            "$HIDDEN":true
         },
         {
             "x":15,
@@ -571,14 +540,13 @@
             "props":{"y":62,"x":10,"width":938,"var":"groupBox","height":585},
             "nodeParent":2,
             "label":"groupBox",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":30,
             "child":[
                 {
-                    "x":30,
                     "type":"List",
                     "searchKey":"List,groupList",
                     "props":{"y":35,"x":0,"width":964,"var":"groupList","vScrollBarSkin":"upload1/vscroll.png","height":550},
@@ -592,7 +560,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,searchGroupInput",
                     "props":{"y":5.5,"x":343,"width":128,"var":"searchGroupInput","text":"华为","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","promptColor":"输入信息搜索","height":23,"fontSize":16,"font":"SimHei"},
@@ -606,7 +573,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,searchGrpBtn",
                     "props":{"y":2.5,"x":480,"width":64,"var":"searchGrpBtn","skin":"commers/btn1.png","sizeGrid":"3,3,3,3","labelSize":16,"labelFont":"SimHei","labelColors":"#FFFFFF,#262B2E,,#262B2E,","labelBold":false,"labelAlign":"center","label":"搜索","height":29},
@@ -620,7 +586,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box,createGroupBox",
                     "props":{"width":931,"var":"createGroupBox","top":0,"right":7,"left":0,"height":585,"bottom":0},
@@ -633,7 +598,6 @@
                     "compId":41,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"top":0,"skin":"commers/blackbg.png","sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0,"alpha":0.5},
@@ -649,7 +613,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":192,"x":219,"width":500,"skin":"commers/choosebg.png","sizeGrid":"10,10,10,10","height":200},
@@ -662,7 +625,6 @@
                             "compId":43,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"TextInput",
                                     "searchKey":"TextInput,newGroupName",
                                     "props":{"y":65,"x":37,"width":312,"var":"newGroupName","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","prompt":"请输入分组名称（限8字以内)","height":46,"fontSize":20},
@@ -677,7 +639,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button,confirmCreateGroup",
                                     "props":{"y":67,"x":362,"width":100,"var":"confirmCreateGroup","skin":"commers/btn1.png","sizeGrid":"3,3,3,3","labelSize":18,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF","label":"确定","height":40},
@@ -692,7 +653,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button,closeNewGroup",
                                     "props":{"y":9,"x":464,"var":"closeNewGroup","skin":"commers/btnclose.png","labelSize":24},
@@ -711,7 +671,6 @@
                     "$HIDDEN":false
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":595,"x":350},
@@ -724,7 +683,6 @@
                     "compId":70,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,grPageNum",
                             "props":{"y":3,"x":85,"width":60,"var":"grPageNum","text":"1/10","height":21,"fontSize":16,"font":"SimHei","color":"#152320","bold":false,"align":"center"},
@@ -738,7 +696,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,gpPrevPage",
                             "props":{"width":77,"var":"gpPrevPage","skin":"commers/btn3.png","sizeGrid":"3,3,3,3","labelSize":14,"labelFont":"SimHei","labelColors":"#262B2E,#FFFFFF,,#262B2E,","labelBold":false,"label":"上一页","height":26},
@@ -753,7 +710,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,gpNextPage",
                             "props":{"x":153,"width":77,"var":"gpNextPage","skin":"commers/btn3.png","sizeGrid":"3,3,3,3","labelSize":14,"labelFont":"SimHei","labelColors":"#262B2E,#FFFFFF,,#262B2E,","labelBold":false,"label":"下一页","height":26},

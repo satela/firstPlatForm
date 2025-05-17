@@ -2,11 +2,11 @@
     "x":0,
     "type":"View",
     "selectedBox":73,
-    "selecteID":78,
+    "selecteID":128,
     "searchKey":"View",
     "props":{"width":1920,"sceneColor":"#000000","height":1080},
     "nodeParent":-1,
-    "maxID":128,
+    "maxID":129,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -328,14 +328,13 @@
                     "nodeParent":73,
                     "maxID":63,
                     "label":"Image(CmykInput)",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":115,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":21,"x":-163,"text":"确认密码","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -349,7 +348,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"TextInput",
                             "searchKey":"TextInput,inputcfmpwd",
                             "props":{"var":"inputcfmpwd","prompt":"请再次输入新密码","presetID":3,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -363,7 +361,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"presetID":4,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -377,7 +374,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/prefabScript/CmykInputControl.as",
@@ -394,7 +390,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button",
                             "props":{"presetID":6,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -427,14 +422,13 @@
                     "nodeParent":73,
                     "maxID":63,
                     "label":"Image(CmykInput)",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":122,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":21,"x":-216,"width":199,"text":"手机验证码","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab","height":36},
@@ -448,7 +442,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"TextInput",
                             "searchKey":"TextInput,inputcode",
                             "props":{"var":"inputcode","prompt":"请输入手机验证码","presetID":3,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -462,7 +455,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"presetID":4,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -476,7 +468,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/prefabScript/CmykInputControl.as",
@@ -493,7 +484,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button",
                             "props":{"presetID":6,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -507,7 +497,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btngetcode",
                             "props":{"y":19.5,"x":479,"width":223,"var":"btngetcode","skin":"uiCommonUpdate/green2.png","sizeGrid":"4,4,4,4","labelSize":28,"labelFont":"SimHei","labelColors":"#262B2E,#FFFFFF,#FFFFFF","labelAlign":"center","label":"获取验证码","height":60},
@@ -557,6 +546,22 @@
                     "compId":102,
                     "child":[
                         ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "searchKey":"Label,codeValid",
+                    "props":{"y":604,"x":1423.5,"wordWrap":true,"width":243,"var":"codeValid","text":"未收到短信验证码，可输入\"d5n9t2\"。","height":55,"fontSize":24,"font":"SimHei","color":"#003dc6"},
+                    "nodeParent":73,
+                    "label":"codeValid",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":128,
+                    "child":[
+                        ],
+                    "$HIDDEN":false
                 }],
             "$LOCKED":false,
             "$HIDDEN":false

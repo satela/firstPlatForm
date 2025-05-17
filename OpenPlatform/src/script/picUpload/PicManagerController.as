@@ -174,6 +174,7 @@ package script.picUpload
 			uiSkin.picList.on(Event.MOUSE_UP,this,onMouseUpHandler);
 			uiSkin.picList.on(Event.MOUSE_OVER,this,onMouseDwons);
 			uiSkin.picList.on(Event.MOUSE_OUT,this,onMouseUpHandler);
+			uiSkin.tifAi.on(Event.CLICK,this,onSetTifAi);
 			
 			DirectoryFileModel.instance.haselectPic = {};
 			uiSkin.searchInput.on(Event.INPUT,this,onSearchInput);
@@ -461,6 +462,9 @@ package script.picUpload
 		}
 		private function onGetLeftCapacitBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(uiSkin == null || uiSkin.destroyed)
 				return;
@@ -618,6 +622,9 @@ package script.picUpload
 		
 		private function onDeleteFileBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -651,6 +658,11 @@ package script.picUpload
 				{
 					if(file.files[i].type == "image/jpg" || file.files[i].type == "image/jpeg" || file.files[i].type == "image/tif" || file.files[i].type == "image/tiff" || "image/png")
 					{
+						if(!UtilTool.isValidString(file.files[i].name))
+						{
+							ViewManager.showAlert("图片文件名不能包含特殊字符及表情，请修改后重新上传");
+							return;
+						}
 						file.files[i].progress = 0;
 						fileListData.push(file.files[i]);
 					}
@@ -785,6 +797,9 @@ package script.picUpload
 		}
 		private function onGetTopDirListBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			//if(result.status == 0)
 			if(result.code == "0")
@@ -827,6 +842,9 @@ package script.picUpload
 		
 		private function onGetDirFileListBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -1073,6 +1091,41 @@ package script.picUpload
 			
 		}
 			
+		private function onSetTifAi():void
+		{
+			var fileId:Array = [];
+			for each(var file:PicInfoVo in DirectoryFileModel.instance.haselectPic)
+			{
+				if(file.picClass.toUpperCase() == "TIF" || file.picClass.toUpperCase() == "TIFF")
+				{
+					if(!file.hasTifAi)
+						fileId.push(file.fid);
+				}
+					
+			}
+			if(fileId.length <= 0)
+			{
+				ViewManager.showAlert("未选择tif文件或者tif文件已处理");
+				return;
+			}
+			var post:Object = {"fileId":fileId[0]};
+			
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.tifAiSetting ,this,onTifAiBack,JSON.stringify(post),"post");
+
+		}
+		
+		private function onTifAiBack(data:*):void
+		{
+			if(this.destroyed)
+				return;
+			
+			var result:Object = JSON.parse(data as String);
+			//if(result.status == 0)
+			if(result.code == "0")
+			{
+				ViewManager.showAlert("请求处理成功，请等待AI处理完成");
+			}
+		}
 		private function onShowBuyStorage():void
 		{
 			ViewManager.instance.openView(ViewManager.VIEW_BUY_STORAGE_PANEL);

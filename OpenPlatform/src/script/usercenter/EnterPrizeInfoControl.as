@@ -16,10 +16,12 @@ package script.usercenter
 	import model.ErrorCode;
 	import model.HttpRequestUtil;
 	import model.Userdata;
+	import model.users.BusinessManVo;
 	import model.users.CityAreaVo;
 	
 	import script.ViewManager;
 	import script.login.CityAreaItem;
+	import script.usercenter.item.BusinessManCell;
 	
 	import ui.usercenter.AddressMgrPanelUI;
 	import ui.usercenter.ChargePanelUI;
@@ -38,6 +40,7 @@ package script.usercenter
 		private var townid:String = "";
 		
 		private var policyName:String = "";
+		
 		public function EnterPrizeInfoControl()
 		{
 			super();
@@ -94,17 +97,40 @@ package script.usercenter
 			})
 			
 			var addrMgr:AddressMgrPanelUI = new AddressMgrPanelUI();
-			uiSkin.addChild(addrMgr);
+			uiSkin.rightpanel.addChild(addrMgr);
 			addrMgr.addComponent(AddressMgrControl);
 
-			addrMgr.x = 600;
+			//addrMgr.x = 600;
 			
 			
 
 			Browser.window.uploadApp = this;
 			
+			uiSkin.addBusinessManPanel.visible = false;
+			uiSkin.addBusinessman.on(Event.CLICK,this,function(){
+				
+				uiSkin.addBusinessManPanel.visible = true;
+			});
 			
-		
+			uiSkin.closeAdd.on(Event.CLICK,this,function(){
+				
+				uiSkin.addBusinessManPanel.visible = false;
+			});
+			
+			uiSkin.confrimAddMan.on(Event.CLICK,this,confirmAddBusinessMan);
+			
+			
+			uiSkin.businessList.repeatX = 1;
+			uiSkin.businessList.spaceY = 0;
+			uiSkin.businessList.itemRender = BusinessManCell;
+			uiSkin.businessList.renderHandler = new Handler(this, updateBusinessManList);
+			uiSkin.businessList.selectEnable = false;
+			uiSkin.businessList.array = [];
+			
+			uiSkin.businessName.maxChars = 8;
+			uiSkin.contactPhone.restrict = "0-9";
+			uiSkin.contactPhone.maxChars = 11;
+			
 			
 			uiSkin.leaveGroupBtn.visible = false;
 			uiSkin.leaveGrpPanel.visible = false;
@@ -132,7 +158,9 @@ package script.usercenter
 			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAuditInfo ,this,getCompanyInfo,null,"post");
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getCompanyInfo,this,getCompanyInfoBack,null,null);
 			EventCenter.instance.on(EventCenter.UPDATE_COMPANY_INFO,this,updateCompanyInfo);
+			EventCenter.instance.on(EventCenter.UPDATE_BUSINESSMAN_LIST,this,getBusinessmanList);
 
+			getBusinessmanList();
 		}
 		
 		private function updateCompanyInfo():void
@@ -189,7 +217,7 @@ package script.usercenter
 				areaid = (result.data.regionId as String).slice(0,6);
 				townid = result.data.regionId;								
 				
-				uiSkin.leaveGroupBtn.visible = true;
+				//uiSkin.leaveGroupBtn.visible = true;
 				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=0",this,initView,null,null);
 
 			}
@@ -347,9 +375,70 @@ package script.usercenter
 			}
 		}
 		
+		private function updateBusinessManList(cell:BusinessManCell,index:int):void
+		{
+			cell.setData(cell.dataSource);
+		}
+		
+		private function confirmAddBusinessMan():void
+		{
+			if(uiSkin.businessName.text == "")
+			{
+				ViewManager.showAlert("请输入业务员姓名");
+				return;
+			}
+			if(uiSkin.contactPhone.text.length < 11)
+			{
+				ViewManager.showAlert("请输入正确的联系电话");
+				return;
+			}
+			
+			var requestStr:Object = {};
+			requestStr.mobileNumber = uiSkin.contactPhone.text;
+			requestStr.name =  uiSkin.businessName.text;
+			
+			
+			
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.addBusinessMan,this,addBusinessback,JSON.stringify(requestStr),"post");
+			
+		}
+		
+		private function addBusinessback(data:*):void
+		{
+			
+			if(this.destroyed)
+				return;
+			
+			var result:Object = JSON.parse(data as String);
+			if(result.code == "0")
+			{
+				getBusinessmanList();
+			}
+			uiSkin.addBusinessManPanel.visible = false;
+		}
+		private function getBusinessmanList():void
+		{
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listBusinessMan,this,getBusinessManBack,null,null);
+
+		}
+		private function getBusinessManBack(data:Object):void
+		{
+			if(this.destroyed)
+				return;
+			
+			var result:Object = JSON.parse(data as String);
+			
+			var mans:Array = result.data as Array;
+			var businessMan:Array = [];
+			for(var i:int=0;i < mans.length;i++)
+				businessMan.push(new BusinessManVo(mans[i]));
+			uiSkin.businessList.array = businessMan;
+			
+		}
 		public override function onDestroy():void
 		{
 			EventCenter.instance.off(EventCenter.UPDATE_COMPANY_INFO,this,updateCompanyInfo);
+			EventCenter.instance.off(EventCenter.UPDATE_BUSINESSMAN_LIST,this,getBusinessmanList);
 
 		}
 	}

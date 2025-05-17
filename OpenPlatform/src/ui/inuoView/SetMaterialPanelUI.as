@@ -14,8 +14,8 @@ package ui.inuoView {
 		public var step2:Box;
 		public var step3:Box;
 		public var step4:Box;
-		public var step5:Box;
 		public var pricelbl:Label;
+		public var unitpricelbl:Label;
 		public var selectAll:CheckBox;
 		public var btnaddpic:Button;
 		public var batchChange:Button;
@@ -28,6 +28,7 @@ package ui.inuoView {
 		public var textDiscount:Label;
 		public var textTotalPrice:Label;
 		public var goToNext:Button;
+		public var curCustomer:Label;
 
 		override protected function createChildren():void {
 			super.createChildren();

@@ -63,6 +63,8 @@ package model.picmanagerModel
 
 		public var aiPicDeadline:String;		
 		
+		public var hasTifAi:Boolean = false;
+		
 		public var relatedTimes:int = 0;//被关联次数
 		//public var max
 		
@@ -89,6 +91,7 @@ package model.picmanagerModel
 					picPhysicHeight = UtilTool.oneCutNineAdd(picHeight/dpi*2.54);
 					fsize = fileinfo.fsize;
 					
+					hasTifAi = fileinfo.approach == 2;
 					yixingFid = fileinfo.maskId == null ?"0":fileinfo.maskId;
 					backFid = fileinfo.backId == null ?"0":fileinfo.backId;
 					partWhiteFid = fileinfo.partWhiteId == null ?"0":fileinfo.partWhiteId;
@@ -227,8 +230,11 @@ package model.picmanagerModel
 		
 		public function get tailFix():String
 		{
-			if(picClass.toUpperCase() == "PNG" || picClass.toUpperCase() == "TIF" ||  picClass.toUpperCase() == "TIFF" )
+			if(picClass.toUpperCase() == "PNG")
 				return ".png";
+			else if((picClass.toUpperCase() == "TIF" || picClass.toUpperCase() == "TIFF") && hasTifAi)
+				return ".png";
+			
 			else return ".jpg";
 		}
 	}

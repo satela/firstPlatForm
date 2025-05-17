@@ -131,6 +131,9 @@ package script.order
 		}
 		private function onOccupyCapacityBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data);
 			if(!result.hasOwnProperty("status"))
 			{
@@ -186,7 +189,8 @@ package script.order
 		
 		private function ongetAvailableDateBack(data:*):void
 		{
-			
+			if(this.destroyed)
+				return;
 			
 			var result:Object = JSON.parse(data as String);
 			if(!result.hasOwnProperty("status"))
@@ -267,6 +271,9 @@ package script.order
 		
 		private function onOccupyUrgentCapacityBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data);
 			if(!result.hasOwnProperty("status"))
 			{

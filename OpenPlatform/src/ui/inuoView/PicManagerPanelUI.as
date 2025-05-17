@@ -25,6 +25,7 @@ package ui.inuoView {
 		public var freshbtn:Button;
 		public var refreshTxt:Text;
 		public var radiosel:CheckBox;
+		public var tifAi:Button;
 		public var searchInput:TextInput;
 		public var showCustomList:Button;
 		public var curCustomName:TextInput;

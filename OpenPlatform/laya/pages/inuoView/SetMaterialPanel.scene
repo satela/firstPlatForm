@@ -2,11 +2,11 @@
     "x":0,
     "type":"View",
     "selectedBox":108,
-    "selecteID":100,
+    "selecteID":98,
     "searchKey":"View",
     "props":{"y":0,"width":1800,"top":0,"sceneColor":"#ffffff","right":0,"left":0,"height":1080,"bottom":0},
     "nodeParent":-1,
-    "maxID":122,
+    "maxID":127,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -299,7 +299,7 @@
                     "x":30,
                     "type":"Label",
                     "searchKey":"Label,pricelbl",
-                    "props":{"y":156,"x":1414,"width":80,"var":"pricelbl","text":"总价","height":18,"fontSize":18,"font":"SimHei","color":"#010101","align":"center"},
+                    "props":{"y":156,"x":1468,"width":80,"var":"pricelbl","text":"总价","height":18,"fontSize":18,"font":"SimHei","color":"#010101","align":"center"},
                     "nodeParent":4,
                     "label":"pricelbl",
                     "isDirectory":false,
@@ -311,19 +311,32 @@
                 },
                 {
                     "x":30,
+                    "type":"Label",
+                    "searchKey":"Label,unitpricelbl",
+                    "props":{"y":156,"x":1373,"width":80,"var":"unitpricelbl","text":"单价","height":18,"fontSize":18,"font":"SimHei","color":"#010101","align":"center"},
+                    "nodeParent":4,
+                    "label":"unitpricelbl",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":124,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":143,"x":50},
                     "nodeParent":4,
                     "label":"Box",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":87,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":12,"x":36.5,"text":"全选","fontSize":18,"font":"SimHei"},
@@ -337,7 +350,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,selectAll",
                             "props":{"y":6,"x":0,"width":53,"var":"selectAll","skin":"uiCommonUpdate/grennsel.png","scaleY":1.5,"scaleX":1.5,"labelSize":14,"labelPadding":"2","labelFont":"SimHei","height":20},
@@ -353,7 +365,6 @@
                             "$LOCKED":true
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":12,"x":129,"text":"正面","fontSize":18,"font":"SimHei","color":"#010101"},
@@ -367,7 +378,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btnaddpic",
                             "props":{"y":20,"x":229,"width":111,"var":"btnaddpic","stateNum":"1","skin":"uiCommonUpdate/text-bk-button.png","labelSize":18,"labelFont":"SimHei","labelColors":"#0,#0,#0","label":"+增加任务","height":40,"anchorY":0.5,"anchorX":0.5},
@@ -397,7 +407,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":12,"x":367,"text":"反面图","fontSize":18,"font":"SimHei","color":"#010101"},
@@ -411,7 +420,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":12,"x":499,"text":"图片尺寸","fontSize":18,"font":"SimHei","color":"#010101"},
@@ -425,7 +433,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":12,"x":715,"text":"制作数量","fontSize":18,"font":"SimHei","color":"#010101"},
@@ -439,10 +446,9 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":11,"x":947,"text":"材料和工艺","fontSize":18,"font":"SimHei","color":"#010101"},
+                            "props":{"y":11,"x":918,"text":"材料和工艺","fontSize":18,"font":"SimHei","color":"#010101"},
                             "nodeParent":87,
                             "label":"Label",
                             "isDirectory":false,
@@ -453,10 +459,9 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,batchChange",
-                            "props":{"y":20,"x":1100,"width":101,"var":"batchChange","stateNum":"1","skin":"uiCommonUpdate/text-bk-button.png","labelSize":18,"labelFont":"SimHei","labelColors":"#0,#0,#0","label":"批量设置","height":40,"anchorY":0.5,"anchorX":0.5},
+                            "props":{"y":20,"x":1071,"width":101,"var":"batchChange","stateNum":"1","skin":"uiCommonUpdate/text-bk-button.png","labelSize":18,"labelFont":"SimHei","labelColors":"#0,#0,#0","label":"批量设置","height":40,"anchorY":0.5,"anchorX":0.5},
                             "nodeParent":87,
                             "label":"batchChange",
                             "isOpen":null,
@@ -481,13 +486,14 @@
                                     "child":[
                                         ]
                                 }]
-                        }]
+                        }],
+                    "$HIDDEN":false
                 },
                 {
                     "x":30,
                     "type":"Box",
                     "searchKey":"Box,opeBox",
-                    "props":{"y":144,"x":1556,"width":147,"var":"opeBox","height":43},
+                    "props":{"y":144,"x":1594,"width":147,"var":"opeBox","height":43},
                     "nodeParent":4,
                     "label":"opeBox",
                     "isOpen":true,
@@ -763,7 +769,7 @@
                                     "type":"Text",
                                     "selectedBox":3,
                                     "searchKey":"Text",
-                                    "props":{"y":13,"text":"暂存订单","presetID":1,"preset":"laya/pages/prefabs/LinksText.prefab","fontSize":18,"font":"SimHei","color":"#FFFFFF","bold":true},
+                                    "props":{"y":13,"visible":false,"text":"暂存订单","presetID":1,"preset":"laya/pages/prefabs/LinksText.prefab","fontSize":18,"font":"SimHei","color":"#FFFFFF","bold":true},
                                     "nodeParent":108,
                                     "maxID":5,
                                     "label":"Text(LinksText)",
@@ -816,7 +822,22 @@
                                 }]
                         }],
                     "$HIDDEN":false
-                }]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "searchKey":"Label,curCustomer",
+                    "props":{"y":54,"x":1234,"var":"curCustomer","text":"当前客户：小龙科技（预充值）","fontSize":24,"font":"SimHei","align":"left"},
+                    "nodeParent":4,
+                    "label":"curCustomer",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":126,
+                    "child":[
+                        ]
+                }],
+            "$HIDDEN":false
         },
         {
             "x":15,

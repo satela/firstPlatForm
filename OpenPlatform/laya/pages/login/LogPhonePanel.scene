@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":50,
+    "selectedBox":39,
+    "selecteID":79,
     "searchKey":"View",
     "props":{"width":1080,"sceneColor":"#f9f8f8","height":1920},
     "nodeParent":-1,
-    "maxID":79,
+    "maxID":80,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -64,14 +64,13 @@
                     "props":{"y":137,"x":54,"var":"logBox"},
                     "nodeParent":39,
                     "label":"logBox",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":69,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "selectedBox":25,
                             "selecteID":60,
@@ -87,7 +86,6 @@
                             "compId":62,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"text":"密码","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -101,7 +99,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"TextInput",
                                     "searchKey":"TextInput,input_pwd",
                                     "props":{"var":"input_pwd","prompt":"请输入密码","presetID":3,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -115,7 +112,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label,pwdError",
                                     "props":{"var":"pwdError","text":"密码错误","presetID":4,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -129,7 +125,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "switchAble":true,
                                     "source":"src/script/prefabScript/CmykInputControl.as",
@@ -146,7 +141,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button",
                                     "props":{"presetID":6,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -171,7 +165,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,accoutImg",
                             "props":{"y":275,"x":198,"var":"accoutImg","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","presetID":1,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -253,7 +246,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btn_login",
                             "props":{"y":506,"x":554.5,"width":222,"var":"btn_login","stateNum":"3","skin":"uiCommonUpdate/greenBtn.png","sizeGrid":"3,3,3,3","labelSize":36,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","label":"登陆","height":66},
@@ -267,7 +259,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,checkAuto",
                             "props":{"y":523,"x":181,"width":212,"var":"checkAuto","stateNum":"3","skin":"uiCommonUpdate/checkIcon.png","labelSize":24,"labelPadding":"6","labelFont":"SimHei","labelColors":"#152320,#152320,#152320","labelBold":true,"labelAlign":"left","label":"  下次自动登录"},
@@ -282,7 +273,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,titleBar",
                             "props":{"y":-10,"x":-14,"width":821,"var":"titleBar","text":"PS广告自助下单系统","height":64,"fontSize":72,"font":"Microsoft YaHei","bold":true},
@@ -296,7 +286,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":82,"x":-9,"text":"Advertising Production Self-Service Order System","fontSize":36,"font":"Microsoft YaHei","bold":true},
@@ -310,7 +299,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":600,"x":110,"width":749,"skin":"commers/cutline.png"},
@@ -324,7 +312,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"y":642,"x":55},
@@ -337,7 +324,6 @@
                             "compId":57,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Text",
                                     "selectedBox":3,
                                     "searchKey":"Text,txt_forget",
@@ -378,7 +364,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Text",
                                     "selectedBox":3,
                                     "searchKey":"Text,txt_reg",
@@ -428,14 +413,13 @@
                     "props":{"y":1845,"x":152,"width":776,"visible":false,"height":55,"bottom":20},
                     "nodeParent":39,
                     "label":"Box",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":55,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,copyRight",
                             "props":{"y":17,"x":68,"wordWrap":true,"width":505,"var":"copyRight","text":"Copyright  2023 ps.vip All Rights Reserved版权所有-品赋阳光","leading":20,"height":15,"fontSize":14,"font":"SimHei","color":"#50575c","bold":true,"align":"left"},
@@ -449,7 +433,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,comInfo",
                             "props":{"y":40,"x":227,"wordWrap":true,"width":666,"var":"comInfo","text":" 本站法律顾问：夏瑜律师    品赋阳光是网络服务平台，若您的权利被侵害，请联系 pfyg2022@163.com","rotation":0,"leading":20,"height":14,"fontSize":14,"font":"SimHei","color":"#50575c","bold":false,"align":"left"},
@@ -463,7 +446,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button",
                             "props":{"y":7.5,"x":0,"width":50,"stateNum":"1","skin":"commers/lz2.jpg","height":50},
@@ -478,7 +460,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Text",
                             "selectedBox":3,
                             "searchKey":"Text,icp",
@@ -493,7 +474,6 @@
                             "compId":53,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "switchAble":true,
                                     "source":"src/script/prefabScript/LinkTextControl.as",
@@ -578,6 +558,20 @@
                                 ]
                         }],
                     "$HIDDEN":false
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "searchKey":"Image,companyPic",
+                    "props":{"var":"companyPic","top":850,"right":0,"left":0,"bottom":80},
+                    "nodeParent":39,
+                    "label":"companyPic",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":79,
+                    "child":[
+                        ]
                 }]
         },
         {

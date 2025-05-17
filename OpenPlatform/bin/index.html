@@ -37,22 +37,6 @@
     }
 
 
-  .qrcode {
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -o-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    -ms-interpolation-mode: nearest-neighbor;
-	 position: absolute;
-    left: 0;
-    right: 0;
-  }
-  
-  .comName{
-	position:absolute;
-	top:calc(50% + 80px);
-  }
-
     input:focus{
      /* background: #FFFFFF;
       border: 1px solid #ff0000;
@@ -103,12 +87,6 @@
           <div id="unity-paint-progress-bar-full"></div>
         </div>
       </div>        
-</div>
-<div id="codePt">
-	<div id='qrcode'>
-	
-	</div>
-	<div id="comName"></div>
 </div>
 
 <div id="div1" align="center"> 
@@ -309,7 +287,7 @@
 			console.log("is ready");
 			
 			Unity3dWeb.UnityIsReady();
-			UnityPaintWeb.UnityIsReady();
+			//UnityPaintWeb.UnityIsReady();
 
 		}
 		
@@ -466,11 +444,235 @@
 			//}
 			
 		}
-		
+		function getImgBase64(url,callback)
+		{
+			ImageUtil.imageToBase64(url,function(base64data){
+				callback.call(uploadApp,base64data);
+			})		
+		}
 		var mouseDown= false;
 		var lastMouseX;
 		var angles = 0;
 		
+		function exportExcelJs(excelData,fileName)
+		{
+		
+			const workbook = new ExcelJS.Workbook();
+			const worksheet = workbook.addWorksheet('订单产品列表');
+
+			worksheet.columns = [
+				{ header: '订单号', key: 'orderId', width: 20 },
+				{ header: '客户名称', key: 'customerName', width: 10 },
+				{ header: '下单日期', key: 'orderDate', width: 30 },
+				{ header: '产品序号', key: 'seq', width: 30 },
+				{ header: '文件名', key: 'fileName', width: 30 },
+				{ header: '材料', key: 'prodName', width: 30 },
+				{ header: '尺寸', key: 'size', width: 30 },
+				{ header: '工艺', key: 'process', width: 30 },
+				{ header: '数量', key: 'itemNum', width: 30 },
+				{ header: '平方/米', key: 'area', width: 30 },
+				//{ header: '单价', key: 'unitPrice', width: 30 },
+				{ header: '销售单价', key: 'unitSalePrice', width: 30 },
+				{ header: '销售总价', key: 'totalSalesPrice', width: 30 },
+
+				{ header: '配送费', key: 'deliveryFee', width: 30 },
+				{ header: '安装费', key: 'installationFee', width: 30 },
+				{ header: '设计费', key: 'designFee', width: 30 },
+				{ header: '其他费用', key: 'otherFee', width: 30 },
+				{ header: '总售价', key: 'price', width: 30 },
+				{ header: '交货日期', key: 'deliverydate', width: 30 },
+				{ header: '图片缩略图', key: '', width: 100 }
+
+
+			];
+			worksheet.addRows(excelData);
+			if(excelData.length > 0)
+			{
+				var curOrderId = excelData[0].orderId;
+				var start = 0;
+				var end = 0;
+				var lastRowCount = 0;
+				for(var i=1;i < excelData.length;i++)
+				{
+					
+					if(excelData[i].orderId == curOrderId)
+					{
+						end = i;
+					}
+					
+					else
+					{
+						lastRowCount++;
+
+						if(end > start)
+						{
+							worksheet.mergeCells('M' + (start+2) + ':M' + (end+2));
+							worksheet.mergeCells('N' + (start+2) + ':N' + (end+2));
+							worksheet.mergeCells('O' + (start+2) + ':O' + (end+2));
+							worksheet.mergeCells('P' + (start+2) + ':P' + (end+2));
+							worksheet.mergeCells('Q' + (start+2) + ':Q' + (end+2));
+							
+
+							worksheet.getCell('M' + (start+2)).value = excelData[i-1].deliveryFee;
+							worksheet.getCell('N' + (start+2)).value = excelData[i-1].installationFee;
+							worksheet.getCell('O' + (start+2)).value = excelData[i-1].designFee;
+							worksheet.getCell('P' + (start+2)).value = excelData[i-1].otherFee;
+							worksheet.getCell('Q' + (start+2)).value = excelData[i-1].price;
+
+						}
+						start = i;
+						end = i;
+						curOrderId = excelData[i].orderId;
+					}
+				}
+				 if(end > start)
+				{
+					worksheet.mergeCells('M' + (start+2) + ':M' + (end+2));
+					worksheet.mergeCells('N' + (start+2) + ':N' + (end+2));
+					worksheet.mergeCells('O' + (start+2) + ':O' + (end+2));
+					worksheet.mergeCells('P' + (start+2) + ':P' + (end+2));
+					worksheet.mergeCells('Q' + (start+2) + ':Q' + (end+2));
+
+					worksheet.getCell('M' + (start+2)).value = excelData[excelData.length -1].deliveryFee;
+					worksheet.getCell('N' + (start+2)).value = excelData[excelData.length -1].installationFee;
+					worksheet.getCell('O' + (start+2)).value = excelData[excelData.length -1].designFee;
+					worksheet.getCell('P' + (start+2)).value = excelData[excelData.length -1].otherFee;
+					
+					worksheet.getCell('Q' + (start+2)).value = excelData[excelData.length -1].price;
+							
+					
+				}
+			
+			}
+			
+			 let colWidths = [],
+            colNames = [];// 所有列的名称数组
+			worksheet.columns.forEach((col) => {
+			
+			colNames.push(col.header);
+			})
+
+          // 计算每一列的所有单元格宽度
+          // 先遍历行
+          excelData.forEach((row) => {
+            // 列序号
+            let index = 0
+            // 遍历列
+            for (const key in row) {
+              if (colWidths[index] == null) colWidths[index] = []
+
+              switch (typeof row[key]) {
+                case 'string':
+                case 'number':
+                case 'boolean':
+                  colWidths[index].push(getCellWidth(row[key]))
+                  break
+                case 'object':
+                case 'function':
+                  colWidths[index].push(0)
+                  break
+              }
+              index++
+            }
+          })
+
+          maxColWidth = []
+          // 每一列取最大值最为列宽
+          colWidths.forEach((widths, index) => {
+            // 计算列头的宽度
+            widths.push(getCellWidth(colNames[index]))
+            // 设置最大值为列宽
+            maxColWidth.push( Math.max(...widths))
+          })
+		  
+			var index = 0;
+			worksheet.columns.forEach(column => {
+			  column.width = maxColWidth[index++] + 4;
+			});
+			
+			worksheet.getRow(1).height = 40;
+			
+			 const firstRow = worksheet.getRow(1);
+		 
+			// 设置第一行的样式，使所有单元格加粗
+			firstRow.eachCell((cell, rowNumber, colNumber) => {
+				cell.font = { bold: true }; // 设置字体为加粗
+			});
+	
+			/*for(var i=2;i <= worksheet.rowCount;i++)
+			{
+				const imageSize = { width: parseFloat(excelData[i-2].picWidth), height: parseFloat(excelData[i-2].picHeight) };
+
+				if(120*(imageSize.height/imageSize.width) < 25)
+					worksheet.getRow(i).height = 25;
+				else
+					worksheet.getRow(i).height = 120*(imageSize.height/imageSize.width);
+			
+			}*/
+			
+			worksheet.columns[worksheet.columns.length - 1].width = 20;
+			
+			/*for(var i=0;i < excelData.length;i++)
+			{
+				const signImage = workbook.addImage({
+				base64: excelData[i].imgBase64,
+				extension: "jpg",
+				//width:50,
+				//height:50
+			  });
+			  
+			  
+  
+			  // 这里是设置图片位置
+			  worksheet.addImage(signImage, 'S'+(i+2) +':S'+ (i+2), {
+				editAs: 'oneCell', // 设置图片为单个单元格大小				
+	
+			});
+					
+			}*/
+			
+			worksheet.eachRow((row) => {
+			row.eachCell((cell) => {
+			  cell.alignment = {
+				horizontal: 'center',
+				vertical: 'middle',
+				indent: 1
+			  };
+			});
+		  })
+  
+			workbook.xlsx.writeBuffer().then((buffer) => {
+				const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = fileName + '.xlsx';
+				link.click();
+				URL.revokeObjectURL(url);
+			});
+
+		
+		}
+		
+		function getCellWidth(value) {
+			  // 判断是否为null或undefined
+			  if (value == null) {
+				return 10;
+			  } else if (/.*[\u4e00-\u9fa5]+.*$/.test(value)) {
+				// 中文的长度
+				const chineseLength = value.match(/[\u4e00-\u9fa5]/g).length;
+				// 其他不是中文的长度
+				const otherLength = value.length - chineseLength;
+				return chineseLength * 2.1 + otherLength * 1.1;
+			  } else {
+				return value.toString().length * 1.1;
+				/* 另一种方案
+				value = value.toString()
+				return value.replace(/[\u0391-\uFFE5]/g, 'aa').length
+				*/
+			  }
+			}
+
 		function exportToExcel(excelData,fileName)
 		{
 			const tHeader = ["订单号", "下单日期", "产品序号", "文件名","材料","尺寸","工艺","数量","价格","交货日期"];
@@ -490,17 +692,57 @@
 				'订单价格': item.price,
 				'物流费':item.deliveryFee,
 				'交货日期': item.deliverydate,
+				'图片': item.imgBase64
 
 				
 			  }));
   
-			const ws = XLSX.utils.json_to_sheet(sheetData1);
-
-			/* 新建空的工作表 */
+			 
 			const wb = XLSX.utils.book_new();
 
 			// 可以自定义下载之后的sheetname
 			XLSX.utils.book_append_sheet(wb, ws, '订单数据');
+			
+			
+			 let colWidths = [],
+            colNames = Object.keys(sheetData1[0]) // 所有列的名称数组
+
+          // 计算每一列的所有单元格宽度
+          // 先遍历行
+          sheetData1.forEach((row) => {
+            // 列序号
+            let index = 0
+            // 遍历列
+            for (const key in row) {
+              if (colWidths[index] == null) colWidths[index] = []
+
+              switch (typeof row[key]) {
+                case 'string':
+                case 'number':
+                case 'boolean':
+                  colWidths[index].push(getCellWidth(row[key]))
+                  break
+                case 'object':
+                case 'function':
+                  colWidths[index].push(0)
+                  break
+              }
+              index++
+            }
+          })
+
+          ws['!cols'] = []
+          // 每一列取最大值最为列宽
+          colWidths.forEach((widths, index) => {
+            // 计算列头的宽度
+            widths.push(getCellWidth(colNames[index]))
+            // 设置最大值为列宽
+            ws['!cols'].push({ wch: Math.max(...widths) })
+          })
+
+
+
+			
 
 			const wopts = { bookType: 'xlsx', bookSST: false, type: 'binary' };
  
@@ -544,29 +786,7 @@
 			VideoTool.disposeVideo();		
 
 		}
-	
-		function createQrCode(url)
-		{
-			$('#codePt')[0].style.display = "flex";
-			document.body.appendChild($('#codePt')[0]);
-			$('#codePt')[0].style.position = "absolute";
-			$('#codePt')[0].style.width = "100%";
-			$('#codePt')[0].style.height = "100%";
-			$('#codePt')[0].style.top = "0";
-			$("#codePt").css("justify-content", "center");
-			$("#codePt").css("align-items", "center");
-			$("#codePt").css("background-color", "white");
-			$("#comName").css("position", "absolute");
-			$("#comName").css("top", "calc(50% + 80px)");
-
-	
-			 $('#qrcode').qrcode({
-				width: 128,
-				height: 128,
-				text: url
-			});
-			
-		}
+		
 		/*var canupload = false;
 		var uploadHandle = null;
 		window.addEventListener('dragenter', function () {
@@ -654,18 +874,19 @@
 		
     </script>
 	
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="jquery.qrcode.min.js"></script>
 	<script type="text/javascript" src="GVerify.js"></script>
 	<script type="text/javascript" src="aliOss.min.js"></script>
     <script type="text/javascript" src="index.js?randomId=131"></script>
-	<script type="text/javascript" src="imageUtil.js?randomId=127"></script>
+	<script type="text/javascript" src="imageUtil.js?randomId=128"></script>
 	<script type="text/javascript" src="videoTool/videoTool.js?randomId=127"></script>
 
 	<script type="text/javascript" src="excelUtil/xlsx.core.min.js?randomId=125"></script>
+	<script type="text/javascript" src="excelUtil/exceljs.js?randomId=125"></script>
+
 	<script type="text/javascript" src="videoTool/video.min.js"></script>
-	<script type="text/javascript" src="webglout/u3dWeb.js?randomId=127"></script>
+	<script type="text/javascript" src="webglout/u3dWeb.js?randomId=128"></script>
 	<script type="text/javascript" src="paintWeb/u3dPaintWeb.js?randomId=126"></script>
+	
 
 
 </body>

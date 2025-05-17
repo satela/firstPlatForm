@@ -8,6 +8,7 @@ package script.usercenter.item
 		{
 			super();
 			this.width = 120;
+			this.productname.fontSize = 16;
 		}
 	}
 }

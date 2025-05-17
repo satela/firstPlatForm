@@ -28,6 +28,7 @@ package script.usercenter.item
 			
 			this.detailaddr.text = add.proCityArea;
 			
+			this.defaultDelivery.text = add.defaultDeliveryType;
 			
 			//this.btnEdit.visible = addvo.status != 0;
 			
@@ -36,7 +37,8 @@ package script.usercenter.item
 			
 			this.btnDel.on(Event.CLICK,this,onDeleteAddr);
 			//this.btnEdit.on(Event.CLICK,this,onEditAddr);
-			this.btndefault.on(Event.CLICK,this,onSetDefaultAddr);
+			//this.btndefault.on(Event.CLICK,this,onSetDefaultAddr);
+			this.editTxt.on(Event.CLICK,this,onEditAddr);
 			//if(addvo.status == 1)
 			//this.btndefault.visible = Userdata.instance.defaultAddId != addvo.id;
 			
@@ -44,6 +46,7 @@ package script.usercenter.item
 			
 		}
 		
+	
 		private function onDeleteAddr():void
 		{
 			ViewManager.instance.openView(ViewManager.VIEW_POPUPDIALOG,false,{msg:"确定删除该地址吗？",caller:this,callback:confirmDelete});
@@ -70,7 +73,7 @@ package script.usercenter.item
 		
 		private function onEditAddr():void
 		{
-			ViewManager.instance.openView(ViewManager.VIEW_ADD_NEW_ADDRESS,false,addvo);
+			ViewManager.instance.openView(ViewManager.VIEW_ADD_NEW_ADDRESS,false,{"address":addvo,url:HttpRequestUtil.updateCustomerAddress});
 			
 		}
 		private function onSetDefaultAddr():void

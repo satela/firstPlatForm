@@ -9,6 +9,7 @@ package script.order
 	
 	import model.Constast;
 	import model.HttpRequestUtil;
+	import model.Userdata;
 	import model.orderModel.OrderConstant;
 	import model.orderModel.PackageVo;
 	import model.orderModel.PaintOrderModel;
@@ -45,7 +46,8 @@ package script.order
 			
 
 			
-			uiSkin.addpackbtn.visible = false;
+			//uiSkin.addpackbtn.visible = false;
+			
 			uiSkin.packagelist.itemRender = PackageEditCell;
 			uiSkin.packagelist.repeatY = 1;
 			uiSkin.packagelist.spaceY = 1;
@@ -127,7 +129,12 @@ package script.order
 				total += ordermoney;
 			}
 			
-			uiSkin.textDiscount.text = (parseFloat(PaintOrderModel.instance.rawPrice) - total).toFixed(1);
+			if(total < Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length)
+				total = Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length;
+			if((parseFloat(PaintOrderModel.instance.rawPrice) - total) > 0)
+				uiSkin.textDiscount.text = (parseFloat(PaintOrderModel.instance.rawPrice) - total).toFixed(1);
+			else
+				uiSkin.textDiscount.text = "0";
 			uiSkin.textPayPrice.text = total.toFixed(1) + "元";
 			
 
@@ -195,25 +202,25 @@ package script.order
 		
 		private function onShowAddress():void
 		{
-			ViewManager.instance.openView(ViewManager.VIEW_SELECT_PACK_ADDRESS_PANEL);
+			ViewManager.instance.openView(ViewManager.VIEW_SELECT_PACK_ADDRESS_PANEL,false,PaintOrderModel.instance.curOrderCustomer);
 
 		}
 		
 		private function onConfirmPackage():void
 		{			
 			
-			if(PaintOrderModel.instance.packageList.length > 1)
-			{
-				var firstpack:PackageVo = PaintOrderModel.instance.packageList[0];
-				for(var i:int=0;i < firstpack.itemlist.length;i++)
-				{
-					if(firstpack.itemlist[i].itemCount > 0)
-					{
-						ViewManager.showAlert("第一个包裹的所有产品数量必须为0");
-						return;
-					}
-				}
-			}
+//			if(PaintOrderModel.instance.packageList.length > 1)
+//			{
+//				var firstpack:PackageVo = PaintOrderModel.instance.packageList[0];
+//				for(var i:int=0;i < firstpack.itemlist.length;i++)
+//				{
+//					if(firstpack.itemlist[i].itemCount > 0)
+//					{
+//						ViewManager.showAlert("第一个包裹的所有产品数量必须为0");
+//						return;
+//					}
+//				}
+//			}
 			
 			var arr:Array = PaintOrderModel.instance.finalOrderData;			
 			requestnum = 0;
@@ -222,9 +229,9 @@ package script.order
 				
 				PaintOrderModel.instance.curTimePrefer = uiSkin.timepreferRdo.selectedIndex + 2;
 				
-				//var datas:String = PaintOrderModel.instance.getOrderCapcaityData(arr[i],uiSkin.timepreferRdo.selectedIndex + 2);
-				var datas:String =  JSON.stringify({"manufacturer_code":"SP0792300","addr_id":"330681117","orderItemList":[{"orderItem_sn":"CL010000911","prod_code":"MPR231020145318433","processList":[{"proc_code":"SPTE231020140227874","cap_occupy":0.1468,"proc_seq":1},{"proc_code":"SPTE231020151954497","cap_occupy":0,"proc_seq":2},{"proc_code":"SPTE12330","cap_occupy":0,"proc_seq":3}]}],"delivery_prefer":2});
-				trace("产能数据:" + datas);
+				var datas:String = PaintOrderModel.instance.getOrderCapcaityData(arr[i],uiSkin.timepreferRdo.selectedIndex + 2);
+				//var datas:String =  JSON.stringify({"manufacturer_code":"SP0792300","addr_id":"330681117","orderItemList":[{"orderItem_sn":"CL010000911","prod_code":"MPR231020145318433","processList":[{"proc_code":"SPTE231020140227874","cap_occupy":0.1468,"proc_seq":1},{"proc_code":"SPTE231020151954497","cap_occupy":0,"proc_seq":2},{"proc_code":"SPTE12330","cap_occupy":0,"proc_seq":3}]}],"delivery_prefer":2});
+				//trace("产能数据:" + datas);
 				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getDeliveryTimeList,this,ongetAvailableDateBack,datas,"post");
 				
 				
@@ -242,7 +249,7 @@ package script.order
 			if(!result.hasOwnProperty("status") && !result.hasOwnProperty("code"))
 			{
 				var alldates:Array = result as Array;
-								
+				
 				for(var i:int=0;i < alldates.length;i++)
 				{
 					
@@ -312,7 +319,9 @@ package script.order
 						return;
 					if(!PaintOrderModel.instance.setVipPackageData())
 					{
-						ViewManager.showAlert("打包异常，请返回上一步重新打包");
+						uiSkin.okbtn.disabled = false;
+
+						//ViewManager.showAlert("打包异常，请返回上一步重新打包");
 						return;
 					}
 					
@@ -320,8 +329,15 @@ package script.order
 					
 					//ViewManager.instance.openView(ViewManager.VIEW_CHOOSE_DELIVERY_TIME_PANEL,false,{orders:orderDatas,delaypay:false});
 					
-					EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[ChooseDeliveryTimePanelUI,0,{orders:orderDatas,delaypay:false}]);
-
+					var itemlist:Array = [];
+					
+					for(var i:int=0;i < PaintOrderModel.instance.finalOrderData.length;i++)
+					{
+						itemlist = itemlist.concat(PaintOrderModel.instance.finalOrderData[i].orderItemList);
+					}
+					
+					EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[ChooseDeliveryTimePanelUI,0,{orders:itemlist,delaypay:false}]);
+					
 					PaintOrderModel.instance.packageList = [];
 				}
 				else

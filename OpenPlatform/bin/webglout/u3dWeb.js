@@ -50,7 +50,7 @@ Unity3dWeb.createUnity = function()
       }
 
       var buildUrl = "webglout/Build";
-	  var version = "2";
+	  var version = "3";
       var loaderUrl = buildUrl + "/webout.loader.js?version=" + version;
       var config = {
         dataUrl: buildUrl + "/webout.data.unityweb?version=" + version,

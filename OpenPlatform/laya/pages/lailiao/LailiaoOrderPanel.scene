@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":4,
-    "selecteID":89,
+    "selectedBox":87,
+    "selecteID":79,
     "searchKey":"View",
     "props":{"y":0,"width":1800,"top":0,"sceneColor":"#ffffff","right":0,"left":0,"height":1080,"bottom":0},
     "nodeParent":-1,
-    "maxID":127,
+    "maxID":128,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -67,14 +67,13 @@
                     "nodeParent":4,
                     "maxID":71,
                     "label":"HBox(OrderTopLine)",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":5,
                     "child":[
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"presetID":2,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -87,7 +86,6 @@
                             "compId":52,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"text":"添加来料产品","presetID":3,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -101,7 +99,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "searchKey":"Image",
                                     "props":{"presetID":4,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -116,7 +113,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"presetID":5,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -156,7 +152,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"presetID":11,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -196,7 +191,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"presetID":14,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -236,7 +230,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"presetID":17,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -250,7 +243,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"presetID":18,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -264,7 +256,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"presetID":20,"preset":"laya/pages/prefabs/OrderTopLine.prefab"},
@@ -278,7 +269,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/prefabScript/OderTopFlowController.as",
@@ -308,10 +298,25 @@
                 {
                     "x":30,
                     "type":"Label",
+                    "searchKey":"Label,unitpricelbl",
+                    "props":{"y":156,"x":1348,"width":80,"var":"unitpricelbl","text":"单价","height":18,"fontSize":18,"font":"SimHei","color":"#010101","align":"center"},
+                    "nodeParent":4,
+                    "label":"unitpricelbl",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":127,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
                     "searchKey":"Label,pricelbl",
                     "props":{"y":156,"x":1414,"width":80,"var":"pricelbl","text":"总价","height":18,"fontSize":18,"font":"SimHei","color":"#010101","align":"center"},
                     "nodeParent":4,
                     "label":"pricelbl",
+                    "isOpen":true,
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
@@ -452,7 +457,7 @@
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":11,"x":947,"text":"材料和工艺","fontSize":18,"font":"SimHei","color":"#010101"},
+                            "props":{"y":11,"x":918,"text":"材料和工艺","fontSize":18,"font":"SimHei","color":"#010101"},
                             "nodeParent":87,
                             "label":"Label",
                             "isDirectory":false,
@@ -466,7 +471,7 @@
                             "x":45,
                             "type":"Button",
                             "searchKey":"Button,batchChange",
-                            "props":{"y":20,"x":1100,"width":101,"var":"batchChange","stateNum":"1","skin":"uiCommonUpdate/text-bk-button.png","labelSize":18,"labelFont":"SimHei","labelColors":"#0,#0,#0","label":"批量设置","height":40,"anchorY":0.5,"anchorX":0.5},
+                            "props":{"y":20,"x":1071,"width":101,"var":"batchChange","stateNum":"1","skin":"uiCommonUpdate/text-bk-button.png","labelSize":18,"labelFont":"SimHei","labelColors":"#0,#0,#0","label":"批量设置","height":40,"anchorY":0.5,"anchorX":0.5},
                             "nodeParent":87,
                             "label":"batchChange",
                             "isOpen":null,

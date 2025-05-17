@@ -18,9 +18,12 @@ package ui.orderList {
 		public var pagenum:Label;
 		public var lastpage:Button;
 		public var nextpage:Button;
+		public var orderPlaceCombo:ComboBox;
 		public var showCustomList:Button;
 		public var curCustomName:TextInput;
 		public var customListPanel:Panel;
+		public var businessCombo:ComboBox;
+		public var writeOffRadio:RadioGroup;
 
 		override protected function createChildren():void {
 			super.createChildren();

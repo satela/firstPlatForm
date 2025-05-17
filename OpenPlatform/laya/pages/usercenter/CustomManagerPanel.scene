@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":241,
-    "selecteID":237,
+    "selectedBox":258,
+    "selecteID":267,
     "searchKey":"View",
     "props":{"width":1624,"top":0,"sceneColor":"#ffffff","right":0,"left":0,"height":1080,"bottom":0},
     "nodeParent":-1,
-    "maxID":264,
+    "maxID":272,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -190,7 +190,7 @@
                     "x":30,
                     "type":"Box",
                     "searchKey":"Box",
-                    "props":{"y":162,"x":6},
+                    "props":{"y":162,"x":6,"width":582,"height":14},
                     "nodeParent":224,
                     "label":"Box",
                     "isOpen":true,
@@ -231,7 +231,7 @@
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":0,"x":300,"visible":false,"text":"联系人","fontSize":14,"font":"SimHei","color":"#","bold":false},
+                            "props":{"y":-1,"x":275,"width":48,"visible":true,"text":"业务员","height":15,"fontSize":14,"font":"SimHei","color":"#","bold":false},
                             "nodeParent":241,
                             "label":"Label",
                             "isDirectory":false,
@@ -245,13 +245,41 @@
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":0,"x":418,"text":"操作","fontSize":14,"font":"SimHei","bold":false},
+                            "props":{"y":0,"x":505,"text":"操作","fontSize":14,"font":"SimHei","bold":false},
                             "nodeParent":241,
                             "label":"Label",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":240,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"y":0,"x":401,"visible":true,"text":"结算方式","fontSize":14,"font":"SimHei","color":"#","bold":false},
+                            "nodeParent":241,
+                            "label":"Label",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":268,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"y":0,"x":351,"visible":true,"text":"余额","fontSize":14,"font":"SimHei","color":"#","bold":false},
+                            "nodeParent":241,
+                            "label":"Label",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":271,
                             "child":[
                                 ]
                         }]
@@ -319,7 +347,7 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image",
-                    "props":{"x":200,"top":200,"skin":"commers/grayback.jpg","sizeGrid":"3,3,3,3","right":200,"left":200,"height":400,"alpha":1},
+                    "props":{"x":200,"top":200,"skin":"commers/grayback.jpg","sizeGrid":"3,3,3,3","right":200,"left":200,"height":500,"alpha":1},
                     "nodeParent":257,
                     "label":"Image",
                     "isOpen":true,
@@ -338,14 +366,13 @@
                             "nodeParent":258,
                             "maxID":63,
                             "label":"Image(CmykInput)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":244,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"text":"客户名","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -359,7 +386,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"TextInput",
                                     "searchKey":"TextInput,customName",
                                     "props":{"var":"customName","prompt":"请输入客户名称","presetID":3,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -373,7 +399,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"presetID":4,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -387,7 +412,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "switchAble":true,
                                     "source":"src/script/prefabScript/CmykInputControl.as",
@@ -404,7 +428,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button",
                                     "props":{"presetID":6,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -437,14 +460,13 @@
                             "nodeParent":258,
                             "maxID":63,
                             "label":"Image(CmykInput)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":245,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"text":"联系电话","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -458,7 +480,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"TextInput",
                                     "searchKey":"TextInput,customPhone",
                                     "props":{"var":"customPhone","prompt":"请输入联系电话","presetID":3,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -472,7 +493,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"presetID":4,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -486,7 +506,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "switchAble":true,
                                     "source":"src/script/prefabScript/CmykInputControl.as",
@@ -503,7 +522,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button",
                                     "props":{"presetID":6,"preset":"laya/pages/prefabs/CmykInput.prefab"},
@@ -528,109 +546,9 @@
                         },
                         {
                             "x":45,
-                            "type":"Image",
-                            "selectedBox":25,
-                            "selecteID":6,
-                            "searchKey":"Image",
-                            "props":{"y":212,"x":425,"visible":false,"skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","presetID":1,"preset":"laya/pages/prefabs/CmykInput.prefab"},
-                            "nodeParent":258,
-                            "maxID":63,
-                            "label":"Image(CmykInput)",
-                            "isOpen":true,
-                            "isDirectory":true,
-                            "isAniNode":true,
-                            "hasChild":true,
-                            "compId":251,
-                            "child":[
-                                {
-                                    "x":60,
-                                    "type":"Label",
-                                    "searchKey":"Label",
-                                    "props":{"text":"联系人","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab"},
-                                    "nodeParent":251,
-                                    "label":"Label(CmykInput)",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":252,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "x":60,
-                                    "type":"TextInput",
-                                    "searchKey":"TextInput,contactName",
-                                    "props":{"var":"contactName","prompt":"请输入联系人名称","presetID":3,"preset":"laya/pages/prefabs/CmykInput.prefab"},
-                                    "nodeParent":251,
-                                    "label":"inputTxt",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":253,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "x":60,
-                                    "type":"Label",
-                                    "searchKey":"Label",
-                                    "props":{"presetID":4,"preset":"laya/pages/prefabs/CmykInput.prefab"},
-                                    "nodeParent":251,
-                                    "label":"errorlbl",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":254,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "x":60,
-                                    "type":"Script",
-                                    "switchAble":true,
-                                    "source":"src/script/prefabScript/CmykInputControl.as",
-                                    "searchKey":"Script,CmykInputControl",
-                                    "removeAble":true,
-                                    "props":{"presetID":5,"preset":"laya/pages/prefabs/CmykInput.prefab"},
-                                    "nodeParent":251,
-                                    "label":"CmykInputControl",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":255,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "x":60,
-                                    "type":"Button",
-                                    "searchKey":"Button",
-                                    "props":{"presetID":6,"preset":"laya/pages/prefabs/CmykInput.prefab"},
-                                    "nodeParent":251,
-                                    "label":"delBtn",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":256,
-                                    "child":[
-                                        ]
-                                }],
-                            "animations":[
-                                {
-                                    "nodes":[
-                                        ],
-                                    "name":"ani1",
-                                    "id":1,
-                                    "frameRate":24,
-                                    "action":0
-                                }],
-                            "$HIDDEN":true
-                        },
-                        {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,confirmAddCustom",
-                            "props":{"y":329,"x":563,"width":120,"visible":true,"var":"confirmAddCustom","stateNum":"3","skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF","labelAlign":"center","label":"确定","height":40},
+                            "props":{"x":563,"width":120,"visible":true,"var":"confirmAddCustom","stateNum":"3","skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF","labelAlign":"center","label":"确定","height":40,"bottom":20},
                             "nodeParent":258,
                             "label":"confirmAddCustom",
                             "isDirectory":false,
@@ -655,9 +573,68 @@
                             "child":[
                                 ],
                             "$HIDDEN":false
-                        }]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"y":328,"x":271,"text":"结算方式","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab"},
+                            "nodeParent":258,
+                            "label":"Label(CmykInput)",
+                            "isOpen":false,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":264,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"ComboBox",
+                            "searchKey":"ComboBox,payType",
+                            "props":{"y":314,"x":427,"width":234,"var":"payType","skin":"comp/combobox.png","labels":"预充,月结,现金","labelSize":28,"labelFont":"SimHei","itemSize":28,"height":60},
+                            "nodeParent":258,
+                            "label":"payType",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":265,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"y":241,"x":271,"text":"业务员","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab"},
+                            "nodeParent":258,
+                            "label":"Label(CmykInput)",
+                            "isOpen":false,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":266,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"ComboBox",
+                            "searchKey":"ComboBox,businessMan",
+                            "props":{"y":227,"x":427,"width":232,"var":"businessMan","skin":"comp/combobox.png","scrollBarSkin":"uiCommonUpdate/vscroll.png","labels":"预充,现结,月结","labelSize":24,"labelFont":"SimHei","itemSize":22,"height":60},
+                            "nodeParent":258,
+                            "label":"businessMan",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":267,
+                            "child":[
+                                ]
+                        }],
+                    "$HIDDEN":false
                 }],
-            "$HIDDEN":true
+            "$HIDDEN":false
         }],
     "animations":[
         {

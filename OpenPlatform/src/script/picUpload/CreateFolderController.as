@@ -76,6 +76,9 @@ package script.picUpload
 		
 		private function onCreateDirBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

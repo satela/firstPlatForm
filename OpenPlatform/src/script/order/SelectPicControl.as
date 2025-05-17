@@ -374,6 +374,9 @@ package script.order
 		}
 		private function onGetTopDirListBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -399,6 +402,9 @@ package script.order
 		
 		private function onGetDirFileListBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

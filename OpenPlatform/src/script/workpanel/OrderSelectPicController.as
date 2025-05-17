@@ -181,11 +181,11 @@ package script.workpanel
 			EventCenter.instance.on(EventCenter.SELECT_PIC_ORDER,this,seletPicToOrder);
 			EventCenter.instance.on(EventCenter.BROWER_WINDOW_RESIZE,this,onResizeBrower);
 			
-			EventCenter.instance.on(EventCenter.START_SELECT_YIXING_PIC,this,onStartSelectRelate);
-			EventCenter.instance.on(EventCenter.START_SELECT_BACK_PIC,this,onStartSelectBackRelate);
-			EventCenter.instance.on(EventCenter.START_SELECT_PARTWHITE_PIC,this,onStartSelectPartWhiteRelate);
+			EventCenter.instance.on(EventCenter.START_SELECT_YIXING_PIC,this,showRelatedPanel);
+			EventCenter.instance.on(EventCenter.START_SELECT_BACK_PIC,this,showRelatedPanel);
+			EventCenter.instance.on(EventCenter.START_SELECT_PARTWHITE_PIC,this,showRelatedPanel);
 			
-			EventCenter.instance.on(EventCenter.STOP_SELECT_RELATE_PIC,this,stopSelectRelate);
+			//EventCenter.instance.on(EventCenter.STOP_SELECT_RELATE_PIC,this,stopSelectRelate);
 			
 			EventCenter.instance.on(EventCenter.PAY_ORDER_SUCESS,this,onBuyStorageSucess);
 			EventCenter.instance.on(EventCenter.UPDATE_SELECT_FOLDER,this,updateSelectFolderNum);
@@ -198,7 +198,8 @@ package script.workpanel
 			uiSkin.picList.on(Event.MOUSE_UP,this,onMouseUpHandler);
 			uiSkin.picList.on(Event.MOUSE_OVER,this,onMouseDwons);
 			uiSkin.picList.on(Event.MOUSE_OUT,this,onMouseUpHandler);
-			
+			uiSkin.tifAi.on(Event.CLICK,this,onSetTifAi);
+
 			DirectoryFileModel.instance.haselectPic = {};
 			uiSkin.searchInput.on(Event.INPUT,this,onSearchInput);
 			uiSkin.on(Event.REMOVED,this,onRemovedFromStage);
@@ -226,77 +227,48 @@ package script.workpanel
 		}
 		
 		
-		private function onStartSelectRelate(picInfo:PicInfoVo):void
-		{
-			Laya.stage.on(Event.CLICK,this,stopSelectRelate);
-			//uiSkin.seltips.visible = true;
-			//uiSkin.seltips.text = "选择异形切割图片中";
-			var picname:String = getSetRelatedTips();
-			
-			var tips:String = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>异形图片。”</span>";
-			TipsUtil.getInstance().addGlobalTips(tips); 
-			Laya.stage.on(Event.RIGHT_CLICK,this,stopRightSelectRelate);
-			stopLast(picInfo);
-			filtUnFitImage();
-			
-		}
-		private function onStartSelectBackRelate(picInfo:PicInfoVo):void
-		{
-			Laya.stage.on(Event.CLICK,this,stopSelectRelate);
-			//uiSkin.seltips.visible = true;
-			//uiSkin.seltips.text = "选择反面图片中";
-			var picname:String = getSetRelatedTips();
-			
-			var tips:String = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>反面图片。”</span>";
-			TipsUtil.getInstance().addGlobalTips(tips); 
-			
-			Laya.stage.on(Event.RIGHT_CLICK,this,stopRightSelectRelate);
-			Laya.stage.on(Event.DOUBLE_CLICK,this,stopRightSelectRelate);
-			stopLast(picInfo);
-			filtUnFitImage();
-
-		}
-		private function onStartSelectPartWhiteRelate(picInfo:PicInfoVo):void
-		{
-			Laya.stage.on(Event.CLICK,this,stopSelectRelate);
-			//uiSkin.seltips.visible = true;
-			//uiSkin.seltips.text = "选择局部铺白图片中";
-			var picname:String = getSetRelatedTips();
-			
-			var tips:String = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>局部铺白图片。”</span>";
-			TipsUtil.getInstance().addGlobalTips(tips); 
-			
-			Laya.stage.on(Event.RIGHT_CLICK,this,stopRightSelectRelate);
-			Laya.stage.on(Event.DOUBLE_CLICK,this,stopRightSelectRelate);
-			stopLast(picInfo);
-			filtUnFitImage();
-
-		}
 		
-		private function getSetRelatedTips():String
+		
+		private function showRelatedPanel():void
 		{
-			var i:int=0;
-			var picInfo:PicInfoVo;
+			var validFiles:Array = filtUnFitImage();
+			var paramData:Object = {};
+			for(var i:int=0;i < validFiles.length;i++)
+			{
+				validFiles[i].relatedTimes = 0;
+				for(var j:int=0;j < DirectoryFileModel.instance.curFileList.length;j++)
+				{
+					if(DirectoryFileModel.instance.curFileList[j].yixingFid == validFiles[i].fid || DirectoryFileModel.instance.curFileList[j].backFid == validFiles[i].fid || DirectoryFileModel.instance.curFileList[j].partWhiteFid == validFiles[i].fid)
+						validFiles[i].relatedTimes++;
+				}
+			}
+			validFiles.sort(function(a:PicInfoVo,b:PicInfoVo){
+				
+				if(a.relatedTimes < b.relatedTimes)
+					return -1;
+				else
+					return 1;
+				
+			})
+			
+			paramData.files = validFiles;
+			var originFiles:Array = [];
 			
 			if(DirectoryFileModel.instance.curOperateFile != null && !DirectoryFileModel.instance.haselectPic.hasOwnProperty(DirectoryFileModel.instance.curOperateFile.fid))
 			{
 				DirectoryFileModel.instance.haselectPic[DirectoryFileModel.instance.curOperateFile.fid] = DirectoryFileModel.instance.curOperateFile;
 			}
+			for each(var picvo in DirectoryFileModel.instance.haselectPic)
+			{
+				var xdif:Number = Math.abs(DirectoryFileModel.instance.curOperateFile.picPhysicWidth - picvo.picPhysicWidth)/DirectoryFileModel.instance.curOperateFile.picPhysicWidth;
+				var ydif:Number = Math.abs(DirectoryFileModel.instance.curOperateFile.picPhysicHeight - picvo.picPhysicHeight)/DirectoryFileModel.instance.curOperateFile.picPhysicHeight;
+				
+				if(xdif < 0.01 && ydif < 0.01)
+					originFiles.push(picvo);
+			}
+			paramData.originfiles = originFiles;
 			
-			for each(var picinfo:PicInfoVo in DirectoryFileModel.instance.haselectPic)
-			{
-				i++;
-				picInfo = picinfo
-			}
-			
-			if(i == 1)
-			{
-				return picinfo.directName;
-			}
-			else if(i > 1)
-			{
-				return picinfo.directName + "等" + i + "张图片";
-			}
+			ViewManager.instance.openView(ViewManager.RELATED_PIC_CHOOSE_PANEL,false,paramData);
 		}
 		
 		private function stopLast(picInfo:PicInfoVo):void
@@ -312,48 +284,54 @@ package script.workpanel
 			}
 		}
 		
-		private function filtUnFitImage():void
+		private function filtUnFitImage():Array
 		{
 			
 			var curfile:PicInfoVo = DirectoryFileModel.instance.curOperateFile;
 			if(curfile == null)
 				return;
 			var curOperateType:int = DirectoryFileModel.instance.curOperateSelType;
+
+			var files:Array = [];
 			
-			for(var i:int=0;i < this.uiSkin.picList.cells.length;i++)
+			for(var i:int=0;i < DirectoryFileModel.instance.curFileList.length;i++)
 			{
-				var pinvo:PicInfoVo = (this.uiSkin.picList.cells[i] as PicInfoItem).picInfo;
-				if(pinvo != null)
+				var pinvo:PicInfoVo = DirectoryFileModel.instance.curFileList[i];
+				if(pinvo != null && pinvo.picType == 1)
 				{
 					var xdif:Number = Math.abs(curfile.picPhysicWidth - pinvo.picPhysicWidth)/curfile.picPhysicWidth;
 					var ydif:Number = Math.abs(curfile.picPhysicHeight - pinvo.picPhysicHeight)/curfile.picPhysicHeight;
 					if(xdif >0.01 || ydif > 0.01)
 					{
-						(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(true);
+						//(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(true);
 					}
 					else if(curOperateType == 0 || curOperateType == 2)
 					{
 						if(pinvo.colorspace.toLocaleUpperCase() != "GRAY" && !pinvo.isCdr)
 						{
-							(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(true);
+							//(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(true);
 							
 						}
+						else
+							files.push(DirectoryFileModel.instance.curFileList[i]);
 					}
 					else if(curOperateType == 1 && pinvo.colorspace != "CMYK")
 					{
 						
-						(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(true);
+						//(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(true);
 					}
-						
+					
 					else
 					{
-						(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(false);
-						
+						//(this.uiSkin.picList.cells[i] as PicInfoItem).disableItem(false);
+						files.push(DirectoryFileModel.instance.curFileList[i]);
+
 					}
 				}
 				
 				
 			}
+			return files;
 			
 		}
 		
@@ -424,7 +402,7 @@ package script.workpanel
 		
 		private function onBuyStorageSucess():void
 		{
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getCompanyInfo,this,onGetLeftCapacitBack,null,null);
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getCompanyInfo,this,onGetLeftCapacitBack,null,"post");
 			
 		}
 		private function onGetLeftCapacitBack(data:Object):void
@@ -577,6 +555,9 @@ package script.workpanel
 		
 		private function onDeleteFileBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -610,6 +591,12 @@ package script.workpanel
 				{
 					if(file.files[i].type == "image/jpg" || file.files[i].type == "image/jpeg" || file.files[i].type == "image/tif" || file.files[i].type == "image/tiff" || "image/png")
 					{
+						if(!UtilTool.isValidString(file.files[i].name))
+						{
+							ViewManager.showAlert("图片文件名不能包含特殊字符及表情，请修改后重新上传");
+							return;
+						}
+						
 						file.files[i].progress = 0;
 						fileListData.push(file.files[i]);
 					}
@@ -723,18 +710,18 @@ package script.workpanel
 				}
 				
 				
-				var picname:String = getSetRelatedTips();
-				if(DirectoryFileModel.instance.curOperateSelType == 1)
-					var tips:String = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>反面图片。”</span>";
-				else if(DirectoryFileModel.instance.curOperateSelType == 0)
-					tips = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>反面图片。”</span>";
-				else if(DirectoryFileModel.instance.curOperateSelType == 2)
-					tips = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>局部铺白图片。”</span>";
-				
-				if(DirectoryFileModel.instance.curOperateFile != null)
-				{
-					TipsUtil.getInstance().updateTips(tips);
-				}
+//				var picname:String = getSetRelatedTips();
+//				if(DirectoryFileModel.instance.curOperateSelType == 1)
+//					var tips:String = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>反面图片。”</span>";
+//				else if(DirectoryFileModel.instance.curOperateSelType == 0)
+//					tips = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>反面图片。”</span>";
+//				else if(DirectoryFileModel.instance.curOperateSelType == 2)
+//					tips = "<span color='#FF0000' size='18'>请直接选择”</span>" + "<span color='#86B639' size='18'>" + picname + "</span>" + "<span color='#FF0000' size='18'>“需要关联的”</span>" + "<span color='#003dc6' size='18'>局部铺白图片。”</span>";
+//				
+//				if(DirectoryFileModel.instance.curOperateFile != null)
+//				{
+//					TipsUtil.getInstance().updateTips(tips);
+//				}
 				
 //				if(num>0)
 //					uiSkin.btnorder.label = "我要下单" + "(" + num + "张)";
@@ -746,6 +733,9 @@ package script.workpanel
 		}
 		private function onGetTopDirListBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			//if(result.status == 0)
 			if(result.code == "0")
@@ -788,6 +778,9 @@ package script.workpanel
 		
 		private function onGetDirFileListBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -849,11 +842,11 @@ package script.workpanel
 			EventCenter.instance.off(EventCenter.UPDATE_FILE_LIST,this,getFileList);
 			EventCenter.instance.off(EventCenter.SELECT_PIC_ORDER,this,seletPicToOrder);
 			EventCenter.instance.off(EventCenter.BROWER_WINDOW_RESIZE,this,onResizeBrower);
-			EventCenter.instance.off(EventCenter.START_SELECT_YIXING_PIC,this,onStartSelectRelate);
-			EventCenter.instance.off(EventCenter.START_SELECT_BACK_PIC,this,onStartSelectBackRelate);
+			//EventCenter.instance.off(EventCenter.START_SELECT_YIXING_PIC,this,onStartSelectRelate);
+			//EventCenter.instance.off(EventCenter.START_SELECT_BACK_PIC,this,onStartSelectBackRelate);
 			EventCenter.instance.off(EventCenter.PAY_ORDER_SUCESS,this,onBuyStorageSucess);
 			EventCenter.instance.off(EventCenter.UPDATE_SELECT_FOLDER,this,updateSelectFolderNum);
-			EventCenter.instance.off(EventCenter.START_SELECT_PARTWHITE_PIC,this,onStartSelectPartWhiteRelate);
+			//EventCenter.instance.off(EventCenter.START_SELECT_PARTWHITE_PIC,this,onStartSelectPartWhiteRelate);
 			EventCenter.instance.off(EventCenter.CREATE_FOLDER_SUCESS,this,onCreateDirBack);
 			//EventCenter.instance.off(EventCenter.UPLOAD_FILE_SUCESS,this,uploadFileSucess);
 			EventCenter.instance.off(EventCenter.SELECT_CUSTOMER,this,onSelectCustomer);
@@ -1003,6 +996,42 @@ package script.workpanel
 				}
 			}
 			
+		}
+		
+		private function onSetTifAi():void
+		{
+			var fileId:Array = [];
+			for each(var file:PicInfoVo in DirectoryFileModel.instance.haselectPic)
+			{
+				if(file.picClass.toUpperCase() == "TIF" || file.picClass.toUpperCase() == "TIFF")
+				{
+					if(!file.hasTifAi)
+						fileId.push(file.fid);
+				}
+				
+			}
+			if(fileId.length <= 0)
+			{
+				ViewManager.showAlert("未选择tif文件或者tif文件已处理");
+				return;
+			}
+			var post:Object = {"fileId":fileId[0]};
+			
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.tifAiSetting ,this,onTifAiBack,JSON.stringify(post),"post");
+			
+		}
+		
+		private function onTifAiBack(data:*):void
+		{
+			if(this.destroyed)
+				return;
+			
+			var result:Object = JSON.parse(data as String);
+			//if(result.status == 0)
+			if(result.code == "0")
+			{
+				ViewManager.showAlert("请求处理成功，请等待AI处理完成");
+			}
 		}
 		
 		

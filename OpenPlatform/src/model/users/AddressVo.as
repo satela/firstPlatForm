@@ -28,8 +28,13 @@ package model.users
 		
 		public var status:int = 0;
 		
-		public var customerId:int;
+		public var customerId:String = "0";
 		
+		public var defaultDeliveryType:String = "";
+		
+		public var customerName:String;
+		public var defaultPayType:String;
+			
 		public function AddressVo(data:Object)
 		{
 			receiverName = data.cnee;
@@ -45,6 +50,7 @@ package model.users
 				zoneid = addid[0];
 				searchZoneid = addid[1];
 			}
+			defaultDeliveryType = data.defaultDelivery;
 		}
 		
 		public function get addressDetail():String

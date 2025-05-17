@@ -66,7 +66,7 @@ package model
 
 		public static const addCompanyInfo:String = "group/create?"; //name=,addr=
 		
-		public static const getAuditInfo:String = "group/get-request?";//获取企业信息
+		public static const getAuditInfo:String = "sys/getOrgReq?";//获取企业信息
 
 		public static const getOuputAddr:String = "business/manufacturers?";//client_code=CL10600&";//addr_id=120106";获取输出工厂地址
 		public static const getProdCategory:String = "business/prodcategory?";//client_code=CL10600&";//addr_id=120106";获取工厂材料列表 SCFY001
@@ -124,7 +124,7 @@ package model
 		
 		//public static const orderOnlinePay:String = "group/recharge?";//订单在线支付  orderid 在线支付 
 
-		public static const payOrderByMoney:String = "order//payWithBal?";//余额支付orderid
+		public static const payOrderByMoney:String = "order/payWithBal?";//余额支付orderid
 
 
 		public static const getOrderRecordList:String = "order/list?";//查询订单 date = 201910 curpage=1
@@ -202,14 +202,16 @@ package model
 
 		public static const cancelInvoice:String = "group/cancel-invoice";//撤销申请发票
 
-		public static const vipAddressManageUrl:String = "group/opt-vip-express?";//1 delete 2 update 3 insert 4 list 5 default
-		public static const vipAddressGroupManageUrl:String = "group/opt-vip-addr-group?";//1 delete 2 update 3 insert 4 list 5 default
-		
-		public static const insertGroupAddress:String = "group/opt-vip-addr-group-rel?";//添加地址到分组
-		public static const removeGroupAddress:String = "group/opt-vip-addr-group-rel/remomve?";//从分组移除地址
+		public static const vipAddressManageUrl:String = "org/express/group/pagingExpress?";//1 delete 2 update 3 insert 4 list 5 default
+		public static const vipAddressGroupManageUrl:String = "org/express/group/add?";//1 delete 2 update 3 insert 4 list 5 default
+		public static const vipAddressGroupManageList:String = "org/express/group/paging?";//1 delete 2 update 3 insert 4 list 5 default
+		public static const vipAddressGroupManageDelete:String = "org/express/group/delete?";//1 delete 2 update 3 insert 4 list 5 default
+
+		public static const insertGroupAddress:String = "org/express/group/addExpress?";//添加地址到分组
+		public static const removeGroupAddress:String = "org/express/group/deleteExpress?";//从分组移除地址
 		
 		public static const listGroupAddress:String = "group/get-group-addr?";//分组地址列表
-		public static const listGroupsAddress:String = "group/list-all-group-addr?";//获取多个分组下的地址列表
+		public static const listGroupsAddress:String = "org/express/group/listExpress?";//获取多个分组下的地址列表
 		
 		public static const addErrorLog:String = "group/add-error-log?";//报错日志
 
@@ -273,8 +275,33 @@ package model
 
 		public static var updateCustomerAddress:String =  "org/customer/express/update?" ;//添加客户地址
 		public static var deleteCustomerAddress:String =  "org/customer/express/delete?" ;//添加客户地址
-		public static var listCustomerAddress:String =  "org/customer/express/list?" ;//添加客户地址
+		public static var listCustomerAddress:String =  "org/customer/express/paging?" ;//添加客户地址
 
+
+		public static const updateOrderSellPrice:String = "order/updateSalesPrice?";//更新销售价格
+
+		public static const addCollection:String = "org/collection/add?";//添加收款
+		public static const deleteCollection:String = "org/collection/delete?";//添加收款
+
+		public static const collectionList:String = "org/customer/transaction/paging?";//流水列表
+		
+		
+		public static var addBusinessMan:String =  "org/saler/add?" ;//添加业务员
+		public static var updateBusinessMan:String =  "org/customer/update?" ;//更新业务员
+		public static var listBusinessMan:String =  "org/saler/list?" ;//业务员列表
+		public static var deleteBusinessMan:String =  "org/saler/delete?" ;//删除业务员
+		
+		public static var listOrderMakers:String =  "org/user/list?" ;//制单员列表
+
+		public static var writeOffOrders:String =  "order/clear?" ;//销账
+		
+		public static var tifAiSetting:String =  "fs/file/changeImg?" ;//tif处理
+
+
+		public static var getPlatformConfig:String =  "sys/getConfigList?" ;//平台设置参数
+
+		
+		public static const getDeaultDeliveryList:String = "business/getDeliveryType?"//clientCode=CL10600&addrId=360423?webCode=xxx?";//=SPSC00100&addr_id=330700";//获取配送列表
 
 
 		public static function get instance():HttpRequestUtil
@@ -289,7 +316,7 @@ package model
 			
 		}
 		
-		private function newRequest(url:String,caller:Object=null,complete:Function=null,param:Object=null,requestType:String="text",onProgressFun:Function = null):void{
+		private function newRequest(url:String,caller:Object=null,complete:Function=null,param:Object=null,requestType:String="text",onProgressFun:Function = null,headers:Array=null):void{
 			
 			var request:HttpRequest=new HttpRequest();
 			request.on(Event.PROGRESS, this, function(e:Object)
@@ -323,7 +350,7 @@ package model
 			}
 			console.log(url+param);
 			request["retrytime"]=0;
-			request.send(url, param, requestType?'post':'get', "text");
+			request.send(url, param, requestType?'post':'get', "text",headers);
 		}
 		
 		private function onHttpRequestError(url:String,caller:Object,complete:Function,param:Object,requestType:String,request:HttpRequest,e:Object=null):void
@@ -383,7 +410,7 @@ package model
 			request.offAll();
 		}
 		
-		public  function Request(url:String,caller:Object=null,complete:Function=null,param:Object=null,type:String="get",onProgressFun:Function = null,showwaiting:Boolean=true):void{
+		public  function Request(url:String,caller:Object=null,complete:Function=null,param:Object=null,type:String="get",onProgressFun:Function = null,showwaiting:Boolean=true,headers:Array=null):void{
 			
 			var logtime:String = UtilTool.getLocalVar("loginTime","");
 			if(Userdata.instance.loginTime != 0 && logtime != Userdata.instance.loginTime.toString())
@@ -405,7 +432,7 @@ package model
 				//requetTime++;
 				WaitingRespond.instance.showWaitingView();
 			}
-			newRequest(url,caller,complete,param,type);
+			newRequest(url,caller,complete,param,type,onProgressFun,headers);
 		}
 		// --- Static Functions ------------------------------------------------------------------------------------------------------------------------------------ //
 		public  function RequestBin(url:String,caller:Object=null,complete:Function=null,param:Object=null):void{

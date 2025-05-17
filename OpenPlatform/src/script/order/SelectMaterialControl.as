@@ -552,6 +552,8 @@ package script.order
 		{
 			var manufacturecode = PaintOrderModel.instance.curSelectMat.manufacturerCode;
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getProcessFlow + manufacturecode + "&procCat_name=" + processCatvo.procCat_Name,this,function(data:Object):void{
+				if(uiSkin.destroyed)
+					return;
 				
 				var result:Object = JSON.parse(data as String);
 				if(!result.hasOwnProperty("status"))
@@ -633,7 +635,7 @@ package script.order
 			}
 
 
-			if(matvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0)
+			if(matvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0 || matvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT) >=0)
 				ViewManager.instance.openView(ViewManager.VIEW_SELECT_ATTACH,false,matvo);			
 			else if(matvo.attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0)
 				ViewManager.instance.openView(ViewManager.INPUT_CUT_NUM,false,false);
@@ -1013,7 +1015,7 @@ package script.order
 			
 			for(var i:int=0;i < hasSelectedTech.length;i++)
 			{
-				if(hasSelectedTech[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0)
+				if(hasSelectedTech[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0 || hasSelectedTech[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT))
 				{
 					if(hasSelectedTech[i].selectAttachVoList == null || hasSelectedTech[i].selectAttachVoList.length == 0 )
 					{
@@ -1061,9 +1063,9 @@ package script.order
 		}
 		private function onUpdateTechDes(viewname:String):void
 		{
-			if(viewname == ViewManager.VIEW_SELECT_ATTACH)
+			if(viewname == ViewManager.VIEW_SELECT_ATTACH && curclickItem != null && curclickItem.techmainvo != null)
 			{
-				if(curclickItem.techmainvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0)
+				if(curclickItem.techmainvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0 || curclickItem.techmainvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT) >=0)
 				{
 					if(curclickItem.techmainvo.attachList == null || curclickItem.techmainvo.attachList.length == 0)
 					{

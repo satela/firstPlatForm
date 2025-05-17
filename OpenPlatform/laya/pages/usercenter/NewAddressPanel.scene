@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":13,
-    "selecteID":15,
+    "selectedBox":6,
+    "selecteID":156,
     "searchKey":"View",
     "props":{"width":1920,"sceneColor":"#ffffff","height":1080},
     "nodeParent":-1,
-    "maxID":162,
+    "maxID":166,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -339,7 +339,7 @@
                             "selectedBox":25,
                             "selecteID":62,
                             "searchKey":"Image",
-                            "props":{"y":420,"x":217,"width":1077,"skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","presetID":1,"preset":"laya/pages/prefabs/CmykInput.prefab","height":265},
+                            "props":{"y":420,"x":217,"width":1077,"skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","presetID":1,"preset":"laya/pages/prefabs/CmykInput.prefab","height":155},
                             "nodeParent":6,
                             "maxID":63,
                             "label":"Image(CmykInput)",
@@ -430,11 +430,68 @@
                         },
                         {
                             "x":45,
+                            "type":"Box",
+                            "searchKey":"Box,deliveryBox",
+                            "props":{"y":599,"x":13,"var":"deliveryBox"},
+                            "nodeParent":6,
+                            "label":"deliveryBox",
+                            "isOpen":true,
+                            "isDirectory":true,
+                            "isAniNode":true,
+                            "hasChild":true,
+                            "compId":164,
+                            "child":[
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "searchKey":"Label",
+                                    "props":{"y":17,"x":1,"width":256,"text":"默认配送方式：","presetID":2,"preset":"laya/pages/prefabs/CmykInput.prefab","height":36},
+                                    "nodeParent":164,
+                                    "label":"Label(CmykInput)",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":162,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"ComboBox",
+                                    "searchKey":"ComboBox,defaulDeliveryType",
+                                    "props":{"x":280,"width":234,"var":"defaulDeliveryType","skin":"comp/combobox.png","scrollBarSkin":"uiCommonUpdate/vscroll.png","labelSize":22,"labelFont":"SimHei","itemSize":22,"height":60},
+                                    "nodeParent":164,
+                                    "label":"defaulDeliveryType",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":163,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Button",
+                                    "searchKey":"Button,getDeliveryList",
+                                    "props":{"y":14,"x":554,"width":142,"var":"getDeliveryList","skin":"uiCommonUpdate/green2.png","sizeGrid":"3,3,3,3","labelSize":18,"labelFont":"SimHei","labelColors":"#003dc6,#FFFFFF,#FFFFFF","label":"拉取配送方式","height":42},
+                                    "nodeParent":164,
+                                    "label":"getDeliveryList",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":165,
+                                    "child":[
+                                        ]
+                                }]
+                        },
+                        {
+                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":321,"x":58,"text":"所在地：","fontSize":36,"font":"SimHei","color":"#262B2E","bold":true},
                             "nodeParent":6,
                             "label":"Label",
+                            "isOpen":true,
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
@@ -483,7 +540,7 @@
                                         ],
                                     "$HIDDEN":false
                                 }],
-                            "$HIDDEN":false
+                            "$HIDDEN":true
                         },
                         {
                             "x":45,
@@ -526,7 +583,7 @@
                                         ],
                                     "$HIDDEN":false
                                 }],
-                            "$HIDDEN":false
+                            "$HIDDEN":true
                         },
                         {
                             "x":45,
@@ -568,7 +625,7 @@
                                         ],
                                     "$HIDDEN":false
                                 }],
-                            "$HIDDEN":false
+                            "$HIDDEN":true
                         },
                         {
                             "x":45,
@@ -612,7 +669,7 @@
                                         ],
                                     "$HIDDEN":false
                                 }],
-                            "$HIDDEN":false
+                            "$HIDDEN":true
                         },
                         {
                             "x":45,
@@ -621,14 +678,13 @@
                             "props":{"y":316,"x":215,"width":252,"var":"btnSelProv","stateNum":"3","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","height":80},
                             "nodeParent":6,
                             "label":"btnSelProv",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":144,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button",
                                     "props":{"y":28,"x":201,"stateNum":"1","skin":"uiCommonUpdate/xiala.png"},
@@ -643,7 +699,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label,province",
                                     "props":{"width":158,"var":"province","valign":"middle","top":1,"text":"浙江省","right":94,"left":0,"height":78,"fontSize":28,"font":"SimHei","color":"#262B2E","bottom":1,"align":"center"},
@@ -666,14 +721,13 @@
                             "props":{"y":313,"x":492,"width":252,"var":"btnSelCity","stateNum":"3","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","height":80},
                             "nodeParent":6,
                             "label":"btnSelCity",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":145,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button",
                                     "props":{"y":28,"x":201,"stateNum":"1","skin":"uiCommonUpdate/xiala.png"},
@@ -688,7 +742,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label,citytxt",
                                     "props":{"var":"citytxt","valign":"middle","top":1,"text":"嘉兴市","right":95,"left":0,"height":53,"fontSize":28,"font":"SimHei","color":"#262B2E","bottom":1,"align":"center"},
@@ -711,14 +764,13 @@
                             "props":{"y":313,"x":768,"width":252,"var":"btnSelArea","stateNum":"3","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","height":80},
                             "nodeParent":6,
                             "label":"btnSelArea",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":146,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button",
                                     "props":{"y":28,"x":201,"stateNum":"1","skin":"uiCommonUpdate/xiala.png"},
@@ -733,7 +785,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label,areatxt",
                                     "props":{"var":"areatxt","valign":"middle","top":1,"text":"浙江省","right":95,"left":0,"height":53,"fontSize":28,"font":"SimHei","color":"#262B2E","bottom":1,"align":"center"},
@@ -756,14 +807,13 @@
                             "props":{"y":313,"x":1045,"width":252,"var":"btnSelTown","stateNum":"3","skin":"commers/btn2.png","sizeGrid":"3,3,3,3","height":80},
                             "nodeParent":6,
                             "label":"btnSelTown",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":147,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button",
                                     "props":{"y":28,"x":201,"stateNum":"1","skin":"uiCommonUpdate/xiala.png"},
@@ -778,7 +828,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label,towntxt",
                                     "props":{"var":"towntxt","valign":"middle","top":1,"text":"浙江省","right":95,"left":0,"height":53,"fontSize":28,"font":"SimHei","color":"#262B2E","bottom":1,"align":"center"},

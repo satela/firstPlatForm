@@ -33,6 +33,9 @@ package script.prefabScript
 		
 		private var pageSize:int = 20;
 		
+		private var hasinit:Boolean = false;
+		/** @prop {name:includeAll,tips:"是否需要全部",type:int}*/
+		public var includeAll:int = 0;//0 不需要 1 需要
 		public function CustomListController()
 		{
 			super();
@@ -112,10 +115,24 @@ package script.prefabScript
 				
 				if(curPage == 1)
 				{
-					arr.unshift(new CustomVo({"customerName":Userdata.instance.company,"id":"0","mobileNumber":Userdata.instance.founderPhone}));
+					if(includeAll >= 0)
+						arr.unshift(new CustomVo({"customerName":Userdata.instance.company,"id":"0","mobileNumber":Userdata.instance.founderPhone}));
+					if(includeAll == 1)
+					{
+						arr.unshift(new CustomVo({"customerName":"全部","id":"-1","mobileNumber":""}));
+
+					}
+					
 				}
 				customlist.array = arr;
-
+				if(!hasinit)
+				{
+					EventCenter.instance.event(EventCenter.CUSTOMER_LIST_INIT_SUCESS,arr[0]);
+					hasinit = true;
+				}
+				//if(customlist.selectedIndex < 0 && customlist.array.length > 0)
+				//	customlist.selectedIndex = 0;
+				
 				pageTxt.text = curPage + "/" + totalPage;
 			}
 		}

@@ -58,28 +58,59 @@ package script.order.item
 			if(PaintOrderModel.instance.packageList.length == 1)
 				return;
 			
-			var average:int = Math.floor(total/(PaintOrderModel.instance.packageList.length - 1));
+//			var average:int = Math.floor(total/(PaintOrderModel.instance.packageList.length - 1 ));
+//			if(average == 0)
+//				average = 1;
+//			
+//			var left:int = total - average*(PaintOrderModel.instance.packageList.length - 1);
+//			if(left < 0)
+//				left = 0;
+//			
+//			var fisrtNum = average + left;
+//			var hasDistrictNum = 0;
+			
+//			var firstpackvo:PackageVo = PaintOrderModel.instance.packageList[0];
+//			for(var j:int=0;j < firstpackvo.itemlist.length;j++)
+//			{
+//				if(firstpackvo.itemlist[j].itemId == orderData.orderItemSn)
+//				{
+//					firstpackvo.itemlist[j].itemCount = 0;
+//					break;
+//				}
+//			}
+//			
+//			for(var i:int=1;i < PaintOrderModel.instance.packageList.length;i++)
+//			{
+//				if(hasDistrictNum < total)
+//				{
+//					var packvo:PackageVo = PaintOrderModel.instance.packageList[i];
+//					for(var j:int=0;j < packvo.itemlist.length;j++)
+//					{
+//						if(packvo.itemlist[j].itemId == orderData.orderItemSn)
+//						{
+//							packvo.itemlist[j].itemCount = i == 1?fisrtNum:average;
+//							hasDistrictNum += packvo.itemlist[j].itemCount;
+//							break;
+//						}
+//					}
+//				}
+//			}
+			
+			
+			var average:int = Math.floor(total/(PaintOrderModel.instance.packageList.length ));
 			if(average == 0)
 				average = 1;
 			
-			var left:int = total - average*(PaintOrderModel.instance.packageList.length - 1);
+			var left:int = total - average*(PaintOrderModel.instance.packageList.length);
 			if(left < 0)
 				left = 0;
 			
 			var fisrtNum = average + left;
 			var hasDistrictNum = 0;
 			
-			var firstpackvo:PackageVo = PaintOrderModel.instance.packageList[0];
-			for(var j:int=0;j < firstpackvo.itemlist.length;j++)
-			{
-				if(firstpackvo.itemlist[j].itemId == orderData.orderItemSn)
-				{
-					firstpackvo.itemlist[j].itemCount = 0;
-					break;
-				}
-			}
+
 			
-			for(var i:int=1;i < PaintOrderModel.instance.packageList.length;i++)
+			for(var i:int=0;i < PaintOrderModel.instance.packageList.length;i++)
 			{
 				if(hasDistrictNum < total)
 				{
@@ -88,13 +119,14 @@ package script.order.item
 					{
 						if(packvo.itemlist[j].itemId == orderData.orderItemSn)
 						{
-							packvo.itemlist[j].itemCount = i == 1?fisrtNum:average;
+							packvo.itemlist[j].itemCount = i == 0?fisrtNum:average;
 							hasDistrictNum += packvo.itemlist[j].itemCount;
 							break;
 						}
 					}
 				}
 			}
+			
 			EventCenter.instance.event(EventCenter.UPDATE_PACKAGE_ORDER_ITEM_COUNT);
 
 		}

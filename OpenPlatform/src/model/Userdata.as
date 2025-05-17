@@ -79,6 +79,12 @@ package model
 		
 		public var webCode:String;
 		
+		public var orgAudit:Boolean = false;//是否需要审核注册公司
+		public var orgAuditState:int = -1;//公司审核状态 -1 没有提交审核 0 审核中 1 审核通过 2 审核拒绝
+		public var defaultManufactureSelected = true;
+		public var orderBasePrice:Number = 2;
+		
+		
 		public static function get instance():Userdata
 		{
 			if(_instance == null)
@@ -235,6 +241,20 @@ package model
 			},null,null);			
 		}
 		
+		public function setPlatformConfig(configlist:Array):void
+		{
+			if(configlist)
+			{
+				for(var i:int=0;i < configlist.length;i++)
+				{
+					if(configlist[i].code == "BASE_PRICE")
+						orderBasePrice = parseFloat(configlist[i].value);
+					else if(configlist[i].code == "MANUFACTURER_SELECTED")
+						defaultManufactureSelected = configlist[i].value == "0";
+					
+				}
+			}
+		}
 		public function checkJumpUrl():void
 		{
 			var pageurl:String = Browser.window.location.href;

@@ -57,7 +57,7 @@ package script.order
 		
 		private var curSelectedManufacture:String;
 		
-		private var firstOrder:Boolean = false;
+		//private var firstOrder:Boolean = false;
 		
 		public function ChooseDeliveryTimeControl()
 		{
@@ -68,7 +68,7 @@ package script.order
 		{
 			uiSkin = this.owner as ChooseDeliveryTimePanelUI;
 			
-			uiSkin.title.text = OrderConstant.orderName[PaintOrderModel.instance.orderType] + "下单";
+			//uiSkin.title.text = OrderConstant.orderName[PaintOrderModel.instance.orderType] + "下单";
 			
 			uiSkin.orderlist.itemRender = ChooseDelTimeOrderItem;
 			uiSkin.orderlist.selectEnable = false;
@@ -89,7 +89,7 @@ package script.order
 
 			orderDatas = param.orders as Array;
 			delaypay = param.delaypay;
-			firstOrder = param.firstOrder;
+			//firstOrder = param.firstOrder;
 			
 			uiSkin.savebtn.visible = !delaypay;
 			
@@ -100,6 +100,27 @@ package script.order
 			//uiSkin.confirmpreferbtn.on(Event.CLICK,this,resetTimePrefer);
 			uiSkin.setdefaultbtn.on(Event.CLICK,this,setDefaultTimePrefer);
 			uiSkin.timepreferRdo.on(Event.CHANGE,this,resetTimePrefer);
+			
+			if(!delaypay && PaintOrderModel.instance.selectAddress.customerId != "0")
+			{
+				uiSkin.curCustomer.text = "当前客户：" + PaintOrderModel.instance.selectAddress.customerName;
+				uiSkin.curCustomer.visible = true;
+				if(PaintOrderModel.instance.selectAddress.defaultPayType >= 0)
+				{
+					uiSkin.curCustomer.text +="(" + Constast.PAY_TYPE_NAME[PaintOrderModel.instance.selectAddress.defaultPayType - 1] + ")";
+				}
+			}
+			else if(delaypay && PaintOrderModel.instance.finalOrderData[0].customerId != "0")
+			{
+				uiSkin.curCustomer.text = "当前客户：" + param.customerName;
+				if(param.defaultPayType >= 0)
+				{
+					uiSkin.curCustomer.text +="(" + Constast.PAY_TYPE_NAME[param.defaultPayType - 1] + ")";
+				}
+				uiSkin.curCustomer.visible = true;
+			}
+			else
+				uiSkin.curCustomer.visible = false;
 			
 			//PaintOrderModel.instance.curCommmonDeliveryType = "";
 			//PaintOrderModel.instance.curUrgentDeliveryType = "";
@@ -181,7 +202,7 @@ package script.order
 			}
 			
 			
-			uiSkin.firstDiscount.visible = Userdata.instance.firstOrder == "1" || firstOrder;
+			uiSkin.firstDiscount.visible = false;//Userdata.instance.firstOrder == "1" || firstOrder;
 
 			this.uiSkin.height = Browser.clientHeight *1920/Browser.clientWidth;
 
@@ -357,6 +378,9 @@ package script.order
 			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.preOccupyCapacity + params,this,function(data:*){
 				
+				if(uiSkin.destroyed)
+					return;
+				
 				var result:Object = JSON.parse(data as String);
 				if(!result.hasOwnProperty("status"))
 				{
@@ -504,18 +528,18 @@ package script.order
 			uiSkin.disocuntprice.text = total.toFixed(1) + "元";
 			var totals:Number = parseFloat((commondelprice + urgentdelprice).toFixed(1)) + parseFloat(total.toFixed(1));
 			
-			if(totals < 2*PaintOrderModel.instance.finalOrderData.length)
-				totals = 2*PaintOrderModel.instance.finalOrderData.length;
+			if(totals < Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length)
+				totals = Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length;
 			
 			uiSkin.totalprice.text = totals.toFixed(1) + "元";
-			if(Userdata.instance.firstOrder == "1" || firstOrder)
-			{
-				var freshMoney:Number = totals - Constast.FRESH_DISCOUNT;
-				if(freshMoney < 1)
-					freshMoney = 1;
-				uiSkin.totalprice.text = freshMoney.toFixed(1) + "元";
-
-			}
+//			if(Userdata.instance.firstOrder == "1" || firstOrder)
+//			{
+//				var freshMoney:Number = totals - Constast.FRESH_DISCOUNT;
+//				if(freshMoney < 1)
+//					freshMoney = 1;
+//				uiSkin.totalprice.text = freshMoney.toFixed(1) + "元";
+//
+//			}
 			
 			for(var i:int=0;i < uiSkin.deliveryTypelist.cells.length;i++)
 			{
@@ -604,6 +628,9 @@ package script.order
 		
 		private function onUpdateOrderBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -617,13 +644,13 @@ package script.order
 					allorders.push(orderdata.orderSn);
 				}
 				
-				if(Userdata.instance.firstOrder == "1" || firstOrder)
-				{
-					var totalmoney:Number = totalmoney - Constast.FRESH_DISCOUNT;
-					if(totalmoney < 1)
-						totalmoney = 1;
-					
-				}
+//				if(Userdata.instance.firstOrder == "1" || firstOrder)
+//				{
+//					var totalmoney:Number = totalmoney - Constast.FRESH_DISCOUNT;
+//					if(totalmoney < 1)
+//						totalmoney = 1;
+//					
+//				}
 				
 				var paylefttime:int = getPayLeftTime();
 				if(paylefttime > 0)
@@ -638,6 +665,9 @@ package script.order
 		}
 		private function onPlaceOrderBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -651,14 +681,14 @@ package script.order
 					allorders.push(orderdata.orderSn);
 				}
 				
-				if(Userdata.instance.firstOrder == "1" || firstOrder)
-				{
-					var totalmoney:Number = totalmoney - Constast.FRESH_DISCOUNT;
-					if(totalmoney < 1)
-						totalmoney = 1;
-					
-				}
-				//Userdata.instance.firstOrder = "0";
+//				if(Userdata.instance.firstOrder == "1" || firstOrder)
+//				{
+//					var totalmoney:Number = totalmoney - Constast.FRESH_DISCOUNT;
+//					if(totalmoney < 1)
+//						totalmoney = 1;
+//					
+//				}
+//				Userdata.instance.firstOrder = "0";
 				var paylefttime:int = getPayLeftTime();
 				if(paylefttime > 0)
 					ViewManager.instance.openView(ViewManager.VIEW_SELECT_PAYTYPE_PANEL,false,{amount:Number(totalmoney.toFixed(2)),orderid:allorders,lefttime:paylefttime});
@@ -767,6 +797,9 @@ package script.order
 		}
 		private function ongetAllAvailableDateBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(!result.hasOwnProperty("status"))
 			{
@@ -1008,15 +1041,15 @@ package script.order
 				manuarr[i].orderAmount = totalprice;
 				
 				
-				if( (manuarr[i].orderAmount as Number) < 2)
+				if( (manuarr[i].orderAmount as Number) < Userdata.instance.orderBasePrice)
 				{
-					manuarr[i].orderAmount = 2.00;
+					manuarr[i].orderAmount = Userdata.instance.orderBasePrice;
 					//var itemarr:Array = odata.orderItemList;
 					if(itemlist.length > 0)
 					{
-						var eachprice:Number = Number((2/itemlist.length).toFixed(2));
+						var eachprice:Number = Number((Userdata.instance.orderBasePrice/itemlist.length).toFixed(2));
 						
-						var overflow:Number = 2 - eachprice*itemlist.length;
+						var overflow:Number = Userdata.instance.orderBasePrice - eachprice*itemlist.length;
 						for(var j:int=0;j < itemlist.length;j++)
 						{
 							if(j==0)
@@ -1101,6 +1134,9 @@ package script.order
 		
 		private function onSaveOrderBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

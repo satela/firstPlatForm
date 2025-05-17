@@ -43,7 +43,8 @@ package script.order
 				var numitem:PackageNumItemUI = new PackageNumItemUI();
 				numitem.numInput.text = packageVo.itemlist[i].itemCount + "";
 				
-				if(PaintOrderModel.instance.packageList.indexOf(packageVo) == 0 || PaintOrderModel.instance.packageList.indexOf(packageVo) == 1)
+				//if(PaintOrderModel.instance.packageList.indexOf(packageVo) == 0 || PaintOrderModel.instance.packageList.indexOf(packageVo) == 1)
+				if(PaintOrderModel.instance.packageList.indexOf(packageVo) == 0)
 				{
 					numitem.numInput.editable = false;
 					numitem.addBtn.visible = false;
@@ -72,7 +73,9 @@ package script.order
 		
 		private function onaddnum(textInput:TextInput,packageItem:PackageItem):void
 		{
-			var firstpackage:PackageVo = PaintOrderModel.instance.packageList[1];
+			//var firstpackage:PackageVo = PaintOrderModel.instance.packageList[1];
+			var firstpackage:PackageVo = PaintOrderModel.instance.packageList[0];
+
 			for(var i:int=0;i < firstpackage.itemlist.length;i++)
 			{
 				if(firstpackage.itemlist[i].itemId == packageItem.itemId)
@@ -108,7 +111,9 @@ package script.order
 			
 			textInput.text = curnum + "";
 			
-			var firstpackage:PackageVo = PaintOrderModel.instance.packageList[1];
+			//var firstpackage:PackageVo = PaintOrderModel.instance.packageList[1];
+			var firstpackage:PackageVo = PaintOrderModel.instance.packageList[0];
+
 			for(var i:int=0;i < firstpackage.itemlist.length;i++)
 			{
 				if(firstpackage.itemlist[i].itemId == packageItem.itemId)
@@ -135,7 +140,9 @@ package script.order
 				curnum = 0;
 			
 			var othertotal:int = 0;
-			var firstpackage:PackageVo = PaintOrderModel.instance.packageList[1];
+			//var firstpackage:PackageVo = PaintOrderModel.instance.packageList[1];
+			var firstpackage:PackageVo = PaintOrderModel.instance.packageList[0];
+
 			for(var i:int=0;i < firstpackage.itemlist.length;i++)
 			{
 				if(firstpackage.itemlist[i].itemId == packageItem.itemId)

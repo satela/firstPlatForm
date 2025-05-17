@@ -62,14 +62,16 @@ package script.usercenter.item
 		{
 			if(b)
 			{
-				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressGroupManageUrl,this,delGroupBack,"opt=delete&id=" + groupVo.groupId,"post");
+				var post:Object = {"id":groupVo.groupId};
+				
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressGroupManageDelete,this,delGroupBack,JSON.stringify(post),"post");
 
 			}
 		}
 		private function delGroupBack(data:Object):void
 		{
 			var result:Object = JSON.parse(data as String);
-			if(result.status == 0)
+			if(result.code == "0")
 			{
 				//Userdata.instance.deleteAddr(result.id);
 				EventCenter.instance.event(EventCenter.UPDATE_ADDRESS_GROUP_LIST);

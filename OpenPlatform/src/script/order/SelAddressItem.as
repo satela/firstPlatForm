@@ -29,7 +29,7 @@ package script.order
 			this.btnSetDefault.visible = Userdata.instance.defaultAddId != address.id;
 			this.defaultMark.visible = Userdata.instance.defaultAddId == address.id;
 			
-			if(address.customerId > 0)
+			if(address.customerId != "0")
 				this.btnSetDefault.visible = false;
 			
 			this.btnSetDefault.on(Event.CLICK,this,this.setDefaultAdd);

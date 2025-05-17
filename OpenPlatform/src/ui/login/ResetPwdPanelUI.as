@@ -18,6 +18,7 @@ package ui.login {
 		public var btngetcode:Button;
 		public var btnClose:Button;
 		public var btnok:Button;
+		public var codeValid:Label;
 
 		override protected function createChildren():void {
 			super.createChildren();

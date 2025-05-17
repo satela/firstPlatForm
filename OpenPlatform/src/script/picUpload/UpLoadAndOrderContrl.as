@@ -115,7 +115,7 @@ package script.picUpload
 		{
 			Laya.timer.clearAll(this);
 			file.click();
-			file.value ;
+			//file.value ;
 		}
 		private function initFileOpen():void
 		{
@@ -148,9 +148,17 @@ package script.picUpload
 				fileListData = [];
 				for(var i:int=0;i < file.files.length;i++)
 				{
-					file.files[i].progress = 0;
-					file.files[i].unNormal = false;
-					fileListData.push(file.files[i]);
+					if(file.files[i].type == "image/jpg" || file.files[i].type == "image/jpeg" || file.files[i].type == "image/tif" || file.files[i].type == "image/tiff" || "image/png")
+					{
+						if(!UtilTool.isValidString(file.files[i].name))
+						{
+							ViewManager.showAlert("图片文件名不能包含特殊字符及表情，请修改后重新上传");
+							return;
+						}
+						file.files[i].progress = 0;
+						file.files[i].unNormal = false;
+						fileListData.push(file.files[i]);
+					}
 				}
 				
 				uiSkin.fileList.array = fileListData;
@@ -168,12 +176,16 @@ package script.picUpload
 //			}
 		}
 		
+		
 		private function getSendRequest():void
 		{
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.authorUploadUrl,this,onGetAuthor,null,null);
 		}
 		private function onGetAuthor(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var authordata:Object = JSON.parse(data as String);
 			if(authordata == null || authordata.data == null)
 				return;
@@ -342,6 +354,9 @@ package script.picUpload
 		
 		private function onReadyToUpload(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

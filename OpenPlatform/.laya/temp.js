@@ -206,8 +206,8 @@ var Laya=window.Laya=(function(window,document){
 (function(window,document,Laya){
 	var __un=Laya.un,__uns=Laya.uns,__static=Laya.static,__class=Laya.class,__getset=Laya.getset,__newvec=Laya.__newvec;
 Laya.interface('laya.ui.IItem');
-Laya.interface('laya.ui.ISelect');
 Laya.interface('laya.ui.IRender');
+Laya.interface('laya.ui.ISelect');
 Laya.interface('laya.runtime.IMarket');
 Laya.interface('laya.filters.IFilter');
 Laya.interface('laya.html.utils.ILayout');
@@ -1345,6 +1345,7 @@ var PicInfoVo=(function(){
 		this.partWhiteUnWhiteRatio=1;
 		//局部铺白遮罩图的有色面积
 		this.aiPicDeadline=null;
+		this.hasTifAi=false;
 		this.relatedTimes=0;
 		this.picType=dtype;
 		if(this.picType==0){
@@ -1362,6 +1363,7 @@ var PicInfoVo=(function(){
 				this.picPhysicWidth=UtilTool.oneCutNineAdd(this.picWidth/this.dpi*2.54);
 				this.picPhysicHeight=UtilTool.oneCutNineAdd(this.picHeight/this.dpi*2.54);
 				this.fsize=fileinfo.fsize;
+				this.hasTifAi=fileinfo.approach==2;
 				this.yixingFid=fileinfo.maskId==null ?"0":fileinfo.maskId;
 				this.backFid=fileinfo.backId==null ?"0":fileinfo.backId;
 				this.partWhiteFid=fileinfo.partWhiteId==null ?"0":fileinfo.partWhiteId;
@@ -1450,8 +1452,10 @@ var PicInfoVo=(function(){
 	});
 
 	__getset(0,__proto,'tailFix',function(){
-		if(this.picClass.toUpperCase()=="PNG" || this.picClass.toUpperCase()=="TIF" || this.picClass.toUpperCase()=="TIFF")
+		if(this.picClass.toUpperCase()=="PNG")
 			return ".png";
+		else if((this.picClass.toUpperCase()=="TIF" || this.picClass.toUpperCase()=="TIFF")&& this.hasTifAi)
+		return ".png";
 		else return ".jpg";
 	});
 
@@ -1471,7 +1475,10 @@ var AddressVo=(function(){
 		this.id=null;
 		this.preAddName=null;
 		this.status=0;
-		this.customerId=0;
+		this.customerId="0";
+		this.defaultDeliveryType="";
+		this.customerName=null;
+		this.defaultPayType=null;
 		this.receiverName=data.cnee;
 		this.phone=data.mobileNumber;
 		this.address=data.addr;
@@ -1483,6 +1490,7 @@ var AddressVo=(function(){
 			this.zoneid=addid[0];
 			this.searchZoneid=addid[1];
 		}
+		this.defaultDeliveryType=data.defaultDelivery;
 	}
 
 	__class(AddressVo,'model.users.AddressVo');
@@ -1531,7 +1539,7 @@ var Constast=(function(){
 	Constast.PAY_ORDER_ONLINE="order:submit";
 	Constast.PAY_ORDER_BY_MONEY="order:submit-with-balances";
 	__static(Constast,
-	['TYPE_NAME',function(){return this.TYPE_NAME={"0":"","1":"充值","2":"账户余额支付订单","3":"退款","5":"取消异常订单","6":"直接支付订单","7":"撤单退款","8":"活动充值","10":"活动余额支付订单","11":"11扫码支付扩容","12":"余额支付扩容","13":"活动余额支付扩容","17":"撤单退款","77":"活动充值退款","100":"代客充值","101":"代充余额支付订单"};},'STORAGE_PRICE',function(){return this.STORAGE_PRICE={"50":300,"60":360,"70":420,"80":480,"90":540,"100":600};},'PREVILIGE_LIST',function(){return this.PREVILIGE_LIST=["order:submit","order:submit-with-balances","order:price:display","order:list:self","order:list:org","asset:log:list"];}
+	['TYPE_NAME',function(){return this.TYPE_NAME={"0":"","1":"充值","2":"账户余额支付订单","3":"退款","5":"取消异常订单","6":"直接支付订单","7":"撤单退款","8":"活动充值","10":"活动余额支付订单","11":"11扫码支付扩容","12":"余额支付扩容","13":"活动余额支付扩容","17":"撤单退款","77":"活动充值退款","100":"代客充值","101":"代充余额支付订单"};},'STORAGE_PRICE',function(){return this.STORAGE_PRICE={"50":300,"60":360,"70":420,"80":480,"90":540,"100":600};},'PREVILIGE_LIST',function(){return this.PREVILIGE_LIST=["order:submit","order:submit-with-balances","order:price:display","order:list:self","order:list:org","asset:log:list"];},'PAY_TYPE_NAME',function(){return this.PAY_TYPE_NAME=["预充","月结","现金"];}
 	]);
 	return Constast;
 })()
@@ -1584,6 +1592,12 @@ var Userdata=(function(){
 		this.configVersion=null;
 		this.clientCode=null;
 		this.webCode=null;
+		this.orgAudit=false;
+		//是否需要审核注册公司
+		this.orgAuditState=-1;
+		//公司审核状态-1 没有提交审核 0 审核中 1 审核通过 2 审核拒绝
+		this.defaultManufactureSelected=true;
+		this.orderBasePrice=2;
 	}
 
 	__class(Userdata,'model.Userdata');
@@ -1676,6 +1690,17 @@ var Userdata=(function(){
 				if(caller && callfun)callfun.call(caller);
 			}
 		},null,null);
+	}
+
+	__proto.setPlatformConfig=function(configlist){
+		if(configlist){
+			for(var i=0;i < configlist.length;i++){
+				if(configlist[i].code=="BASE_PRICE")
+					this.orderBasePrice=parseFloat(configlist[i].value);
+				else if(configlist[i].code=="MANUFACTURER_SELECTED")
+				this.defaultManufactureSelected=configlist[i].value=="0";
+			}
+		}
 	}
 
 	__proto.checkJumpUrl=function(){
@@ -2280,14 +2305,33 @@ var ProductVo=(function(){
 		return prices;
 	}
 
-	//获取附件价格
-	__proto.getAttachPrice=function(arr,picwidth,picheight,ignoreOther,picinfovo,techlist){
+	__proto.getAllAttachPrice=function(picwidth,picheight,ignoreOther,picinfovo){
+		(ignoreOther===void 0)&& (ignoreOther=false);
+		var allprices=[];
+		var haselectTech=this.getAllSelectedTech();
+		var prices=0;
+		for(var i=0;i < this.procTreeList.length;i++){
+			if(this.procTreeList[i].selected){
+				var tempTree=[];
+				tempTree.push(this.procTreeList[i]);
+				allprices=allprices.concat(this.getAttachPrice(tempTree,picwidth,picheight,ignoreOther,picinfovo,haselectTech,true));
+			}
+		}
+		for(i=0;i < allprices.length;i++){
+			prices+=allprices[i];
+		}
+		return prices;
+	}
+
+	//获取附件价格 justMatPrice 是否只要材料配件的价格
+	__proto.getAttachPrice=function(arr,picwidth,picheight,ignoreOther,picinfovo,techlist,justMatPrice){
+		(justMatPrice===void 0)&& (justMatPrice=false);
 		var prices=[];
 		if(arr==null)
 			return [];
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
-			if(arr[i].selected){
+			if(arr[i].selected && (!justMatPrice || arr[i].attachmentList.indexOf("SPMat")>=0)){
 				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
 					var totalprice=0;
 					var attachvo;
@@ -2435,6 +2479,27 @@ var ProductVo=(function(){
 		}
 	}
 
+	__proto.getFirstTechMeasureUnit=function(){
+		for(var i=0;i < this.procTreeList.length;i++){
+			if(this.procTreeList[i].selected){
+				if(this.procTreeList[i].measure_unit.indexOf("平方米")>=0)
+					return "平方米";
+				else
+				return "米";
+			}
+		}
+		return "平方米";
+	}
+
+	__proto.getTotalMeasureNum=function(picwidth,picheight){
+		for(var i=0;i < this.procTreeList.length;i++){
+			if(this.procTreeList[i].selected){
+				return UtilTool.getMaterialWight(picwidth,picheight,this.procTreeList[i].measure_unit,1);
+			}
+		}
+		return 1;
+	}
+
 	return ProductVo;
 })()
 
@@ -2500,7 +2565,10 @@ var GameConfig=(function(){
 		reg("script.order.SelectMaterialControl",SelectMaterialControl);
 		reg("script.order.SelectPackAddressController",SelectPackAddressController);
 		reg("script.order.SelectPicControl",SelectPicControl);
+		reg("script.usercenter.CustomerTransactController",CustomerTransactController);
 		reg("script.usercenter.MyOrderControl",MyOrderControl);
+		reg("script.usercenter.StatisticalAnalyController",StatisticalAnalyController);
+		reg("script.usercenter.WriteOffController",WriteOffController);
 		reg("script.picUpload.BuyStorageController",BuyStorageController);
 		reg("script.picUpload.PictureCheckControl",PictureCheckControl);
 		reg("utils.PopUpWindowControl",PopUpWindowControl);
@@ -2529,6 +2597,7 @@ var GameConfig=(function(){
 		reg("script.usercenter.AddressEditControl",AddressEditControl);
 		reg("script.usercenter.OrderDetailControl",OrderDetailControl);
 		reg("script.usercenter.PublicChargeRecordController",PublicChargeRecordController);
+		reg("script.usercenter.OrderPriceSettingController",OrderPriceSettingController);
 		reg("script.usercenter.TransactionControl",TransactionControl);
 		reg("script.usercenter.UserMainControl",UserMainControl);
 	}
@@ -2539,7 +2608,7 @@ var GameConfig=(function(){
 	GameConfig.screenMode="none";
 	GameConfig.alignV="top";
 	GameConfig.alignH="left";
-	GameConfig.startScene="orderList/OrderListPanel.scene";
+	GameConfig.startScene="login/RegisterPhonePanel.scene";
 	GameConfig.sceneRoot="";
 	GameConfig.debug=false;
 	GameConfig.stat=false;
@@ -2700,7 +2769,7 @@ var MaterialItemVo=(function(){
 				break ;
 			}
 		}
-		if(allpics.length > 0){
+		if(allpics !=null && allpics.length > 0){
 			if(this._nextMatList.length > 0){
 				var vec=[];
 				vec.push(this);
@@ -2817,7 +2886,7 @@ var ViewManager=(function(){
 	function ViewManager(){
 		this.viewContainer=null;
 		this.openViewList=null;
-		//材料工艺效果图界面
+		//订单销账界面
 		this.viewDict=null;
 		this.curZorder=0;
 		this.viewContainer=new Sprite();
@@ -2878,6 +2947,8 @@ var ViewManager=(function(){
 		this.viewDict["APPLY_JOIN_LIST_PANEL"]=ApplyJoinMgrPanelUI;
 		this.viewDict["RELATED_PIC_CHOOSE_PANEL"]=RelatedPicChoosePanelUI;
 		this.viewDict["PRODUCT_PROC_EFFECT_PANEL"]=MatAndProcEffectPanelUI;
+		this.viewDict["ORDER_PRICE_SETTING_PANEL"]=SellPriceSettingPanelUI;
+		this.viewDict["WRITE_OFF_ORDER_PANEL"]=WriteOffOrderPanelUI;
 	}
 
 	__class(ViewManager,'script.ViewManager');
@@ -3006,6 +3077,8 @@ var ViewManager=(function(){
 	ViewManager.APPLY_JOIN_LIST_PANEL="APPLY_JOIN_LIST_PANEL";
 	ViewManager.RELATED_PIC_CHOOSE_PANEL="RELATED_PIC_CHOOSE_PANEL";
 	ViewManager.PRODUCT_PROC_EFFECT_PANEL="PRODUCT_PROC_EFFECT_PANEL";
+	ViewManager.ORDER_PRICE_SETTING_PANEL="ORDER_PRICE_SETTING_PANEL";
+	ViewManager.WRITE_OFF_ORDER_PANEL="WRITE_OFF_ORDER_PANEL";
 	return ViewManager;
 })()
 
@@ -3095,6 +3168,25 @@ var ErrorCode=(function(){
 })()
 
 
+//class model.users.BusinessManVo
+var BusinessManVo=(function(){
+	function BusinessManVo(data){
+		this.name=null;
+		this.id=null;
+		this.mobileNumber=null;
+		if(data !=null){
+			for(var key in data){
+				if(this.hasOwnProperty(key))
+					this[key]=data[key];
+			}
+		}
+	}
+
+	__class(BusinessManVo,'model.users.BusinessManVo');
+	return BusinessManVo;
+})()
+
+
 //class model.users.CityAreaVo
 var CityAreaVo=(function(){
 	function CityAreaVo(){
@@ -3181,16 +3273,25 @@ var RelatedChooseModel=(function(){
 //class model.users.CustomVo
 var CustomVo=(function(){
 	function CustomVo(data){
-		this.id=0;
+		this.id=null;
 		this.customerName=null;
 		this.mobileNumber=null;
 		this.salesmanId=null;
+		this.businessManId=null;
+		this.businessManName=null;
+		this.businessManPhone=null;
+		this.defaultPayment=0;
 		this.dirId=null;
+		this.balance=null;
+		this.salerName=null;
+		this.salerId=null;
+		this.balanceMoney=NaN;
 		if(data !=null){
 			for(var key in data){
 				if(this.hasOwnProperty(key))
 					this[key]=data[key];
 			}
+			this.balanceMoney=parseFloat(this.balance);
 		}
 	}
 
@@ -3243,6 +3344,7 @@ var PaintOrderModel=(function(){
 		this.rawPrice="0";
 		//订单原价
 		this.tempPicOrderItemVoList=null;
+		this.curOrderCustomer=null;
 	}
 
 	__class(PaintOrderModel,'model.orderModel.PaintOrderModel');
@@ -3264,6 +3366,7 @@ var PaintOrderModel=(function(){
 		this.batchOrders={};
 		model.orderModel.PaintOrderModel.instance.rawPrice="0";
 		this.tempPicOrderItemVoList=[];
+		this.curOrderCustomer=null;
 	}
 
 	__proto.initOutputAddr=function(addrobj){
@@ -3700,8 +3803,12 @@ var PaintOrderModel=(function(){
 				var packvo=this.packageList[j];
 				var packdata={};
 				packdata.packageName=packvo.packageName;
-				if(this.packageList.length==1)
+				if(this.packageList.length==1){
+					if(this.curOrderCustomer !=null && this.curOrderCustomer.id !="0")
+						packdata.consignee=this.curOrderCustomer.customerName+"#"+packvo.address.receiverName;
+					else
 					packdata.consignee=Userdata.instance.companyShort+"#"+packvo.address.receiverName;
+				}
 				else
 				packdata.consignee=packvo.address.receiverName;
 				packdata.tel=packvo.address.phone;
@@ -3722,8 +3829,10 @@ var PaintOrderModel=(function(){
 						}
 					}
 				}
-				if(packdata.itemList.length==0)
+				if(packdata.itemList.length==0){
+					ViewManager.showAlert("包裹产品项数量不能都是0");
 					return false
+				}
 				this.finalOrderData[i].packageList.push(packdata);
 			}
 			for(var k=0;k < this.finalOrderData[i].orderItemList.length;k++){
@@ -4865,6 +4974,56 @@ var UtilTool=(function(){
 		return result;
 	}
 
+	UtilTool.isValidString=function(str){
+		return true;
+		var pattern=/^[a-zA-Z0-9\u4e00-\u9fa5,.()\[\]{}<>\|+=_-]+$/;
+		return pattern.test(str);
+	}
+
+	UtilTool.isEmojiCharacter=function(substring){
+		if(substring){
+			var reg=new RegExp("[~#^$@%&!?%*]",'g');
+			if (substring.match(reg)){
+				return true;
+			}
+			reg=/[\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/;
+			if(reg.test(substring)){
+				return true;
+			}
+			for (var i=0;i < substring.length;i++){
+				var hs=substring.charCodeAt(i);
+				if (0xd800 <=hs && hs <=0xdbff){
+					if (substring.length > 1){
+						var ls=substring.charCodeAt(i+1);
+						var uc=((hs-0xd800)*0x400)+(ls-0xdc00)+0x10000;
+						if (0x1d000 <=uc && uc <=0x1f77f){
+							return true;
+						}
+					}
+					}else if (substring.length > 1){
+					var ls=substring.charCodeAt(i+1);
+					if (ls==0x20e3){
+						return true;
+					}
+					}else {
+					if (0x2100 <=hs && hs <=0x27ff){
+						return true;
+						}else if (0x2B05 <=hs && hs <=0x2b07){
+						return true;
+						}else if (0x2934 <=hs && hs <=0x2935){
+						return true;
+						}else if (0x3297 <=hs && hs <=0x3299){
+						return true;
+					}else if (hs==0xa9 || hs==0xae || hs==0x303d || hs==0x3030
+					|| hs==0x2b55 || hs==0x2b1c || hs==0x2b1b
+					|| hs==0x2b50){
+						return true;
+					}
+				}
+			}
+		}
+	}
+
 	__static(UtilTool,
 	['grayscaleMat',function(){return this.grayscaleMat=[
 		0.3086,0.6094,0.0820,0,0,
@@ -4940,6 +5099,34 @@ var TimeManager=(function(){
 })()
 
 
+//class model.users.CustomerTransactionVo
+var CustomerTransactionVo=(function(){
+	function CustomerTransactionVo(data){
+		this.id=null;
+		this.customerId=null;
+		this.customerName=null;
+		this.userName=null;
+		this.amount=null;
+		this.transactionId=null;
+		this.transactionSn=null;
+		this.transactionType=null;
+		this.transactionTypeName=null;
+		this.transactionChannel=null;
+		this.transactionTime=null;
+		this.comment=null;
+		if(data !=null){
+			for(var key in data){
+				if(this.hasOwnProperty(key))
+					this[key]=data[key];
+			}
+		}
+	}
+
+	__class(CustomerTransactionVo,'model.users.CustomerTransactionVo');
+	return CustomerTransactionVo;
+})()
+
+
 //class model.orderModel.AttchCatVo
 var AttchCatVo=(function(){
 	function AttchCatVo(data){
@@ -4999,10 +5186,12 @@ var AddressGroupVo=(function(){
 		this.groupId=0;
 		this.groupName=null;
 		this.count=0;
+		this.customerId=null;
 		this.selected=false;
 		this.groupId=data.id;
 		this.groupName=data.name;
-		this.count=parseInt(data.cnt);
+		this.count=parseInt(data.expressCount);
+		this.customerId=data.customerId;
 	}
 
 	__class(AddressGroupVo,'model.users.AddressGroupVo');
@@ -5170,7 +5359,7 @@ var HttpRequestUtil=(function(){
 	function HttpRequestUtil(){}
 	__class(HttpRequestUtil,'model.HttpRequestUtil');
 	var __proto=HttpRequestUtil.prototype;
-	__proto.newRequest=function(url,caller,complete,param,requestType,onProgressFun){
+	__proto.newRequest=function(url,caller,complete,param,requestType,onProgressFun,headers){
 		var _$this=this;
 		(requestType===void 0)&& (requestType="text");
 		var request=new HttpRequest();
@@ -5197,7 +5386,7 @@ var HttpRequestUtil=(function(){
 		}
 		console.log(url+param);
 		request["retrytime"]=0;
-		request.send(url,param,requestType?'post':'get',"text");
+		request.send(url,param,requestType?'post':'get',"text",headers);
 	}
 
 	__proto.onHttpRequestError=function(url,caller,complete,param,requestType,request,e){
@@ -5236,7 +5425,7 @@ var HttpRequestUtil=(function(){
 		request.offAll();
 	}
 
-	__proto.Request=function(url,caller,complete,param,type,onProgressFun,showwaiting){
+	__proto.Request=function(url,caller,complete,param,type,onProgressFun,showwaiting,headers){
 		(type===void 0)&& (type="get");
 		(showwaiting===void 0)&& (showwaiting=true);
 		var logtime=UtilTool.getLocalVar("loginTime","");
@@ -5251,7 +5440,7 @@ var HttpRequestUtil=(function(){
 		if(showwaiting){
 			WaitingRespond.instance.showWaitingView();
 		}
-		this.newRequest(url,caller,complete,param,type);
+		this.newRequest(url,caller,complete,param,type,onProgressFun,headers);
 	}
 
 	//---Static Functions------------------------------------------------------------------------------------------------------------------------------------//
@@ -5259,7 +5448,7 @@ var HttpRequestUtil=(function(){
 		this.newRequest(url,caller,complete,param,"arraybuffer");
 	}
 
-	//添加客户地址
+	//clientCode=CL10600&addrId=360423?webCode=xxx?";//=SPSC00100&addr_id=330700";//获取配送列表
 	__getset(1,HttpRequestUtil,'instance',function(){
 		if(HttpRequestUtil._instance==null)
 			HttpRequestUtil._instance=new HttpRequestUtil();
@@ -5290,7 +5479,7 @@ var HttpRequestUtil=(function(){
 	HttpRequestUtil.smallerrPicUrl="https://pfyg-thumbnail-small-img.oss-cn-hangzhou.aliyuncs.com/";
 	HttpRequestUtil.originPicPicUrl="https://pfyg-normal-image.oss-cn-hangzhou.aliyuncs.com/";
 	HttpRequestUtil.addCompanyInfo="group/create?";
-	HttpRequestUtil.getAuditInfo="group/get-request?";
+	HttpRequestUtil.getAuditInfo="sys/getOrgReq?";
 	HttpRequestUtil.getOuputAddr="business/manufacturers?";
 	HttpRequestUtil.getProdCategory="business/prodcategory?";
 	HttpRequestUtil.getProcessFlow="business/procflowlist?manufacturer_code=";
@@ -5315,7 +5504,7 @@ var HttpRequestUtil=(function(){
 	HttpRequestUtil.recharge="org/recharge?";
 	HttpRequestUtil.publicChargeRequest="org/corporateRecharge?";
 	HttpRequestUtil.getpublicChargeRequestList="org/getCorporateRechargeList?";
-	HttpRequestUtil.payOrderByMoney="order//payWithBal?";
+	HttpRequestUtil.payOrderByMoney="order/payWithBal?";
 	HttpRequestUtil.getOrderRecordList="order/list?";
 	HttpRequestUtil.deleteOrderList="account/delete-unpaid-order?";
 	HttpRequestUtil.changeCompanyName="group/update_group?";
@@ -5354,12 +5543,14 @@ var HttpRequestUtil=(function(){
 	HttpRequestUtil.applyInvoice="group/apply-invoice";
 	HttpRequestUtil.listInvoice="group/list-invoice";
 	HttpRequestUtil.cancelInvoice="group/cancel-invoice";
-	HttpRequestUtil.vipAddressManageUrl="group/opt-vip-express?";
-	HttpRequestUtil.vipAddressGroupManageUrl="group/opt-vip-addr-group?";
-	HttpRequestUtil.insertGroupAddress="group/opt-vip-addr-group-rel?";
-	HttpRequestUtil.removeGroupAddress="group/opt-vip-addr-group-rel/remomve?";
+	HttpRequestUtil.vipAddressManageUrl="org/express/group/pagingExpress?";
+	HttpRequestUtil.vipAddressGroupManageUrl="org/express/group/add?";
+	HttpRequestUtil.vipAddressGroupManageList="org/express/group/paging?";
+	HttpRequestUtil.vipAddressGroupManageDelete="org/express/group/delete?";
+	HttpRequestUtil.insertGroupAddress="org/express/group/addExpress?";
+	HttpRequestUtil.removeGroupAddress="org/express/group/deleteExpress?";
 	HttpRequestUtil.listGroupAddress="group/get-group-addr?";
-	HttpRequestUtil.listGroupsAddress="group/list-all-group-addr?";
+	HttpRequestUtil.listGroupsAddress="org/express/group/listExpress?";
 	HttpRequestUtil.addErrorLog="group/add-error-log?";
 	HttpRequestUtil.getProductCategoryDefault="account/get-product-default-category?";
 	HttpRequestUtil.updateProductCategoryDefault="account/update-product-default-category?";
@@ -5392,7 +5583,20 @@ var HttpRequestUtil=(function(){
 	HttpRequestUtil.addCustomerAddress="org/customer/express/add?";
 	HttpRequestUtil.updateCustomerAddress="org/customer/express/update?";
 	HttpRequestUtil.deleteCustomerAddress="org/customer/express/delete?";
-	HttpRequestUtil.listCustomerAddress="org/customer/express/list?";
+	HttpRequestUtil.listCustomerAddress="org/customer/express/paging?";
+	HttpRequestUtil.updateOrderSellPrice="order/updateSalesPrice?";
+	HttpRequestUtil.addCollection="org/collection/add?";
+	HttpRequestUtil.deleteCollection="org/collection/delete?";
+	HttpRequestUtil.collectionList="org/customer/transaction/paging?";
+	HttpRequestUtil.addBusinessMan="org/saler/add?";
+	HttpRequestUtil.updateBusinessMan="org/customer/update?";
+	HttpRequestUtil.listBusinessMan="org/saler/list?";
+	HttpRequestUtil.deleteBusinessMan="org/saler/delete?";
+	HttpRequestUtil.listOrderMakers="org/user/list?";
+	HttpRequestUtil.writeOffOrders="order/clear?";
+	HttpRequestUtil.tifAiSetting="fs/file/changeImg?";
+	HttpRequestUtil.getPlatformConfig="sys/getConfigList?";
+	HttpRequestUtil.getDeaultDeliveryList="business/getDeliveryType?";
 	return HttpRequestUtil;
 })()
 
@@ -5414,6 +5618,11 @@ var DirectoryFileModel=(function(){
 
 	__class(DirectoryFileModel,'model.picmanagerModel.DirectoryFileModel');
 	var __proto=DirectoryFileModel.prototype;
+	__proto.resetData=function(){
+		this.directoryList=[];
+		this.haselectPic={};
+	}
+
 	__proto.addNewTopDir=function(dir){
 		this.curFileList.push(new PicInfoVo(dir,0));
 	}
@@ -5678,6 +5887,9 @@ var Main=(function(){
 	}
 
 	__proto.onConfigLoaded=function(){
+		var u=new Browser.window.URL(Browser.window.location.href);
+		var tt=u.searchParams.get('orderID');
+		console.log("id:"+tt);
 		HttpRequestUtil.httpUrl="../v2/";
 		Userdata.instance.configVersion=(new Date()).getTime().toString();
 		Laya.loader.load([{url:"config.json?"+Userdata.instance.configVersion,type:"json"}],Handler.create(this,this.onLoadedJsonConfigComp),null,"json");
@@ -6009,6 +6221,7 @@ var OrderConstant=(function(){
 	OrderConstant.ATTACH_JPG="SPjpg";
 	OrderConstant.ATTACH_PNG="SPpng";
 	OrderConstant.ATTACH_PEIJIAN="SPpeijian";
+	OrderConstant.ATTACH_PEIJIAN_MAT="SPMat";
 	OrderConstant.ATTACH_PJZZ="SPzz";
 	OrderConstant.ATTACH_PJSM="SPsm";
 	OrderConstant.CUTOFF_H_V="SPpj";
@@ -30566,6 +30779,13 @@ var EventCenter=(function(_super){
 	EventCenter.UPDATE_RELATED_PIC="UPDATE_RELATED_PIC";
 	EventCenter.UPDATE_CUSTOMER_LIST="UPDATE_CUSTOMER_LIST";
 	EventCenter.SELECT_CUSTOMER="SELECT_CUSTOMER";
+	EventCenter.EDIT_CUSTOMER_INFO="EDIT_CUSTOMER_INFO";
+	EventCenter.UPDATE_ORDER_PRICE="UPDATE_ORDER_PRICE";
+	EventCenter.DELETE_CUSTOMER_TRANSACTION="DELETE_CUSTOMER_TRANSACTION";
+	EventCenter.CUSTOMER_LIST_INIT_SUCESS="CUSTOMER_LIST_INIT_SUCESS";
+	EventCenter.CHANGE_WRITEOFF_ORDER_SELECTED="CHANGE_WRITEOFF_ORDER_SELECTED";
+	EventCenter.UPDATE_BUSINESSMAN_LIST="UPDATE_BUSINESSMAN_LIST";
+	EventCenter.UPDATE_CUSTOMER_BALANCE="UPDATE_CUSTOMER_BALANCE";
 	EventCenter._eventCenter=null;
 	EventCenter.__init$=function(){
 		//class SingleForcer
@@ -38415,6 +38635,7 @@ var LogPanelControl=(function(_super){
 		this.uiSKin=this.owner;
 		this.uiSKin.mainpanel.hScrollBarSkin="";
 		this.uiSKin.mainpanel.vScrollBarSkin="";
+		this.uiSKin.companyPic.skin="bigImg/companyPic.png?"+Userdata.instance.version;
 		var json=Laya.loader.getRes("config.json?"+Userdata.instance.configVersion);
 		var shortName=json["shortName"];
 		this.uiSKin.titleBar.text=shortName+"自助下单系统";
@@ -38634,6 +38855,8 @@ var LogPanelControl=(function(_super){
 	}
 
 	__proto.onLoginBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			Userdata.instance.isLogin=true;
@@ -38642,6 +38865,8 @@ var LogPanelControl=(function(_super){
 			Userdata.instance.userName=result.data.nickName;
 			Userdata.instance.step=result.data.step;
 			Userdata.instance.firstOrder=result.data.firstOrder;
+			Userdata.instance.orgAudit=result.data.needAuditOrg;
+			Userdata.instance.orgAuditState=result.data.orgAuditState;
 			Userdata.instance.accountType=result.data.userType;
 			Userdata.instance.privilege=result.data.userPermisson;
 			if(result.data.token !=null && result.data.token !=""){
@@ -38662,7 +38887,7 @@ var LogPanelControl=(function(_super){
 
 	__proto.getCompanyInfoBack=function(data){
 		var result=JSON.parse(data);
-		if(result.code=="1056"){
+		if(result.code=="1058"){
 			ViewManager.instance.openView("VIEW_REGPANEL",true,{"step":2});
 		}
 		else
@@ -38702,6 +38927,7 @@ var AddrGroupMgrController=(function(_super){
 		this.grpVo=null;
 		this.curPage=1;
 		this.totalPage=1;
+		this.pageSize=30;
 		this.province=null;
 		this.zoneid=null;
 		this.areaid=null;
@@ -38735,7 +38961,7 @@ var AddrGroupMgrController=(function(_super){
 		this.uiSkin.dragImg.on("mouseup",this,this.stopDragPanel);
 		EventCenter.instance.on("INSERT_ADDRESS_TO_GROUP",this,this.refreshList);
 		EventCenter.instance.on("DELETE_ADDRESS_FROM_GROUP",this,this.deleteAddress);
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.getMyAddressBack,"opt=list&page="+this.curPage+"&hidden=0&id="+this.grpVo.groupId+"&addr="+"&keyword="+this.uiSkin.searchInput.text,"post");
+		this.updateList();
 	}
 
 	//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listGroupsAddress,this,getMyAddressBack,"id=104,105","post");
@@ -38784,20 +39010,25 @@ var AddrGroupMgrController=(function(_super){
 			for(var i=0;i < this.uiSkin.addressList.array.length;i++){
 				if(this.uiSkin.addressList.array[i].selected)
 					deleteIds.push(this.uiSkin.addressList.array[i].id);
-			}
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-addr-group-rel?",this,this.adddeleteBack,"opt=remove&id="+this.grpVo.groupId+"&ids="+deleteIds.join(","),"post");
+			};
+			var postdata={};
+			postdata.expressGroupId=this.grpVo.groupId;
+			postdata.expressIds=deleteIds;
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/deleteExpress?",this,this.adddeleteBack,JSON.stringify(postdata),"post");
 		}
 	}
 
 	__proto.getMyAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
-		if(result.status==0){
+		if(result.code=="0"){
 			var addressList=[];
-			for(var i=0;i < result.data.length;i++){
-				addressList.push(new VipAddressVo(result.data[i]));
+			for(var i=0;i < result.data.expressList.length;i++){
+				addressList.push(new VipAddressVo(result.data.expressList[i]));
 			}
 			this.uiSkin.addressList.array=addressList;
-			this.totalPage=result.totalpage;
+			this.totalPage=Math.ceil(result.data.totalCount/this.pageSize);
 			if(this.totalPage < 1)
 				this.totalPage=1;
 			this.uiSkin.pageNum.text=this.curPage+"/"+this.totalPage;
@@ -38826,13 +39057,18 @@ var AddrGroupMgrController=(function(_super){
 	}
 
 	__proto.deleteAddress=function(addId){
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-addr-group-rel?",this,this.adddeleteBack,"opt=remove&id="+this.grpVo.groupId+"&ids="+addId,"post");
+		var postdata={};
+		postdata.expressGroupId=this.grpVo.groupId;
+		postdata.expressIds=[addId];
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/deleteExpress?",this,this.adddeleteBack,JSON.stringify(postdata),"post");
 	}
 
 	__proto.adddeleteBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
-		if(result.status==0){
-			this.grpVo.count=result.totalcount;
+		if(result.code=="0"){
+			this.grpVo.count=parseInt(result.data.expressCount);
 			this.updateName();
 			this.updateList();
 		}
@@ -38845,8 +39081,8 @@ var AddrGroupMgrController=(function(_super){
 	}
 
 	__proto.updateList=function(){
-		var addr="";
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.getMyAddressBack,"opt=list&page="+this.curPage+"&id="+this.grpVo.groupId+"&hidden=0&addr="+addr+"&keyword="+this.uiSkin.searchInput.text,"post");
+		var paramdata="expressGroupId="+this.grpVo.groupId+"&mobileNumber="+this.uiSkin.searchInput.text+"&pageNo="+this.curPage+"&pageSize="+this.pageSize;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/pagingExpress?"+paramdata,this,this.getMyAddressBack,null,null);
 	}
 
 	__proto.showAddressList=function(){
@@ -39231,6 +39467,7 @@ var PicManagerController=(function(_super){
 		this.uiSkin.picList.on("mouseup",this,this.onMouseUpHandler);
 		this.uiSkin.picList.on("mouseover",this,this.onMouseDwons);
 		this.uiSkin.picList.on("mouseout",this,this.onMouseUpHandler);
+		this.uiSkin.tifAi.on("click",this,this.onSetTifAi);
 		DirectoryFileModel.instance.haselectPic={};
 		this.uiSkin.searchInput.on("input",this,this.onSearchInput);
 		this.uiSkin.on("removed",this,this.onRemovedFromStage);
@@ -39375,6 +39612,8 @@ var PicManagerController=(function(_super){
 	}
 
 	__proto.onGetLeftCapacitBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(this.uiSkin==null || this.uiSkin.destroyed)
 			return;
@@ -39483,6 +39722,8 @@ var PicManagerController=(function(_super){
 	}
 
 	__proto.onDeleteFileBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.deleteFolder();
@@ -39504,6 +39745,10 @@ var PicManagerController=(function(_super){
 			_$this.fileListData=[];
 			for(var i=0;i < _$this.file.files.length;i++){
 				if(_$this.file.files[i].type=="image/jpg" || _$this.file.files[i].type=="image/jpeg" || _$this.file.files[i].type=="image/tif" || _$this.file.files[i].type=="image/tiff" || "image/png"){
+					if(!UtilTool.isValidString(_$this.file.files[i].name)){
+						ViewManager.showAlert("图片文件名不能包含特殊字符及表情，请修改后重新上传");
+						return;
+					}
 					_$this.file.files[i].progress=0;
 					_$this.fileListData.push(_$this.file.files[i]);
 				}
@@ -39599,6 +39844,8 @@ var PicManagerController=(function(_super){
 
 	// }
 	__proto.onGetTopDirListBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			DirectoryFileModel.instance.initCurDirFiles(result);
@@ -39618,6 +39865,8 @@ var PicManagerController=(function(_super){
 	}
 
 	__proto.onGetDirFileListBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.uiSkin.radiosel.selected=false;
@@ -39787,6 +40036,33 @@ var PicManagerController=(function(_super){
 		}
 	}
 
+	__proto.onSetTifAi=function(){
+		var fileId=[];
+		var file;
+		for(var $each_file in DirectoryFileModel.instance.haselectPic){
+			file=DirectoryFileModel.instance.haselectPic[$each_file];
+			if(file.picClass.toUpperCase()=="TIF" || file.picClass.toUpperCase()=="TIFF"){
+				if(!file.hasTifAi)
+					fileId.push(file.fid);
+			}
+		}
+		if(fileId.length <=0){
+			ViewManager.showAlert("未选择tif文件或者tif文件已处理");
+			return;
+		};
+		var post={"fileId":fileId[0]};
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.tifAiSetting ,this,this.onTifAiBack,JSON.stringify(post),"post");
+	}
+
+	__proto.onTifAiBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			ViewManager.showAlert("请求处理成功，请等待AI处理完成");
+		}
+	}
+
 	__proto.onShowBuyStorage=function(){
 		ViewManager.instance.openView("VIEW_BUY_STORAGE_PANEL");
 	}
@@ -39920,6 +40196,8 @@ var ChargeControl=(function(_super){
 	}
 
 	__proto.getCompanyInfoBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			Userdata.instance.isVipCompany=result.vip=="1";
@@ -39997,10 +40275,26 @@ var EnterPrizeInfoControl=(function(_super){
 			ViewManager.instance.openView("VIEW_EDIT_COMPANY_INFO_PANEL");
 		})
 		var addrMgr=new AddressMgrPanelUI();
-		this.uiSkin.addChild(addrMgr);
+		this.uiSkin.rightpanel.addChild(addrMgr);
 		addrMgr.addComponent(AddressMgrControl);
-		addrMgr.x=600;
 		Browser.window.uploadApp=this;
+		this.uiSkin.addBusinessManPanel.visible=false;
+		this.uiSkin.addBusinessman.on("click",this,function(){
+			_$this.uiSkin.addBusinessManPanel.visible=true;
+		});
+		this.uiSkin.closeAdd.on("click",this,function(){
+			_$this.uiSkin.addBusinessManPanel.visible=false;
+		});
+		this.uiSkin.confrimAddMan.on("click",this,this.confirmAddBusinessMan);
+		this.uiSkin.businessList.repeatX=1;
+		this.uiSkin.businessList.spaceY=0;
+		this.uiSkin.businessList.itemRender=BusinessManCell;
+		this.uiSkin.businessList.renderHandler=new Handler(this,this.updateBusinessManList);
+		this.uiSkin.businessList.selectEnable=false;
+		this.uiSkin.businessList.array=[];
+		this.uiSkin.businessName.maxChars=8;
+		this.uiSkin.contactPhone.restrict="0-9";
+		this.uiSkin.contactPhone.maxChars=11;
 		this.uiSkin.leaveGroupBtn.visible=false;
 		this.uiSkin.leaveGrpPanel.visible=false;
 		this.uiSkin.closeLeaveBtn.on("click",this,function(){
@@ -40012,6 +40306,8 @@ var EnterPrizeInfoControl=(function(_super){
 		this.uiSkin.confirmLeave.on("click",this,this.confirmLeaveGroupNow);
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/getInfo",this,this.getCompanyInfoBack,null,null);
 		EventCenter.instance.on("UPDATE_COMPANY_INFO",this,this.updateCompanyInfo);
+		EventCenter.instance.on("UPDATE_BUSINESSMAN_LIST",this,this.getBusinessmanList);
+		this.getBusinessmanList();
 	}
 
 	__proto.updateCompanyInfo=function(){
@@ -40047,7 +40343,6 @@ var EnterPrizeInfoControl=(function(_super){
 			this.cityid=(result.data.regionId).slice(0,4)+"00";
 			this.areaid=(result.data.regionId).slice(0,6);
 			this.townid=result.data.regionId;
-			this.uiSkin.leaveGroupBtn.visible=true;
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0",this,this.initView,null,null);
 		}
 		else if(result.status==205){
@@ -40149,11 +40444,407 @@ var EnterPrizeInfoControl=(function(_super){
 		}
 	}
 
+	__proto.updateBusinessManList=function(cell,index){
+		cell.setData(cell.dataSource);
+	}
+
+	__proto.confirmAddBusinessMan=function(){
+		if(this.uiSkin.businessName.text==""){
+			ViewManager.showAlert("请输入业务员姓名");
+			return;
+		}
+		if(this.uiSkin.contactPhone.text.length < 11){
+			ViewManager.showAlert("请输入正确的联系电话");
+			return;
+		};
+		var requestStr={};
+		requestStr.mobileNumber=this.uiSkin.contactPhone.text;
+		requestStr.name=this.uiSkin.businessName.text;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.addBusinessMan,this,this.addBusinessback,JSON.stringify(requestStr),"post");
+	}
+
+	__proto.addBusinessback=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			this.getBusinessmanList();
+		}
+		this.uiSkin.addBusinessManPanel.visible=false;
+	}
+
+	__proto.getBusinessmanList=function(){
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listBusinessMan,this,this.getBusinessManBack,null,null);
+	}
+
+	__proto.getBusinessManBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		var mans=result.data;
+		var businessMan=[];
+		for(var i=0;i < mans.length;i++)
+		businessMan.push(new BusinessManVo(mans[i]));
+		this.uiSkin.businessList.array=businessMan;
+	}
+
 	__proto.onDestroy=function(){
 		EventCenter.instance.off("UPDATE_COMPANY_INFO",this,this.updateCompanyInfo);
+		EventCenter.instance.off("UPDATE_BUSINESSMAN_LIST",this,this.getBusinessmanList);
 	}
 
 	return EnterPrizeInfoControl;
+})(Script)
+
+
+//class script.usercenter.WriteOffController extends laya.components.Script
+var WriteOffController=(function(_super){
+	function WriteOffController(){
+		this.uiSkin=null;
+		this.curpage=1;
+		this.totalPage=1;
+		this.dateInput=null;
+		this.dateInput2=null;
+		this.curCustomer=null;
+		this.picList=null;
+		this.base64Arr=null;
+		this.excelData=[];
+		this.hasSelectedOrder=null;
+		this.param=null;
+		WriteOffController.__super.call(this);
+	}
+
+	__class(WriteOffController,'script.usercenter.WriteOffController',_super);
+	var __proto=WriteOffController.prototype;
+	__proto.onStart=function(){
+		this.uiSkin=this.owner;
+		this.curCustomer=this.param;
+		this.uiSkin.totalWriteMoney.text=this.curCustomer.balanceMoney.toFixed(2)+"元";
+		this.uiSkin.orderList.itemRender=WriteOffOrderCell;
+		this.uiSkin.orderList.repeatX=1;
+		this.uiSkin.orderList.spaceY=2;
+		this.uiSkin.orderList.renderHandler=new Handler(this,this.updateOrderList);
+		this.uiSkin.orderList.selectEnable=false;
+		this.uiSkin.orderList.array=[];
+		this.uiSkin.orderList.mouseThrough=true;
+		Laya.timer.frameLoop(1,this,this.updateDateInputPos);
+		var curdate=new Date();
+		var lastday=new Date(curdate.getTime()-24 *3600 *1000);
+		var paramdata="beginDate="+UtilTool.formatFullDateTime(lastday,false)+" 00:00:00&endDate="+UtilTool.formatFullDateTime(new Date(),false)+" 23:59:59&option=1&page=1&cleared=0&salerId=0&customerPayment=-1&userId=0&customerId="+this.curCustomer.id;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/list?"+paramdata,this,this.onGetOrderListBack,null,null);
+		this.uiSkin.lastpage.on("click",this,this.onLastPage);
+		this.uiSkin.nextpage.on("click",this,this.onNextPage);
+		this.uiSkin.selectMoney.text="0元";
+		this.uiSkin.orderList.on("mousedown",this,this.onMouseDwons);
+		this.uiSkin.orderList.on("mouseup",this,this.onMouseUpHandler);
+		this.uiSkin.selectall.on("click",this,this.onSelectAll);
+		this.uiSkin.closeBtn.on("click",this,function(){
+			ViewManager.instance.closeView("WRITE_OFF_ORDER_PANEL");
+		});
+		this.uiSkin.btnsearch.on("click",this,this.queryOrderList);
+		EventCenter.instance.on("COMMON_CLOSE_PANEL_VIEW",this,this.onshowInputDate);
+		EventCenter.instance.on("OPEN_PANEL_VIEW",this,this.onHideInputDate);
+		EventCenter.instance.on("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
+		EventCenter.instance.on("CHANGE_WRITEOFF_ORDER_SELECTED",this,this.changeSelectedOrder);
+		this.uiSkin.height=Browser.clientHeight *Laya.stage.width/Browser.clientWidth;
+		this.uiSkin.orderList.on("mouseover",this,this.pauseParentScroll);
+		this.uiSkin.orderList.on("mouseout",this,this.resumeParentScroll);
+		this.uiSkin.confirmBtn.on("click",this,this.onConfirmWriteOff);
+		Laya.stage.on("mouseup",this,this.onMouseUpHandler);
+		EventCenter.instance.on("DELETE_ORDER_BACK",this,this.getOrderListAgain);
+		this.hasSelectedOrder={};
+		this.initDateSelector();
+	}
+
+	__proto.onResizeBrower=function(){
+		this.uiSkin.height=Browser.clientHeight *Laya.stage.width/Browser.clientWidth;
+	}
+
+	__proto.pauseParentScroll=function(){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",false);
+	}
+
+	__proto.resumeParentScroll=function(){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",true);
+	}
+
+	__proto.onshowInputDate=function(viewname){
+		if(ViewManager.instance.getTopViewName()=="WRITE_OFF_ORDER_PANEL"){
+			this.dateInput.hidden=false;
+			this.dateInput2.hidden=false;
+		}
+	}
+
+	__proto.onHideInputDate=function(){
+		if(this.dateInput !=null){
+			this.dateInput.hidden=true;
+			this.dateInput2.hidden=true;
+		}
+	}
+
+	__proto.initDateSelector=function(){
+		var _$this=this;
+		var curdate=new Date((new Date()).getTime()-24 *3600 *1000);
+		var lastdate=new Date();
+		this.dateInput=Browser.document.createElement("input");
+		this.dateInput.style="filter:alpha(opacity=100);opacity:100;left:795px;top:240";
+		this.dateInput.style.width=222/Browser.pixelRatio;
+		this.dateInput.style.height=44/Browser.pixelRatio;
+		this.dateInput.type="date";
+		this.dateInput.style.position="absolute";
+		this.dateInput.style.zIndex=999;
+		this.dateInput.style.color="#003dc6";
+		this.dateInput.style.border="2px solid #003dc6";
+		this.dateInput.style.borderRadius="5px";
+		this.dateInput.value=UtilTool.formatFullDateTime(curdate,false);
+		Browser.document.body.appendChild(this.dateInput);
+		this.dateInput.onchange=function (datestr){
+			if(_$this.dateInput.value=="")
+				return;
+			var curdata=new Date(_$this.dateInput.value);
+			var nextdate=new Date(_$this.dateInput2.value);
+			if(nextdate.getTime()-curdata.getTime()> 30 *24 *3600 *1000){
+				nextdate=new Date(curdata.getTime()+30 *24 *3600 *1000);
+				_$this.dateInput2.value=UtilTool.formatFullDateTime(nextdate,false);
+			}
+			else if(nextdate.getTime()-curdata.getTime()< 0){
+				_$this.dateInput2.value=UtilTool.formatFullDateTime(curdata,false);
+			}
+		}
+		this.dateInput2=Browser.document.createElement("input");
+		this.dateInput2.style="filter:alpha(opacity=100);opacity:100;left:980px;top:240";
+		this.dateInput2.style.width=222/Browser.pixelRatio;
+		this.dateInput2.style.height=44/Browser.pixelRatio;
+		this.dateInput2.style.color="#003dc6";
+		this.dateInput2.style.border="2px solid #003dc6";
+		this.dateInput2.style.borderRadius="5px";
+		this.dateInput2.type="date";
+		this.dateInput2.style.position="absolute";
+		this.dateInput2.style.zIndex=999;
+		Browser.document.body.appendChild(this.dateInput2);
+		this.dateInput2.value=UtilTool.formatFullDateTime(lastdate,false);
+		this.dateInput2.onchange=function (datestr){
+			if(_$this.dateInput2.value=="")
+				return;
+			var curdata=new Date(_$this.dateInput2.value);
+			var lastdate=new Date(_$this.dateInput.value);
+			if(curdata.getTime()-lastdate.getTime()> 30 *24 *3600 *1000){
+				lastdate=new Date(curdata.getTime()-30 *24 *3600 *1000);
+				_$this.dateInput.value=UtilTool.formatFullDateTime(lastdate,false);
+			}
+			else if(curdata.getTime()-lastdate.getTime()< 0){
+				_$this.dateInput.value=UtilTool.formatFullDateTime(curdata,false);
+			}
+		}
+	}
+
+	__proto.updateDateInputPos=function(){
+		if(this.dateInput !=null){
+			var pt=this.uiSkin.ordertime.localToGlobal(new Point(this.uiSkin.ordertime.x,this.uiSkin.ordertime.y),true);
+			var scaleNum=Browser.clientWidth/1920;
+			var offset=0;
+			this.dateInput.style.width=scaleNum *222/Browser.pixelRatio;
+			this.dateInput.style.height=scaleNum *44/Browser.pixelRatio;
+			this.dateInput.style.fontSize=24*scaleNum;
+			this.dateInput2.style.fontSize=24*scaleNum;
+			this.dateInput2.style.width=scaleNum *222/Browser.pixelRatio;
+			this.dateInput2.style.height=scaleNum *44/Browser.pixelRatio;
+			this.dateInput.style.top=(pt.y-70)*scaleNum+"px";
+			this.dateInput.style.left=(pt.x+95)*scaleNum+"px";
+			this.dateInput2.style.top=(pt.y-70)*scaleNum+"px";
+			this.dateInput2.style.left=(pt.x+370)*scaleNum+"px";
+		}
+	}
+
+	__proto.onLastPage=function(){
+		if(this.curpage > 1){
+			this.curpage--;
+			this.getOrderListAgain();
+		}
+	}
+
+	__proto.onNextPage=function(){
+		if(this.curpage < this.totalPage){
+			this.curpage++;
+			this.getOrderListAgain();
+		}
+	}
+
+	__proto.queryOrderList=function(){
+		this.curpage=1;
+		this.getOrderListAgain();
+	}
+
+	__proto.getOrderListAgain=function(){
+		var param="beginDate="+this.dateInput.value+" 00:00:00&endDate="+this.dateInput2.value+" 23:59:59&option="+1+"&page="+this.curpage;
+		if(this.curCustomer !=null)
+			param+="&customerId="+this.curCustomer.id;
+		else
+		param+="&customerId=-1";
+		param+="&cleared=0&salerId=0&customerPayment=-1&userId=0";
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/list?"+param,this,this.onGetOrderListBack,null,null);
+	}
+
+	__proto.onMouseDwons=function(e){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",false);
+	}
+
+	__proto.onMouseUpHandler=function(e){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",true);
+	}
+
+	__proto.onGetOrderListBack=function(data){
+		if(this.destroyed)
+			return;
+		if (data==null || data=="")
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			var totalNum=parseInt(result.data.totalCount);
+			this.totalPage=Math.ceil(totalNum/100);
+			if(this.totalPage < 1)
+				this.totalPage=1;
+			this.uiSkin.pagenum.text=this.curpage+"/"+this.totalPage;
+			for(var i=0;i < result.data.orders.length;i++){
+				result.data.orders[i].selected=this.hasSelectedOrder.hasOwnProperty(result.data.orders[i].id);
+				if(this.hasSelectedOrder.hasOwnProperty(result.data.orders[i].id))
+					result.data.orders[i].writeOffMoney=this.hasSelectedOrder[result.data.orders[i].id];
+				else
+				result.data.orders[i].writeOffMoney=0;
+			}
+			this.uiSkin.orderList.array=(result.data.orders);
+		}
+		else
+		ViewManager.showAlert("获取订单失败");
+	}
+
+	__proto.updateOrderList=function(cell){
+		cell.setData(cell.dataSource);
+	}
+
+	__proto.onSelectAll=function(){
+		var orderlist=this.uiSkin.orderList.array;
+		for(var i=0;i < orderlist.length;i++){
+			var orderdata=orderlist[i];
+			orderdata.selected=this.uiSkin.selectall.selected;
+			if(orderdata && orderdata.selected){
+				if(!this.hasSelectedOrder.hasOwnProperty(orderdata.id)){
+					var detail=JSON.parse(orderdata.detail);
+					var sellprice=(detail.totalSalesPrice !=null && detail.totalSalesPrice !="")?Number(detail.totalSalesPrice):Number(detail.moneyPaid);
+					this.hasSelectedOrder[orderdata.id]=sellprice;
+					orderdata.writeOffMoney=sellprice;
+				}
+			}
+			else if(orderdata && !orderdata.selected){
+				if(this.hasSelectedOrder.hasOwnProperty(orderdata.id)){
+					delete this.hasSelectedOrder[orderdata.id];
+				}
+			}
+		}
+		for(var i=0;i < this.uiSkin.orderList.cells.length;i++){
+			orderdata=(this.uiSkin.orderList.cells [i]).orderdata;
+			(this.uiSkin.orderList.cells [i]).setSelected(this.uiSkin.selectall.selected);
+			if(orderdata && this.hasSelectedOrder[orderdata.id] !=null)
+				(this.uiSkin.orderList.cells [i]).setWriteOffMoney(this.hasSelectedOrder[orderdata.id]);
+			else if(orderdata)
+			(this.uiSkin.orderList.cells [i]).setWriteOffMoney(0);
+		}
+		this.updateSelectedPrice();
+	}
+
+	__proto.changeSelectedOrder=function(orderdata){
+		if(this.hasSelectedOrder.hasOwnProperty(orderdata.id)){
+			orderdata.selected=false;
+			orderdata.writeOffMoney=0;
+			delete this.hasSelectedOrder[orderdata.id];
+		}
+		else{
+			var total=0;
+			var price;
+			for(var $each_price in this.hasSelectedOrder){
+				price=this.hasSelectedOrder[$each_price];
+				total+=price;
+			}
+			if(total >=this.curCustomer.balance){
+				ViewManager.showAlert("已选订单金额已超过客户金额");
+				return;
+			}
+			else{
+				var detail=JSON.parse(orderdata.detail);
+				var sellprice=(detail.totalSalesPrice !=null && detail.totalSalesPrice !="")?Number(detail.totalSalesPrice):Number(detail.moneyPaid);
+				orderdata.writeOffMoney=sellprice;
+				orderdata.selected=true;
+				this.hasSelectedOrder[orderdata.id]=orderdata.writeOffMoney;
+			}
+		}
+		for(var i=0;i < this.uiSkin.orderList.cells.length;i++){
+			var orderdata1=(this.uiSkin.orderList.cells [i]).orderdata;
+			if(orderdata1 !=null && orderdata1.id==orderdata.id)
+				(this.uiSkin.orderList.cells [i]).setWriteOffMoney(orderdata.writeOffMoney);
+		}
+		this.updateSelectedPrice();
+	}
+
+	__proto.updateSelectedPrice=function(){
+		var total=0;
+		var price;
+		for(var $each_price in this.hasSelectedOrder){
+			price=this.hasSelectedOrder[$each_price];
+			total+=price;
+		}
+		this.uiSkin.selectMoney.text=total.toFixed(2)+"元";
+	}
+
+	__proto.onConfirmWriteOff=function(){
+		if(this.curCustomer==null){
+			ViewManager.showAlert("未选择客户");
+			return;
+		};
+		var total=0;
+		var price;
+		for(var $each_price in this.hasSelectedOrder){
+			price=this.hasSelectedOrder[$each_price];
+			total+=price;
+		}
+		if(total==0){
+			ViewManager.showAlert("未选择销账订单");
+			return;
+		}
+		if(total > this.curCustomer.balanceMoney){
+			ViewManager.showAlert("销账金额大于客户余额，请重新选择订单。");
+			return;
+		};
+		var postdata=[];
+		for(var id in this.hasSelectedOrder)
+		postdata.push(id);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.writeOffOrders,this,this.writeOffback,JSON.stringify(postdata),"post");
+	}
+
+	__proto.writeOffback=function(data){
+		if (data==null || data=="")
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			ViewManager.instance.closeView("WRITE_OFF_ORDER_PANEL");
+			EventCenter.instance.event("UPDATE_CUSTOMER_BALANCE",result.data);
+		}
+	}
+
+	__proto.onDestroy=function(){
+		Laya.stage.off("mouseup",this,this.onMouseUpHandler);
+		Laya.timer.clearAll(this);
+		if(this.dateInput !=null){
+			Browser.document.body.removeChild(this.dateInput);
+			Browser.document.body.removeChild(this.dateInput2);
+		}
+		EventCenter.instance.off("DELETE_ORDER_BACK",this,this.getOrderListAgain);
+		EventCenter.instance.off("COMMON_CLOSE_PANEL_VIEW",this,this.onshowInputDate);
+		EventCenter.instance.off("OPEN_PANEL_VIEW",this,this.onHideInputDate);
+		EventCenter.instance.off("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
+		EventCenter.instance.off("CHANGE_WRITEOFF_ORDER_SELECTED",this,this.changeSelectedOrder);
+	}
+
+	return WriteOffController;
 })(Script)
 
 
@@ -40229,7 +40920,7 @@ var ProcListController=(function(_super){
 			}
 		}
 		this.curselectMaterialVo=matvo;
-		if(matvo.attachmentList.indexOf("SPpeijian")>=0){
+		if(matvo.attachmentList.indexOf("SPpeijian")>=0 || matvo.attachmentList.indexOf("SPMat")>=0){
 			ViewManager.instance.openView("VIEW_SELECT_ATTACH",false,matvo);
 			return;
 		}
@@ -40253,8 +40944,8 @@ var ProcListController=(function(_super){
 
 	//updateSelectedTech();
 	__proto.onUpdateTechDes=function(viewname){
-		if(viewname=="VIEW_SELECT_ATTACH"){
-			if(this.curselectMaterialVo.attachmentList.indexOf("SPpeijian")>=0){
+		if(viewname=="VIEW_SELECT_ATTACH" && this.curselectMaterialVo !=null){
+			if(this.curselectMaterialVo.attachmentList.indexOf("SPpeijian")>=0 || this.curselectMaterialVo.attachmentList.indexOf("SPMat")>=0){
 				if(this.curselectMaterialVo.attachList==null || this.curselectMaterialVo.attachList.length==0){
 					return;
 				}
@@ -40376,7 +41067,7 @@ var AddressGroupController=(function(_super){
 		EventCenter.instance.on("UPDATE_ADDRESS_GROUP_LIST",this,this.refreshGroupList);
 		EventCenter.instance.on("CLOSE_PANEL_VIEW",this,this.onCloseView);
 		this.clickTabBtn(0);
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.getMyAddressBack,"opt=list&page=1&hidden=0&addr=&keyword=","post");
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/pagingExpress?",this,this.getMyAddressBack,"opt=list&page=1&hidden=0&addr=&keyword=","post");
 	}
 
 	__proto.pauseParentScroll=function(){
@@ -40421,11 +41112,13 @@ var AddressGroupController=(function(_super){
 				if(this.uiSkin.addressList.array[i].selected)
 					deleteIds.push(this.uiSkin.addressList.array[i].id);
 			}
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.deleteAddressBack,"opt=delete&id="+deleteIds.join(","),"post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/pagingExpress?",this,this.deleteAddressBack,"opt=delete&id="+deleteIds.join(","),"post");
 		}
 	}
 
 	__proto.deleteAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.status==0){
 			this.updateList();
@@ -40451,6 +41144,8 @@ var AddressGroupController=(function(_super){
 	}
 
 	__proto.getMyAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.status==0){
 			var addressList=[];
@@ -40479,7 +41174,7 @@ var AddressGroupController=(function(_super){
 			if(this.uiSkin.areaList.selectedIndex > 0)
 				addr+=" "+this.uiSkin.areatxt.text;
 		}
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.getMyAddressBack,"opt=list&page="+this.curPage+"&hidden=0&addr="+addr+"&keyword="+this.uiSkin.searchInput.text,"post");
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/pagingExpress?",this,this.getMyAddressBack,"opt=list&page="+this.curPage+"&hidden=0&addr="+addr+"&keyword="+this.uiSkin.searchInput.text,"post");
 	}
 
 	__proto.updateCityList=function(cell,index){
@@ -40487,6 +41182,8 @@ var AddressGroupController=(function(_super){
 	}
 
 	__proto.initAddr=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		(result.status).unshift({id:0,areaname:"空"});
 		this.uiSkin.provList.array=result.status;
@@ -40505,6 +41202,8 @@ var AddressGroupController=(function(_super){
 			return;
 		}
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
 			(result.status).unshift({id:0,areaname:"空"});
 			_$this.uiSkin.cityList.array=result.status;
@@ -40524,6 +41223,8 @@ var AddressGroupController=(function(_super){
 			return;
 		}
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
 			(result.status).unshift({id:0,areaname:"空"});
 			_$this.uiSkin.areaList.array=result.status;
@@ -40583,7 +41284,7 @@ var AddressGroupController=(function(_super){
 	}
 
 	__proto.showAddAddressPanel=function(){
-		ViewManager.instance.openView("VIEW_ADD_NEW_ADDRESS",false,{url:"group/opt-vip-express?"});
+		ViewManager.instance.openView("VIEW_ADD_NEW_ADDRESS",false,{url:"org/express/group/pagingExpress?"});
 	}
 
 	//地址列表代码结束
@@ -40600,10 +41301,12 @@ var AddressGroupController=(function(_super){
 	}
 
 	__proto.createGroupNow=function(){
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-addr-group?",this,this.createGroupBack,"opt=insert&name="+this.uiSkin.newGroupName.text,"post");
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/add?",this,this.createGroupBack,"opt=insert&name="+this.uiSkin.newGroupName.text,"post");
 	}
 
 	__proto.createGroupBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.status==0){
 			this.refreshGroupList();
@@ -40623,10 +41326,12 @@ var AddressGroupController=(function(_super){
 	}
 
 	__proto.refreshGroupList=function(){
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-addr-group?",this,this.listGroupBack,"opt=list&page="+this.grpCurPage+"&keyword="+this.uiSkin.searchGroupInput.text,"post");
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/add?",this,this.listGroupBack,"opt=list&page="+this.grpCurPage+"&keyword="+this.uiSkin.searchGroupInput.text,"post");
 	}
 
 	__proto.listGroupBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.status==0){
 			var groupList=[];
@@ -40724,6 +41429,8 @@ var OrganizeMrgControl=(function(_super){
 	}
 
 	__proto.onGetAllOrganizeBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			if(result.data.length > 0){
@@ -40788,6 +41495,8 @@ var OrganizeMrgControl=(function(_super){
 	}
 
 	__proto.onGetOrganizeMembersBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.uiSkin.memberlist.array=result.data;
@@ -40813,6 +41522,8 @@ var OrganizeMrgControl=(function(_super){
 	}
 
 	__proto.onGetOrganizeMemberAuthBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			if(this.curMemberdata){
@@ -40879,6 +41590,8 @@ var OrganizeMrgControl=(function(_super){
 	}
 
 	__proto.onMoveOrganizeMemberBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var params="deptId="+this.uiSkin.organizelist.array[this.uiSkin.organizelist.selectedIndex].id;
@@ -41383,10 +42096,9 @@ var OrderSelectPicController=(function(_super){
 		EventCenter.instance.on("UPDATE_FILE_LIST",this,this.getFileList);
 		EventCenter.instance.on("SELECT_PIC_ORDER",this,this.seletPicToOrder);
 		EventCenter.instance.on("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
-		EventCenter.instance.on("START_SELECT_YIXING_PIC",this,this.onStartSelectRelate);
-		EventCenter.instance.on("START_SELECT_BACK_PIC",this,this.onStartSelectBackRelate);
-		EventCenter.instance.on("START_SELECT_PARTWHITE_PIC",this,this.onStartSelectPartWhiteRelate);
-		EventCenter.instance.on("STOP_SELECT_RELATE_PIC",this,this.stopSelectRelate);
+		EventCenter.instance.on("START_SELECT_YIXING_PIC",this,this.showRelatedPanel);
+		EventCenter.instance.on("START_SELECT_BACK_PIC",this,this.showRelatedPanel);
+		EventCenter.instance.on("START_SELECT_PARTWHITE_PIC",this,this.showRelatedPanel);
 		EventCenter.instance.on("PAY_ORDER_SUCESS",this,this.onBuyStorageSucess);
 		EventCenter.instance.on("UPDATE_SELECT_FOLDER",this,this.updateSelectFolderNum);
 		EventCenter.instance.on("CREATE_FOLDER_SUCESS",this,this.onCreateDirBack);
@@ -41395,6 +42107,7 @@ var OrderSelectPicController=(function(_super){
 		this.uiSkin.picList.on("mouseup",this,this.onMouseUpHandler);
 		this.uiSkin.picList.on("mouseover",this,this.onMouseDwons);
 		this.uiSkin.picList.on("mouseout",this,this.onMouseUpHandler);
+		this.uiSkin.tifAi.on("click",this,this.onSetTifAi);
 		DirectoryFileModel.instance.haselectPic={};
 		this.uiSkin.searchInput.on("input",this,this.onSearchInput);
 		this.uiSkin.on("removed",this,this.onRemovedFromStage);
@@ -41412,56 +42125,37 @@ var OrderSelectPicController=(function(_super){
 		this.uiSkin.picList.refresh();
 	}
 
-	__proto.onStartSelectRelate=function(picInfo){
-		Laya.stage.on("click",this,this.stopSelectRelate);
-		var picname=this.getSetRelatedTips();
-		var tips="<span color='#FF0000' size='18'>请直接选择”</span>"+"<span color='#86B639' size='18'>"+picname+"</span>"+"<span color='#FF0000' size='18'>“需要关联的”</span>"+"<span color='#003dc6' size='18'>异形图片。”</span>";
-		TipsUtil.getInstance().addGlobalTips(tips);
-		Laya.stage.on("rightclick",this,this.stopRightSelectRelate);
-		this.stopLast(picInfo);
-		this.filtUnFitImage();
-	}
-
-	__proto.onStartSelectBackRelate=function(picInfo){
-		Laya.stage.on("click",this,this.stopSelectRelate);
-		var picname=this.getSetRelatedTips();
-		var tips="<span color='#FF0000' size='18'>请直接选择”</span>"+"<span color='#86B639' size='18'>"+picname+"</span>"+"<span color='#FF0000' size='18'>“需要关联的”</span>"+"<span color='#003dc6' size='18'>反面图片。”</span>";
-		TipsUtil.getInstance().addGlobalTips(tips);
-		Laya.stage.on("rightclick",this,this.stopRightSelectRelate);
-		Laya.stage.on("doubleclick",this,this.stopRightSelectRelate);
-		this.stopLast(picInfo);
-		this.filtUnFitImage();
-	}
-
-	__proto.onStartSelectPartWhiteRelate=function(picInfo){
-		Laya.stage.on("click",this,this.stopSelectRelate);
-		var picname=this.getSetRelatedTips();
-		var tips="<span color='#FF0000' size='18'>请直接选择”</span>"+"<span color='#86B639' size='18'>"+picname+"</span>"+"<span color='#FF0000' size='18'>“需要关联的”</span>"+"<span color='#003dc6' size='18'>局部铺白图片。”</span>";
-		TipsUtil.getInstance().addGlobalTips(tips);
-		Laya.stage.on("rightclick",this,this.stopRightSelectRelate);
-		Laya.stage.on("doubleclick",this,this.stopRightSelectRelate);
-		this.stopLast(picInfo);
-		this.filtUnFitImage();
-	}
-
-	__proto.getSetRelatedTips=function(){
-		var i=0;
-		var picInfo;
+	__proto.showRelatedPanel=function(){
+		var validFiles=this.filtUnFitImage();
+		var paramData={};
+		for(var i=0;i < validFiles.length;i++){
+			validFiles[i].relatedTimes=0;
+			for(var j=0;j < DirectoryFileModel.instance.curFileList.length;j++){
+				if(DirectoryFileModel.instance.curFileList[j].yixingFid==validFiles[i].fid || DirectoryFileModel.instance.curFileList[j].backFid==validFiles[i].fid || DirectoryFileModel.instance.curFileList[j].partWhiteFid==validFiles[i].fid)
+					validFiles[i].relatedTimes++;
+			}
+		}
+		validFiles.sort(function(a,b){
+			if(a.relatedTimes < b.relatedTimes)
+				return-1;
+			else
+			return 1;
+		})
+		paramData.files=validFiles;
+		var originFiles=[];
 		if(DirectoryFileModel.instance.curOperateFile !=null && !DirectoryFileModel.instance.haselectPic.hasOwnProperty(DirectoryFileModel.instance.curOperateFile.fid)){
 			DirectoryFileModel.instance.haselectPic[DirectoryFileModel.instance.curOperateFile.fid]=DirectoryFileModel.instance.curOperateFile;
 		}
-		var picinfo;
-		for(var $each_picinfo in DirectoryFileModel.instance.haselectPic){
-			picinfo=DirectoryFileModel.instance.haselectPic[$each_picinfo];
-			i++;
-			picInfo=picinfo
+		var picvo;
+		for(var $each_picvo in DirectoryFileModel.instance.haselectPic){
+			picvo=DirectoryFileModel.instance.haselectPic[$each_picvo];
+			var xdif=Math.abs(DirectoryFileModel.instance.curOperateFile.picPhysicWidth-picvo.picPhysicWidth)/DirectoryFileModel.instance.curOperateFile.picPhysicWidth;
+			var ydif=Math.abs(DirectoryFileModel.instance.curOperateFile.picPhysicHeight-picvo.picPhysicHeight)/DirectoryFileModel.instance.curOperateFile.picPhysicHeight;
+			if(xdif < 0.01 && ydif < 0.01)
+				originFiles.push(picvo);
 		}
-		if(i==1){
-			return picinfo.directName;
-		}
-		else if(i > 1){
-			return picinfo.directName+"等"+i+"张图片";
-		}
+		paramData.originfiles=originFiles;
+		ViewManager.instance.openView("RELATED_PIC_CHOOSE_PANEL",false,paramData);
 	}
 
 	__proto.stopLast=function(picInfo){
@@ -41479,27 +42173,28 @@ var OrderSelectPicController=(function(_super){
 		if(curfile==null)
 			return;
 		var curOperateType=DirectoryFileModel.instance.curOperateSelType;
-		for(var i=0;i < this.uiSkin.picList.cells.length;i++){
-			var pinvo=(this.uiSkin.picList.cells [i]).picInfo;
-			if(pinvo !=null){
+		var files=[];
+		for(var i=0;i < DirectoryFileModel.instance.curFileList.length;i++){
+			var pinvo=DirectoryFileModel.instance.curFileList[i];
+			if(pinvo !=null && pinvo.picType==1){
 				var xdif=Math.abs(curfile.picPhysicWidth-pinvo.picPhysicWidth)/curfile.picPhysicWidth;
 				var ydif=Math.abs(curfile.picPhysicHeight-pinvo.picPhysicHeight)/curfile.picPhysicHeight;
 				if(xdif >0.01 || ydif > 0.01){
-					(this.uiSkin.picList.cells [i]).disableItem(true);
 				}
 				else if(curOperateType==0 || curOperateType==2){
 					if(pinvo.colorspace.toLocaleUpperCase()!="GRAY" && !pinvo.isCdr){
-						(this.uiSkin.picList.cells [i]).disableItem(true);
 					}
+					else
+					files.push(DirectoryFileModel.instance.curFileList[i]);
 				}
 				else if(curOperateType==1 && pinvo.colorspace !="CMYK"){
-					(this.uiSkin.picList.cells [i]).disableItem(true);
 				}
 				else{
-					(this.uiSkin.picList.cells [i]).disableItem(false);
+					files.push(DirectoryFileModel.instance.curFileList[i]);
 				}
 			}
 		}
+		return files;
 	}
 
 	__proto.stopRightSelectRelate=function(e){
@@ -41545,7 +42240,7 @@ var OrderSelectPicController=(function(_super){
 	}
 
 	__proto.onBuyStorageSucess=function(){
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/getInfo",this,this.onGetLeftCapacitBack,null,null);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/getInfo",this,this.onGetLeftCapacitBack,null,"post");
 	}
 
 	__proto.onGetLeftCapacitBack=function(data){
@@ -41643,6 +42338,8 @@ var OrderSelectPicController=(function(_super){
 	}
 
 	__proto.onDeleteFileBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.deleteFolder();
@@ -41664,6 +42361,10 @@ var OrderSelectPicController=(function(_super){
 			_$this.fileListData=[];
 			for(var i=0;i < _$this.file.files.length;i++){
 				if(_$this.file.files[i].type=="image/jpg" || _$this.file.files[i].type=="image/jpeg" || _$this.file.files[i].type=="image/tif" || _$this.file.files[i].type=="image/tiff" || "image/png"){
+					if(!UtilTool.isValidString(_$this.file.files[i].name)){
+						ViewManager.showAlert("图片文件名不能包含特殊字符及表情，请修改后重新上传");
+						return;
+					}
 					_$this.file.files[i].progress=0;
 					_$this.fileListData.push(_$this.file.files[i]);
 				}
@@ -41749,22 +42450,14 @@ var OrderSelectPicController=(function(_super){
 			for(var $each_picvo in DirectoryFileModel.instance.haselectPic){
 				picvo=DirectoryFileModel.instance.haselectPic[$each_picvo];
 				num++;
-			};
-			var picname=this.getSetRelatedTips();
-			if(DirectoryFileModel.instance.curOperateSelType==1)
-				var tips="<span color='#FF0000' size='18'>请直接选择”</span>"+"<span color='#86B639' size='18'>"+picname+"</span>"+"<span color='#FF0000' size='18'>“需要关联的”</span>"+"<span color='#003dc6' size='18'>反面图片。”</span>";
-			else if(DirectoryFileModel.instance.curOperateSelType==0)
-			tips="<span color='#FF0000' size='18'>请直接选择”</span>"+"<span color='#86B639' size='18'>"+picname+"</span>"+"<span color='#FF0000' size='18'>“需要关联的”</span>"+"<span color='#003dc6' size='18'>反面图片。”</span>";
-			else if(DirectoryFileModel.instance.curOperateSelType==2)
-			tips="<span color='#FF0000' size='18'>请直接选择”</span>"+"<span color='#86B639' size='18'>"+picname+"</span>"+"<span color='#FF0000' size='18'>“需要关联的”</span>"+"<span color='#003dc6' size='18'>局部铺白图片。”</span>";
-			if(DirectoryFileModel.instance.curOperateFile !=null){
-				TipsUtil.getInstance().updateTips(tips);
 			}
 		}
 	}
 
 	// uiSkin.btnorder.label="我要下单";
 	__proto.onGetTopDirListBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			DirectoryFileModel.instance.initCurDirFiles(result);
@@ -41784,6 +42477,8 @@ var OrderSelectPicController=(function(_super){
 	}
 
 	__proto.onGetDirFileListBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.uiSkin.radiosel.selected=false;
@@ -41832,11 +42527,8 @@ var OrderSelectPicController=(function(_super){
 		EventCenter.instance.off("UPDATE_FILE_LIST",this,this.getFileList);
 		EventCenter.instance.off("SELECT_PIC_ORDER",this,this.seletPicToOrder);
 		EventCenter.instance.off("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
-		EventCenter.instance.off("START_SELECT_YIXING_PIC",this,this.onStartSelectRelate);
-		EventCenter.instance.off("START_SELECT_BACK_PIC",this,this.onStartSelectBackRelate);
 		EventCenter.instance.off("PAY_ORDER_SUCESS",this,this.onBuyStorageSucess);
 		EventCenter.instance.off("UPDATE_SELECT_FOLDER",this,this.updateSelectFolderNum);
-		EventCenter.instance.off("START_SELECT_PARTWHITE_PIC",this,this.onStartSelectPartWhiteRelate);
 		EventCenter.instance.off("CREATE_FOLDER_SUCESS",this,this.onCreateDirBack);
 		EventCenter.instance.off("SELECT_CUSTOMER",this,this.onSelectCustomer);
 		EventCenter.instance.off("STOP_SELECT_RELATE_PIC",this,this.stopSelectRelate);
@@ -41933,6 +42625,33 @@ var OrderSelectPicController=(function(_super){
 		}
 	}
 
+	__proto.onSetTifAi=function(){
+		var fileId=[];
+		var file;
+		for(var $each_file in DirectoryFileModel.instance.haselectPic){
+			file=DirectoryFileModel.instance.haselectPic[$each_file];
+			if(file.picClass.toUpperCase()=="TIF" || file.picClass.toUpperCase()=="TIFF"){
+				if(!file.hasTifAi)
+					fileId.push(file.fid);
+			}
+		}
+		if(fileId.length <=0){
+			ViewManager.showAlert("未选择tif文件或者tif文件已处理");
+			return;
+		};
+		var post={"fileId":fileId[0]};
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.tifAiSetting ,this,this.onTifAiBack,JSON.stringify(post),"post");
+	}
+
+	__proto.onTifAiBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			ViewManager.showAlert("请求处理成功，请等待AI处理完成");
+		}
+	}
+
 	__proto.onShowBuyStorage=function(){
 		ViewManager.instance.openView("VIEW_BUY_STORAGE_PANEL");
 	}
@@ -41960,6 +42679,9 @@ var CustomManagerController=(function(_super){
 		this.curPage=1;
 		this.totalPage=1;
 		this.pageSize=20;
+		this.addOrEdit=0;
+		this.curCustomer=null;
+		this.businessManlist=null;
 		CustomManagerController.__super.call(this);
 	}
 
@@ -41990,9 +42712,29 @@ var CustomManagerController=(function(_super){
 			_$this.curPage=1;
 			_$this.getCustomerList();
 		});
+		this.uiSkin.payType.selectedIndex=0;
 		this.uiSkin.confirmAddCustom.on("click",this,this.onAddCustomer);
 		EventCenter.instance.on("UPDATE_CUSTOMER_LIST",this,this.updateCustomlist);
+		EventCenter.instance.on("EDIT_CUSTOMER_INFO",this,this.editCustomer);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listBusinessMan,this,this.getBusinessManBack,null,null);
 		this.getCustomerList();
+	}
+
+	__proto.getBusinessManBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		var mans=result.data;
+		var businessMan=[];
+		var businessManName="";
+		for(var i=0;i < mans.length;i++){
+			businessMan.push(new BusinessManVo(mans[i]));
+			businessManName+=businessMan[i].name+"_"+businessMan[i].mobileNumber;
+			if(i < mans.length-1)
+				businessManName+=",";
+		}
+		this.uiSkin.businessMan.labels=businessManName;
+		this.businessManlist=businessMan;
 	}
 
 	__proto.getCustomerList=function(){
@@ -42039,17 +42781,28 @@ var CustomManagerController=(function(_super){
 
 	__proto.onAddCustomer=function(){
 		if(this.uiSkin.customName.text==""){
-			ViewManager.showAlert("������ͻ����");
+			ViewManager.showAlert("请输入客户名称");
 			return;
 		}
 		if(this.uiSkin.customPhone.text.length < 11){
-			ViewManager.showAlert("��������ȷ����ϵ�绰");
+			ViewManager.showAlert("请输入正确的联系电话");
 			return;
 		};
 		var requestStr={};
 		requestStr.mobileNumber=this.uiSkin.customPhone.text;
 		requestStr.customerName=this.uiSkin.customName.text;
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.addCustomer,this,this.addCustomerback,JSON.stringify(requestStr),"post");
+		if(this.uiSkin.businessMan.selectedIndex >=0){
+			requestStr.salerId=this.businessManlist[this.uiSkin.businessMan.selectedIndex].id.toString();
+		}
+		else
+		requestStr.salerId="0";
+		requestStr.defaultPayment=this.uiSkin.payType.selectedIndex+1;
+		if(this.addOrEdit==1 && this.curCustomer !=null)
+			requestStr.id=this.curCustomer.id;
+		if(this.addOrEdit==0)
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.addCustomer,this,this.addCustomerback,JSON.stringify(requestStr),"post");
+		else
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.updateCustomer,this,this.updateCustomer,JSON.stringify(requestStr),"post");
 	}
 
 	__proto.addCustomerback=function(data){
@@ -42062,10 +42815,38 @@ var CustomManagerController=(function(_super){
 		this.uiSkin.customInfoBox.visible=false;
 	}
 
+	__proto.updateCustomer=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			this.getCustomerList();
+		}
+		this.uiSkin.customInfoBox.visible=false;
+	}
+
+	__proto.editCustomer=function(cusdata){
+		this.addOrEdit=1;
+		this.uiSkin.customInfoBox.visible=true;;
+		this.curCustomer=cusdata;
+		this.uiSkin.customPhone.text=this.curCustomer.mobileNumber;
+		this.uiSkin.customPhone.editable=false;
+		this.uiSkin.customName.text=this.curCustomer.customerName;
+		this.uiSkin.payType.selectedIndex=this.curCustomer.defaultPayment-1;
+		for(var i=0;i < this.businessManlist.length;i++){
+			if(this.businessManlist[i].id==this.curCustomer.salerId){
+				this.uiSkin.businessMan.selectedIndex=i;
+				break ;
+			}
+		}
+	}
+
 	__proto.onShowCustomInfoBox=function(){
 		this.uiSkin.customInfoBox.visible=true;;
 		this.uiSkin.customPhone.text="";
 		this.uiSkin.customName.text="";
+		this.uiSkin.customPhone.editable=true;
+		this.addOrEdit=0;
 	}
 
 	__proto.onHideCustomInfoBox=function(){
@@ -42091,6 +42872,7 @@ var CustomManagerController=(function(_super){
 
 	__proto.onDestroy=function(){
 		EventCenter.instance.off("UPDATE_CUSTOMER_LIST",this,this.updateCustomlist);
+		EventCenter.instance.off("EDIT_CUSTOMER_INFO",this,this.editCustomer);
 	}
 
 	return CustomManagerController;
@@ -42609,10 +43391,12 @@ var DengxiangOrderController=(function(_super){
 		if(state==0){
 			this.uiSkin.opeBox.x=1456;
 			this.uiSkin.pricelbl.x=1364;
+			this.uiSkin.unitpricelbl.x=1273;
 		}
 		else{
 			this.uiSkin.opeBox.x=1556;
-			this.uiSkin.pricelbl.x=1414;
+			this.uiSkin.pricelbl.x=1468;
+			this.uiSkin.unitpricelbl.x=1373;
 		}
 	}
 
@@ -42631,7 +43415,7 @@ var DengxiangOrderController=(function(_super){
 				if(orderitem.ordervo.orderData !=null && !orderFactory.hasOwnProperty(orderitem.ordervo.manufacturer_code)){
 					orderdata={};
 					orderdata.order_sn=PaintOrderModel.getOrderSn();
-					orderdata.client_code="CL10600";
+					orderdata.client_code=Userdata.instance.clientCode;
 					orderdata.consignee=Userdata.instance.companyShort+"#"+PaintOrderModel.instance.selectAddress.receiverName;
 					orderdata.tel=PaintOrderModel.instance.selectAddress.phone;
 					orderdata.address=PaintOrderModel.instance.selectAddress.proCityArea;
@@ -42817,6 +43601,8 @@ var DengxiangOrderController=(function(_super){
 	}
 
 	__proto.ongetUidsBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var ids=result.data;
@@ -42928,7 +43714,7 @@ var DengxiangOrderController=(function(_super){
 			if(!orderFactory.hasOwnProperty(orderitem.ordervo.manufacturer_code)){
 				orderdata={};
 				orderdata.orderSn=PaintOrderModel.getOrderSn();
-				orderdata.clientCode="CL10600";
+				orderdata.clientCode=Userdata.instance.clientCode;
 				orderdata.userCode=Userdata.instance.userAccount;
 				orderdata.userOrgCode=Userdata.instance.founderPhone;
 				orderdata.customerId=PaintOrderModel.instance.selectAddress.customerId.toString();
@@ -43057,6 +43843,8 @@ var ApplyJoinMgrControl=(function(_super){
 	}
 
 	__proto.onGetJoinRequestBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.uiSkin.applylist.array=result.data;
@@ -43072,6 +43860,8 @@ var ApplyJoinMgrControl=(function(_super){
 	}
 
 	__proto.onGetAllOrganizeBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.allOrganize=result.data;
@@ -43095,6 +43885,8 @@ var ApplyJoinMgrControl=(function(_super){
 	}
 
 	__proto.onhandleBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/getJoinList?",this,this.onGetJoinRequestBack,null,null);
@@ -43141,6 +43933,9 @@ var CustomListController=(function(_super){
 		this.curPage=1;
 		this.totalPage=1;
 		this.pageSize=20;
+		this.hasinit=false;
+		/**@prop {name:includeAll,tips:"是否需要全部",type:int}*/
+		this.includeAll=0;
 		CustomListController.__super.call(this);
 	}
 
@@ -43199,9 +43994,17 @@ var CustomListController=(function(_super){
 			if(this.totalPage < 1)
 				this.totalPage=1;
 			if(this.curPage==1){
-				arr.unshift(new CustomVo({"customerName":Userdata.instance.company,"id":"0","mobileNumber":Userdata.instance.founderPhone}));
+				if(this.includeAll >=0)
+					arr.unshift(new CustomVo({"customerName":Userdata.instance.company,"id":"0","mobileNumber":Userdata.instance.founderPhone}));
+				if(this.includeAll==1){
+					arr.unshift(new CustomVo({"customerName":"全部","id":"-1","mobileNumber":""}));
+				}
 			}
 			this.customlist.array=arr;
+			if(!this.hasinit){
+				EventCenter.instance.event("CUSTOMER_LIST_INIT_SUCESS",arr[0]);
+				this.hasinit=true;
+			}
 			this.pageTxt.text=this.curPage+"/"+this.totalPage;
 		}
 	}
@@ -43607,6 +44410,12 @@ var MyOrderControl=(function(_super){
 		this.dateInput=null;
 		this.dateInput2=null;
 		this.curCustomer=null;
+		this.picList=null;
+		this.base64Arr=null;
+		this.excelData=[];
+		this.businessManlist=null;
+		this.orderManlist=null;
+		this.orderHistory=null;
 		MyOrderControl.__super.call(this);
 	}
 
@@ -43616,11 +44425,12 @@ var MyOrderControl=(function(_super){
 		var _$this=this;
 		this.uiSkin=this.owner;
 		this.uiSkin.customListPanel.visible=false;
-		this.uiSkin.curCustomName.text=Userdata.instance.company;
+		this.uiSkin.curCustomName.text="全部";
 		this.uiSkin.curCustomName.editable=false;
 		this.uiSkin.showCustomList.on("click",this,function(){
 			_$this.uiSkin.customListPanel.visible=!_$this.uiSkin.customListPanel.visible;
 		})
+		this.orderHistory={};
 		this.uiSkin.orderList.itemRender=OrderCheckListItem;
 		this.uiSkin.orderList.repeatX=1;
 		this.uiSkin.orderList.spaceY=2;
@@ -43629,10 +44439,11 @@ var MyOrderControl=(function(_super){
 		this.uiSkin.orderList.array=[];
 		EventCenter.instance.on("PAY_ORDER_SUCESS",this,this.onRefreshOrder);
 		this.uiSkin.orderList.mouseThrough=true;
+		this.uiSkin.writeOffRadio.selectedIndex=2;
 		Laya.timer.frameLoop(1,this,this.updateDateInputPos);
 		var curdate=new Date();
 		var lastday=new Date(curdate.getTime()-24 *3600 *1000);
-		var param="beginDate="+UtilTool.formatFullDateTime(lastday,false)+" 00:00:00&endDate="+UtilTool.formatFullDateTime(new Date(),false)+" 23:59:59&option=2&page=1";
+		var param="beginDate="+UtilTool.formatFullDateTime(lastday,false)+" 00:00:00&endDate="+UtilTool.formatFullDateTime(new Date(),false)+" 23:59:59&option=2&page=1&customerId=-1&customerPayment=-1&cleared=-1";
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/list?"+param,this,this.onGetOrderListBack,null,null);
 		this.uiSkin.lastpage.on("click",this,this.onLastPage);
 		this.uiSkin.nextpage.on("click",this,this.onNextPage);
@@ -43643,6 +44454,7 @@ var MyOrderControl=(function(_super){
 		this.uiSkin.ordertotalMoney.text="0元";
 		this.uiSkin.paytype.selectedIndex=2;
 		this.uiSkin.paytype.on("change",this,this.queryOrderList);
+		this.uiSkin.writeOffRadio.on("change",this,this.queryOrderList);
 		this.uiSkin.orderList.on("mousedown",this,this.onMouseDwons);
 		this.uiSkin.orderList.on("mouseup",this,this.onMouseUpHandler);
 		this.uiSkin.btnsearch.on("click",this,this.queryOrderList);
@@ -43655,6 +44467,8 @@ var MyOrderControl=(function(_super){
 		EventCenter.instance.on("DELETE_ORDER_BACK",this,this.getOrderListAgain);
 		EventCenter.instance.on("CANCEL_PAY_ORDER",this,this.onCancelPayOrder);
 		EventCenter.instance.on("SELECT_CUSTOMER",this,this.onSelectCustomer);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listBusinessMan,this,this.getBusinessManBack,null,null);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listOrderMakers,this,this.getOrderMakersBack,null,null);
 		this.initDateSelector();
 	}
 
@@ -43741,12 +44555,12 @@ var MyOrderControl=(function(_super){
 			var pt=this.uiSkin.ordertime.localToGlobal(new Point(this.uiSkin.ordertime.x,this.uiSkin.ordertime.y),true);
 			var scaleNum=Browser.clientWidth/1920;
 			var offset=0;
-			this.dateInput.style.width=scaleNum *222/Browser.pixelRatio;
-			this.dateInput.style.height=scaleNum *44/Browser.pixelRatio;
+			this.dateInput.style.width=scaleNum *222;
+			this.dateInput.style.height=scaleNum *44;
 			this.dateInput.style.fontSize=24*scaleNum;
 			this.dateInput2.style.fontSize=24*scaleNum;
-			this.dateInput2.style.width=scaleNum *222/Browser.pixelRatio;
-			this.dateInput2.style.height=scaleNum *44/Browser.pixelRatio;
+			this.dateInput2.style.width=scaleNum *222;
+			this.dateInput2.style.height=scaleNum *44;
 			this.dateInput.style.top=(pt.y-121)*scaleNum+"px";
 			this.dateInput.style.left=(pt.x+65)*scaleNum+"px";
 			this.dateInput2.style.top=(pt.y-121)*scaleNum+"px";
@@ -43778,6 +44592,9 @@ var MyOrderControl=(function(_super){
 			return;
 		this.curCustomer=custom;
 		this.uiSkin.curCustomName.text=custom.customerName;
+		if(parseInt(this.curCustomer.id)> 0){
+			this.uiSkin.curCustomName.text+="("+Constast.PAY_TYPE_NAME[this.curCustomer.defaultPayment-1]+")";
+		}
 		this.getOrderListAgain();
 	}
 
@@ -43785,6 +44602,23 @@ var MyOrderControl=(function(_super){
 		var param="beginDate="+this.dateInput.value+" 00:00:00&endDate="+this.dateInput2.value+" 23:59:59&option="+this.uiSkin.paytype.selectedIndex+"&page="+this.curpage;
 		if(this.curCustomer !=null)
 			param+="&customerId="+this.curCustomer.id;
+		else
+		param+="&customerId=-1";
+		if(this.uiSkin.writeOffRadio.selectedIndex==2)
+			param+="&cleared=-1";
+		else
+		param+="&cleared="+this.uiSkin.writeOffRadio.selectedIndex;
+		if(this.uiSkin.businessCombo.selectedIndex > 0){
+			param+="&salerId="+this.businessManlist[this.uiSkin.businessCombo.selectedIndex-1].id;
+		}
+		else
+		param+="&salerId=0";
+		param+="&customerPayment=-1";
+		if(this.uiSkin.orderPlaceCombo.selectedIndex > 0){
+			param+="&userId="+this.orderManlist[this.uiSkin.orderPlaceCombo.selectedIndex-1].userId;
+		}
+		else
+		param+="&userId=0";
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/list?"+param,this,this.onGetOrderListBack,null,null);
 	}
 
@@ -43798,12 +44632,18 @@ var MyOrderControl=(function(_super){
 
 	__proto.onRefreshOrder=function(){
 		var param="beginDate="+this.dateInput.value+" 00:00:00&endDate="+this.dateInput2.value+" 23:59:59&option="+this.uiSkin.paytype.selectedIndex+"&page="+this.curpage;
+		if(this.curCustomer !=null)
+			param+="&customerId="+this.curCustomer.id;
+		else
+		param+="&customerId=-1";
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/list?"+param,this,this.onGetOrderListBack,null,null);
 		ViewManager.instance.closeView("VIEW_CHOOSE_DELIVERY_TIME_PANEL");
 	}
 
 	//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.checkOrderList,this,onGetOrderListBack,null,"post");
 	__proto.onGetOrderListBack=function(data){
+		if(this.destroyed)
+			return;
 		if (data==null || data=="")
 			return;
 		var result=JSON.parse(data);
@@ -43819,6 +44659,7 @@ var MyOrderControl=(function(_super){
 			this.uiSkin.ordertotalMoney.text="0元";
 			if(Userdata.instance.isHidePrice())
 				this.uiSkin.ordertotalMoney.text="****";
+			this.orderHistory[this.curpage.toString()]=result.data.orders;
 			this.uiSkin.pagenum.text=this.curpage+"/"+this.totalPage;
 			this.uiSkin.orderList.array=(result.data.orders);
 		}
@@ -43835,19 +44676,25 @@ var MyOrderControl=(function(_super){
 	}
 
 	__proto.exportExcel=function(){
-		var _$this=this;
-		var orderData=this.uiSkin.orderList.array;
+		Browser.window.uploadApp=this;
+		var orderData=[];
+		for(var pageNum in this.orderHistory){
+			if(parseInt(pageNum)<=this.curpage){
+				orderData=orderData.concat(this.orderHistory[pageNum]);
+			}
+		}
 		if(orderData==null || orderData.length==0){
 			ViewManager.showAlert("没有可导出的数据");
 			return;
 		}
-		if(this.totalPage > 1){
-			ViewManager.showAlert("页数大于1页不支持导出，请尝试缩短查询时间");
+		if(orderData.length > 1000){
+			ViewManager.showAlert("订单数量不能超过1000条，请尝试减少翻页数");
 			return;
-		};
-		var excelData=[];
+		}
+		this.picList=[];
+		this.excelData=[];
 		for(var i=0;i<orderData.length;i++){
-			if(orderData[i].status==1){
+			{
 				var orderdata=JSON.parse(orderData[i].detail);
 				var allproduct=orderdata.orderItemList;
 				allproduct.sort(this.sortProduct);
@@ -43855,12 +44702,13 @@ var MyOrderControl=(function(_super){
 					var sizearr=(allproduct[j] .conponent.LWH).split("/");
 					var proddata={};
 					proddata.orderId=orderData[i].id;
-					proddata.manufacture=orderdata.manufacturerName;
+					proddata.customerName=orderData[i].customerName;
 					proddata.orderDate=orderData[i].createdAt;
 					proddata.seq=allproduct[j].itemSeq;
 					proddata.fileName=allproduct[j].conponent.filename;
 					proddata.prodName=allproduct[j].conponent.prodName;
 					proddata.size=sizearr[0]+"*"+sizearr[1]+"(cm)";
+					this.picList.push(allproduct[j].conponent.thumbnailsPath);
 					var techstr="";
 					if(allproduct[j].conponent.procInfoList !=null){
 						for(var m=0;m < allproduct[j].conponent.procInfoList.length;m++)
@@ -43868,9 +44716,15 @@ var MyOrderControl=(function(_super){
 					}
 					proddata.process=techstr;
 					proddata.itemNum=allproduct[j].itemNumber;
+					proddata.area=(parseFloat(sizearr[0])*parseFloat(sizearr[1])/10000).toFixed(2);
+					proddata.unitSalePrice=(allproduct[j].unitSalesPrice !=null && allproduct[j].unitSalesPrice !="")?allproduct[j].unitSalesPrice:allproduct[j].itemPrice;
+					proddata.totalSalesPrice=(allproduct[j].totalSalesPrice !=null && allproduct[j].totalSalesPrice !="")?allproduct[j].totalSalesPrice:(parseFloat(allproduct[j].itemPrice)*parseFloat(allproduct[j].itemNumber)).toFixed(2);
 					if(j==allproduct.length-1){
-						proddata.price=orderdata.orderAmount;
-						proddata.deliveryFee=orderdata.shippingFee;
+						proddata.deliveryFee=(orderdata.deliveryFee !=null && orderdata.deliveryFee !="")?orderdata.deliveryFee:orderdata.shippingFee;
+						proddata.installationFee=(orderdata.installationFee !=null && orderdata.installationFee !="")?orderdata.installationFee:"0";
+						proddata.designFee=(orderdata.designFee !=null && orderdata.designFee !="")?orderdata.designFee:"0";
+						proddata.otherFee=(orderdata.otherFee !=null && orderdata.otherFee !="")?orderdata.otherFee:"0";
+						proddata.price=(orderdata.totalSalesPrice !=null && orderdata.totalSalesPrice !="")?orderdata.totalSalesPrice:orderdata.orderAmount;
 					}
 					else{
 						proddata.price="";
@@ -43880,12 +44734,37 @@ var MyOrderControl=(function(_super){
 						proddata.deliverydate=UtilTool.getNextDayStr(allproduct[j].deliveryDate+" 00:00:00");
 					else
 					proddata.deliverydate="";
-					excelData.push(proddata);
+					proddata.picWidth=sizearr[0];
+					proddata.picHeight=sizearr[1];
+					this.excelData.push(proddata);
 				}
 			}
 		}
 		this.uiSkin.exportExcel.disabled=true;
-		Browser.window.exportToExcel(excelData,this.dateInput.value+"至"+this.dateInput2.value+"订单数据");
+		this.exportExcelData();
+	}
+
+	__proto.getAllImgBase64=function(){
+		if(this.picList.length > 0){
+			Browser.window.getImgBase64(this.picList[0],this.getImageBase64Back);
+			this.picList.splice(0,1);
+		}
+		else{
+			for(var i=0;i < this.base64Arr.length;i++){
+				this.excelData[i].imgBase64=this.base64Arr[i];
+			}
+			this.exportExcelData();
+		}
+	}
+
+	__proto.getImageBase64Back=function(base64Img){
+		this.base64Arr.push(base64Img);
+		this.getAllImgBase64();
+	}
+
+	__proto.exportExcelData=function(){
+		var _$this=this;
+		Browser.window.exportExcelJs(this.excelData,this.dateInput.value+"至"+this.dateInput2.value+"订单数据");
 		Laya.timer.once(30000,this,function(){
 			_$this.uiSkin.exportExcel.disabled=false;
 		})
@@ -43896,6 +44775,45 @@ var MyOrderControl=(function(_super){
 			return 1;
 		else
 		return-1;
+	}
+
+	__proto.getBusinessManBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		var mans=result.data;
+		var businessMan=[];
+		var businessManName="全部";
+		if(mans.length > 0)
+			businessManName+=",";
+		for(var i=0;i < mans.length;i++){
+			businessMan.push(new BusinessManVo(mans[i]));
+			businessManName+=businessMan[i].name+"_"+businessMan[i].mobileNumber;
+			if(i < mans.length-1)
+				businessManName+=",";
+		}
+		this.uiSkin.businessCombo.labels=businessManName;
+		this.uiSkin.businessCombo.selectedIndex=0;
+		this.businessManlist=businessMan;
+	}
+
+	__proto.getOrderMakersBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		var mans=result.data;
+		var businessMan=[];
+		var userName="全部";
+		if(mans.length > 0)
+			userName+=",";
+		for(var i=0;i < mans.length;i++){
+			userName+=mans[i].nickName+"_"+mans[i].mobileNumber;
+			if(i < mans.length-1)
+				userName+=",";
+		}
+		this.uiSkin.orderPlaceCombo.labels=userName;
+		this.uiSkin.orderPlaceCombo.selectedIndex=0;
+		this.orderManlist=mans;
 	}
 
 	__proto.onDestroy=function(){
@@ -44084,6 +45002,7 @@ var ResetPwdControl=(function(_super){
 		this.uiSkin.inputphone.maxChars=11;
 		this.uiSkin.inputphone.restrict="0-9";
 		this.uiSkin.inputcode.maxChars=6;
+		this.uiSkin.codeValid.visible=false;
 		this.uiSkin.inputcfmpwd.maxChars=20;
 		this.uiSkin.mainpanel.vScrollBarSkin="";
 		this.uiSkin.mainpanel.hScrollBarSkin="";
@@ -44133,6 +45052,7 @@ var ResetPwdControl=(function(_super){
 		else{
 			this.uiSkin.btngetcode.disabled=false;
 			this.uiSkin.btngetcode.label="获取验证码";
+			this.uiSkin.codeValid.visible=true;
 			Laya.timer.clear(this,this.countdownCode);
 		}
 	}
@@ -44217,7 +45137,6 @@ var ChooseDeliveryTimeControl=(function(_super){
 		this.searchzoneid=null;
 		this.retryTime=0;
 		this.curSelectedManufacture=null;
-		this.firstOrder=false;
 		ChooseDeliveryTimeControl.__super.call(this);
 	}
 
@@ -44225,7 +45144,6 @@ var ChooseDeliveryTimeControl=(function(_super){
 	var __proto=ChooseDeliveryTimeControl.prototype;
 	__proto.onStart=function(){
 		this.uiSkin=this.owner;
-		this.uiSkin.title.text=OrderConstant.orderName[PaintOrderModel.instance.orderType]+"下单";
 		this.uiSkin.orderlist.itemRender=ChooseDelTimeOrderItem;
 		this.uiSkin.orderlist.selectEnable=false;
 		this.uiSkin.orderlist.spaceY=2;
@@ -44239,12 +45157,27 @@ var ChooseDeliveryTimeControl=(function(_super){
 		this.uiSkin.paybtn.on("click",this,this.onPayOrder);
 		this.orderDatas=this.param.orders;
 		this.delaypay=this.param.delaypay;
-		this.firstOrder=this.param.firstOrder;
 		this.uiSkin.savebtn.visible=!this.delaypay;
 		this.uiSkin.orderlist.array=this.orderDatas;
 		this.uiSkin.timepreferRdo.selectedIndex=PaintOrderModel.instance.curTimePrefer-2;
 		this.uiSkin.setdefaultbtn.on("click",this,this.setDefaultTimePrefer);
 		this.uiSkin.timepreferRdo.on("change",this,this.resetTimePrefer);
+		if(!this.delaypay && PaintOrderModel.instance.selectAddress.customerId !="0"){
+			this.uiSkin.curCustomer.text="当前客户："+PaintOrderModel.instance.selectAddress.customerName;
+			this.uiSkin.curCustomer.visible=true;
+			if(PaintOrderModel.instance.selectAddress.defaultPayType >=0){
+				this.uiSkin.curCustomer.text+="("+Constast.PAY_TYPE_NAME[PaintOrderModel.instance.selectAddress.defaultPayType-1]+")";
+			}
+		}
+		else if(this.delaypay && PaintOrderModel.instance.finalOrderData[0].customerId !="0"){
+			this.uiSkin.curCustomer.text="当前客户："+this.param.customerName;
+			if(this.param.defaultPayType >=0){
+				this.uiSkin.curCustomer.text+="("+Constast.PAY_TYPE_NAME[this.param.defaultPayType-1]+")";
+			}
+			this.uiSkin.curCustomer.visible=true;
+		}
+		else
+		this.uiSkin.curCustomer.visible=false;
 		var manufactcodes=[];
 		for(var i=0;i < PaintOrderModel.instance.finalOrderData.length;i++){
 			manufactcodes.push(PaintOrderModel.instance.finalOrderData[i].manufacturerCode);
@@ -44288,7 +45221,7 @@ var ChooseDeliveryTimeControl=(function(_super){
 			this.uiSkin.delmoney.text="***";
 			this.uiSkin.rawprice.text="***";
 		}
-		this.uiSkin.firstDiscount.visible=Userdata.instance.firstOrder=="1" || this.firstOrder;
+		this.uiSkin.firstDiscount.visible=false;
 		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
 		Laya.timer.loop(1000,this,this.onCountDownTime);
 		EventCenter.instance.on("UPDATE_PRICE_BY_DELIVERYDATE",this,this.updatePrice);
@@ -44398,6 +45331,8 @@ var ChooseDeliveryTimeControl=(function(_super){
 		var _$this=this;
 		var params="orderItem_sn="+itemsn+"&manufacturer_code="+manucode+"&prod_code="+prodcode+"&isUrgent="+isurgent+"&delivery_date="+deliverydate;
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/setCapacityPreOccupy?"+params,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
 			if(!result.hasOwnProperty("status")){
 				if(result.feedBack==1){
@@ -44487,15 +45422,9 @@ var ChooseDeliveryTimeControl=(function(_super){
 		this.uiSkin.delmoney.text=(commondelprice+urgentdelprice).toFixed(1)+"元";
 		this.uiSkin.disocuntprice.text=total.toFixed(1)+"元";
 		var totals=parseFloat((commondelprice+urgentdelprice).toFixed(1))+parseFloat(total.toFixed(1));
-		if(totals < 2*PaintOrderModel.instance.finalOrderData.length)
-			totals=2*PaintOrderModel.instance.finalOrderData.length;
+		if(totals < Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length)
+			totals=Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length;
 		this.uiSkin.totalprice.text=totals.toFixed(1)+"元";
-		if(Userdata.instance.firstOrder=="1" || this.firstOrder){
-			var freshMoney=totals-24;
-			if(freshMoney < 1)
-				freshMoney=1;
-			this.uiSkin.totalprice.text=freshMoney.toFixed(1)+"元";
-		}
 		for(var i=0;i < this.uiSkin.deliveryTypelist.cells.length;i++){
 			(this.uiSkin.deliveryTypelist.cells [i]).refreshLabel();
 		}
@@ -44549,6 +45478,8 @@ var ChooseDeliveryTimeControl=(function(_super){
 	}
 
 	__proto.onUpdateOrderBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var totalmoney=0;
@@ -44557,11 +45488,6 @@ var ChooseDeliveryTimeControl=(function(_super){
 				var orderdata=result.data[i];
 				totalmoney+=Number(orderdata.moneyPaid);
 				allorders.push(orderdata.orderSn);
-			}
-			if(Userdata.instance.firstOrder=="1" || this.firstOrder){
-				var totalmoney=totalmoney-24;
-				if(totalmoney < 1)
-					totalmoney=1;
 			};
 			var paylefttime=this.getPayLeftTime();
 			if(paylefttime > 0)
@@ -44573,6 +45499,8 @@ var ChooseDeliveryTimeControl=(function(_super){
 	}
 
 	__proto.onPlaceOrderBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var totalmoney=0;
@@ -44581,11 +45509,6 @@ var ChooseDeliveryTimeControl=(function(_super){
 				var orderdata=result.data[i];
 				totalmoney+=Number(orderdata.moneyPaid);
 				allorders.push(orderdata.orderSn);
-			}
-			if(Userdata.instance.firstOrder=="1" || this.firstOrder){
-				var totalmoney=totalmoney-24;
-				if(totalmoney < 1)
-					totalmoney=1;
 			};
 			var paylefttime=this.getPayLeftTime();
 			if(paylefttime > 0)
@@ -44655,6 +45578,8 @@ var ChooseDeliveryTimeControl=(function(_super){
 	}
 
 	__proto.ongetAllAvailableDateBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(!result.hasOwnProperty("status")){
 			var alldates=result;
@@ -44766,11 +45691,11 @@ var ChooseDeliveryTimeControl=(function(_super){
 				totalprice+=ordermoney;
 			}
 			manuarr[i].orderAmount=totalprice;
-			if((manuarr[i] .orderAmount)< 2){
-				manuarr[i].orderAmount=2.00;
+			if((manuarr[i] .orderAmount)< Userdata.instance.orderBasePrice){
+				manuarr[i].orderAmount=Userdata.instance.orderBasePrice;
 				if(itemlist.length > 0){
-					var eachprice=Number((2/itemlist.length).toFixed(2));
-					var overflow=2-eachprice*itemlist.length;
+					var eachprice=Number((Userdata.instance.orderBasePrice/itemlist.length).toFixed(2));
+					var overflow=Userdata.instance.orderBasePrice-eachprice*itemlist.length;
 					for(var j=0;j < itemlist.length;j++){
 						if(j==0)
 							itemlist[j].itemPrice=(((eachprice+overflow)/itemlist[j].itemNumber)).toFixed(2);
@@ -44825,6 +45750,8 @@ var ChooseDeliveryTimeControl=(function(_super){
 	}
 
 	__proto.onSaveOrderBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			EventCenter.instance.event("SHOW_CONTENT_PANEL",[MyWorkPanelUI,0]);
@@ -44886,6 +45813,7 @@ var EffectPreviewController=(function(_super){
 	__proto.onStart=function(){
 		this.uiSkin=this.owner;
 		EffectPreviewController.u3ddiv=Browser.document.querySelector("#unity-container");
+		EffectPreviewController.u3ddiv.style.display="";
 		this.uiSkin.closeBtn.on("click",this,this.closeView);
 		Browser.document.body.appendChild(EffectPreviewController.u3ddiv);
 		Browser.window.layaCaller=this;
@@ -45596,7 +46524,7 @@ var ProductMarketControl=(function(_super){
 			this.selectAddress=Userdata.instance.getDefaultAddress();
 		}
 		if(Userdata.instance.company==null || Userdata.instance.company=="")
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/get-request?" ,this,this.getCompanyInfo,null,"post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/getOrgReq?" ,this,this.getCompanyInfo,null,"post");
 		this.uiSkin.paybtn.on("click",this,this.onPayProductNow);
 		EventCenter.instance.on("PRODUCT_ADD_GOODS",this,this.onAddGoods);
 		EventCenter.instance.on("PRODUCT_DELETE_GOODS",this,this.onDeleteGoods);
@@ -46193,6 +47121,7 @@ var OrderTypeChooseController=(function(_super){
 		this.uiSkin.myaddresstxt.on("click",this,this.onShowSelectAddress);
 		this.uiSkin.changeAddr.on("click",this,this.onShowSelectAddress);
 		PaintOrderModel.instance.resetData();
+		PaintOrderModel.instance.curOrderCustomer=this.customer;
 		this.uiSkin.paintOrderBtn.on("click",this,function(){
 			if(PaintOrderModel.instance.selectAddress==null){
 				ViewManager.showAlert("请先添加收货地址");
@@ -46208,6 +47137,11 @@ var OrderTypeChooseController=(function(_super){
 			for(var $each_fvo in DirectoryFileModel.instance.haselectPic){
 				fvo=DirectoryFileModel.instance.haselectPic[$each_fvo];
 				num++;
+			};
+			var manufacurerList=PaintOrderModel.instance.getSelectedOutPutCenter();
+			if(manufacurerList.length==0){
+				ViewManager.showAlert("请选择一个输出中心");
+				return;
 			}
 			_$this.getProdcategory("Penyin");
 			if(num==0)
@@ -46216,26 +47150,51 @@ var OrderTypeChooseController=(function(_super){
 			EventCenter.instance.event("SHOW_CONTENT_PANEL",[SetMaterialPanelUI,0]);
 		})
 		this.uiSkin.zipaiBtn.on("click",this,function(){
+			var manufacurerList=PaintOrderModel.instance.getSelectedOutPutCenter();
+			if(manufacurerList.length==0){
+				ViewManager.showAlert("请选择一个输出中心");
+				return;
+			}
 			_$this.getProdcategory("Zipai");
 			PaintOrderModel.instance.orderType="Zipai";
 			EventCenter.instance.event("SHOW_CONTENT_PANEL",[CharacterPaintUI,0]);
 		})
 		this.uiSkin.kailiaoBtn.on("click",this,function(){
+			var manufacurerList=PaintOrderModel.instance.getSelectedOutPutCenter();
+			if(manufacurerList.length==0){
+				ViewManager.showAlert("请选择一个输出中心");
+				return;
+			}
 			_$this.getProdcategory("Kailiao");
 			PaintOrderModel.instance.orderType="Kailiao";
 			EventCenter.instance.event("SHOW_CONTENT_PANEL",[LailiaoOrderPanelUI,0]);
 		})
 		this.uiSkin.biaoPinBtn.on("click",this,function(){
+			var manufacurerList=PaintOrderModel.instance.getSelectedOutPutCenter();
+			if(manufacurerList.length==0){
+				ViewManager.showAlert("请选择一个输出中心");
+				return;
+			}
 			_$this.getProdcategory("Biaopin");
 			PaintOrderModel.instance.orderType="Biaopin";
 			EventCenter.instance.event("SHOW_CONTENT_PANEL",[LailiaoOrderPanelUI,0]);
 		})
 		this.uiSkin.dengxiangBtn.on("click",this,function(){
+			var manufacurerList=PaintOrderModel.instance.getSelectedOutPutCenter();
+			if(manufacurerList.length==0){
+				ViewManager.showAlert("请选择一个输出中心");
+				return;
+			}
 			_$this.getProdcategory("Dengxiang");
 			PaintOrderModel.instance.orderType="Dengxiang";
 			EventCenter.instance.event("SHOW_CONTENT_PANEL",[DengxiangOrderPanelUI,0]);
 		})
 		this.uiSkin.productBtn.on("click",this,function(){
+			var manufacurerList=PaintOrderModel.instance.getSelectedOutPutCenter();
+			if(manufacurerList.length==0){
+				ViewManager.showAlert("请选择一个输出中心");
+				return;
+			}
 			_$this.getProdcategory("Chengpin");
 			PaintOrderModel.instance.orderType="Moxing";
 		})
@@ -46256,12 +47215,16 @@ var OrderTypeChooseController=(function(_super){
 	}
 
 	__proto.getCustomerAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var addressList=[];
 			for(var i=0;i < result.data.expressList.length;i++){
 				addressList.push(new AddressVo(result.data.expressList[i]));
 				addressList[i].customerId=this.customer.id;
+				addressList[i].customerName=this.customer.customerName;
+				addressList[i].defaultPayType=this.customer.defaultPayment;
 			}
 			if(addressList.length > 0){
 				PaintOrderModel.instance.selectAddress=addressList[0];
@@ -46334,6 +47297,7 @@ var OrderTypeChooseController=(function(_super){
 			this.uiSkin.addbox.refresh();
 			if(customvo !=null && PaintOrderModel.instance.selectAddress.customerId==customvo.id)
 				this.customer=customvo;
+			PaintOrderModel.instance.curOrderCustomer=this.customer;
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/manufacturers?"+"addr_id="+PaintOrderModel.instance.selectAddress.zoneid+"&manufacturer_type=喷印输出中心"+"&client_code="+Userdata.instance.clientCode,this,this.onGetOutPutAddress,null,null);
 		}
 	}
@@ -46396,14 +47360,16 @@ var OrderTypeChooseController=(function(_super){
 	__proto.onGetProductBack=function(data){
 		var result=JSON.parse(data);
 		if(!result.hasOwnProperty("status")){
-			var product=result[0] .children;
-			PaintOrderModel.instance.productList=[];
-			var hasMatName=[];
-			for(var i=0;i < product.length;i++){
-				if(hasMatName.indexOf(product[i].prodCat_name)< 0){
-					var matvo=new MatetialClassVo(product[i]);
-					PaintOrderModel.instance.productList.push(matvo);
-					hasMatName.push(product[i].prodCat_name);
+			if(result.length > 0){
+				var product=result[0] .children;
+				PaintOrderModel.instance.productList=[];
+				var hasMatName=[];
+				for(var i=0;i < product.length;i++){
+					if(hasMatName.indexOf(product[i].prodCat_name)< 0){
+						var matvo=new MatetialClassVo(product[i]);
+						PaintOrderModel.instance.productList.push(matvo);
+						hasMatName.push(product[i].prodCat_name);
+					}
 				}
 			}
 		}
@@ -46864,6 +47830,8 @@ var SelectPicControl=(function(_super){
 	}
 
 	__proto.onGetTopDirListBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			DirectoryFileModel.instance.initCurDirFiles(result);
@@ -46881,6 +47849,8 @@ var SelectPicControl=(function(_super){
 	}
 
 	__proto.onGetDirFileListBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.uiSkin.radiosel.selected=false;
@@ -47229,6 +48199,15 @@ var PaintOrderSettingController=(function(_super){
 		EventCenter.instance.on("FIRST_PAGE_SHRINK",this,this.updateLblPos);
 		this.resetOrderInfo();
 		this.updateLblPos(Userdata.instance.shrinkState);
+		if(PaintOrderModel.instance.selectAddress.customerId !="0"){
+			this.uiSkin.curCustomer.text="当前客户："+PaintOrderModel.instance.selectAddress.customerName;
+			this.uiSkin.curCustomer.visible=true;
+			if(PaintOrderModel.instance.selectAddress.defaultPayType >=0){
+				this.uiSkin.curCustomer.text+="("+Constast.PAY_TYPE_NAME[PaintOrderModel.instance.selectAddress.defaultPayType-1]+")";
+			}
+		}
+		else
+		this.uiSkin.curCustomer.visible=false;
 		if(Userdata.instance.company==null || Userdata.instance.company=="")
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/getInfo" ,this,this.getCompanyInfo,null,null);
 	}
@@ -47237,10 +48216,12 @@ var PaintOrderSettingController=(function(_super){
 		if(state==0){
 			this.uiSkin.opeBox.x=1456;
 			this.uiSkin.pricelbl.x=1364;
+			this.uiSkin.unitpricelbl.x=1273;
 		}
 		else{
 			this.uiSkin.opeBox.x=1556;
-			this.uiSkin.pricelbl.x=1414;
+			this.uiSkin.pricelbl.x=1468;
+			this.uiSkin.unitpricelbl.x=1373;
 		}
 	}
 
@@ -47293,8 +48274,8 @@ var PaintOrderSettingController=(function(_super){
 			var odata;
 			for(var $each_odata in orderFactory){
 				odata=orderFactory[$each_odata];
-				if((odata.order_amountStr)< 2)
-					odata.order_amountStr=2.00;
+				if((odata.order_amountStr)< Userdata.instance.orderBasePrice)
+					odata.order_amountStr=Userdata.instance.orderBasePrice;
 				total+=(Number)((odata.order_amountStr).toFixed(2));
 			}
 		};
@@ -47445,6 +48426,8 @@ var PaintOrderSettingController=(function(_super){
 	}
 
 	__proto.ongetUidsBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var ids=result.data;
@@ -47455,11 +48438,11 @@ var PaintOrderSettingController=(function(_super){
 			for(var i=0;i < ids.length;i++){
 				itemlist[i].orderItemSn=ids[i];
 			}
-			this.initPackage(itemlist);
+			EventCenter.instance.event("SHOW_CONTENT_PANEL",[PackageOrderPanelUI,0,itemlist]);
 		}
 	}
 
-	//ViewManager.instance.openView(ViewManager.VIEW_PACKAGE_ORDER_VIP_PANEL,false,itemlist);
+	//initPackage(itemlist);
 	__proto.initPackage=function(orderDatas){
 		PaintOrderModel.instance.addPackage(PaintOrderModel.instance.selectAddress,orderDatas);
 		var arr=PaintOrderModel.instance.finalOrderData;
@@ -47595,12 +48578,12 @@ var PaintOrderSettingController=(function(_super){
 		var odata;
 		for(var $each_odata in orderFactory){
 			odata=orderFactory[$each_odata];
-			if((odata.order_amountStr)< 2){
-				odata.orderAmount=2.00;
+			if((odata.order_amountStr)< Userdata.instance.orderBasePrice){
+				odata.orderAmount=Userdata.instance.orderBasePrice;
 				var itemarr=odata.orderItemList;
 				if(itemarr.length > 0){
-					var eachprice=Number((2/itemarr.length).toFixed(2));
-					var overflow=2-eachprice*itemarr.length;
+					var eachprice=Number((Userdata.instance.orderBasePrice/itemarr.length).toFixed(2));
+					var overflow=Userdata.instance.orderBasePrice-eachprice*itemarr.length;
 					for(var j=0;j < itemarr.length;j++){
 						if(j==0)
 							itemarr[j].itemPrice=(((eachprice+overflow)/itemarr[j].itemNumber)).toFixed(2);
@@ -48047,12 +49030,14 @@ var AddressEditControl=(function(_super){
 		this.hasinit=false;
 		this.httpUrl=null;
 		this.customer=null;
+		this.deliveryList=null;
 		AddressEditControl.__super.call(this);
 	}
 
 	__class(AddressEditControl,'script.usercenter.AddressEditControl',_super);
 	var __proto=AddressEditControl.prototype;
 	__proto.onStart=function(){
+		var _$this=this;
 		this.uiSkin=this.owner;
 		this.httpUrl=this.param.url;
 		this.customer=this.param.customer;
@@ -48061,7 +49046,7 @@ var AddressEditControl=(function(_super){
 			this.address=this.param.address;
 		}
 		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
-		this.uiSkin.input_username.maxChars=5;
+		this.uiSkin.input_username.maxChars=8;
 		this.uiSkin.input_phone.maxChars=20;
 		this.uiSkin.input_phone.restrict="0-9"+"-";
 		this.uiSkin.input_address.maxChars=50;
@@ -48113,6 +49098,17 @@ var AddressEditControl=(function(_super){
 		this.uiSkin.dragImg.on("mouseup",this,this.stopDragPanel);
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0" ,this,this.initAddr,null,null);
 		EventCenter.instance.on("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
+		this.uiSkin.getDeliveryList.on("click",this,function(){
+			if(_$this.zoneid !=null){
+				var params="clientCode="+Userdata.instance.clientCode+"&addrId="+_$this.zoneid+"&webCode="+Userdata.instance.webCode;
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/getDeliveryType?"+params ,this,_$this.getDeliveryListBack,null,null);
+			}
+		})
+		if((this.customer !=null && this.customer.id !="0")|| !this.isAddOrEdit){
+			this.uiSkin.deliveryBox.visible=true;
+		}
+		else
+		this.uiSkin.deliveryBox.visible=false;
 	}
 
 	__proto.startDragPanel=function(e){
@@ -48126,6 +49122,32 @@ var AddressEditControl=(function(_super){
 
 	__proto.onResizeBrower=function(){
 		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
+	}
+
+	__proto.getDeliveryListBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		var allDelviery=result;
+		if(allDelviery !=null){
+			var deliveryStr="";
+			var defaultIndex=-1;
+			for(var i=0;i < allDelviery.length;i++){
+				deliveryStr+=allDelviery[i].name;
+				if(i < allDelviery.length-1)
+					deliveryStr+=",";
+				if(this.address !=null && this.address.defaultDeliveryType==allDelviery[i].name)
+					defaultIndex=i;
+			}
+			this.uiSkin.defaulDeliveryType.labels=deliveryStr;
+			if(deliveryStr.length > 0)
+				this.uiSkin.defaulDeliveryType.selectedIndex=defaultIndex >=0?defaultIndex:0;
+			else{
+				this.uiSkin.defaulDeliveryType.labels=" ";
+				this.uiSkin.defaulDeliveryType.selectedIndex=0;
+			}
+			this.deliveryList=allDelviery;
+		}
 	}
 
 	__proto.hideAddressPanel=function(e){
@@ -48174,6 +49196,8 @@ var AddressEditControl=(function(_super){
 	}
 
 	__proto.initAddr=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		this.uiSkin.provList.array=result.data;
 		var selpro=0;
@@ -48181,7 +49205,7 @@ var AddressEditControl=(function(_super){
 			var curprov=this.address.preAddName.split(" ");
 			if(curprov[0] !=null){
 				for(var i=0;i < this.uiSkin.provList.array.length;i++){
-					if(this.uiSkin.provList.array[i].areaname==curprov[0]){
+					if(this.uiSkin.provList.array[i].areaName==curprov[0]){
 						selpro=i;
 						break ;
 					}
@@ -48198,6 +49222,8 @@ var AddressEditControl=(function(_super){
 		this.uiSkin.provbox.visible=false;
 		this.uiSkin.province.text=this.province.areaName;
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.province.id ,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
 			_$this.uiSkin.cityList.array=result.data;
 			_$this.uiSkin.cityList.refresh();
@@ -48224,6 +49250,8 @@ var AddressEditControl=(function(_super){
 		var _$this=this;
 		this.uiSkin.citybox.visible=false;
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.uiSkin.cityList.array[index].id,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
 			_$this.uiSkin.areaList.array=result.data;
 			_$this.uiSkin.areaList.refresh();
@@ -48254,10 +49282,14 @@ var AddressEditControl=(function(_super){
 			return;
 		this.areaid=this.uiSkin.areaList.array[index].id;
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.uiSkin.areaList.array[index].id ,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
 			_$this.uiSkin.btnSelTown.visible=result.data.length > 0;
 			if(result.data.length==0){
 				_$this.zoneid=_$this.areaid;
+				var params="clientCode="+Userdata.instance.clientCode+"&addrId="+_$this.zoneid+"&webCode="+Userdata.instance.webCode;
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/getDeliveryType?"+params ,this,_$this.getDeliveryListBack,null,null);
 				return;
 			}
 			_$this.uiSkin.townList.array=result.data;
@@ -48276,6 +49308,8 @@ var AddressEditControl=(function(_super){
 			}
 			_$this.uiSkin.towntxt.text=_$this.uiSkin.townList.array[cityindex].areaName;
 			_$this.zoneid=_$this.uiSkin.townList.array[cityindex].id;
+			var params="clientCode="+Userdata.instance.clientCode+"&addrId="+_$this.zoneid+"&webCode="+Userdata.instance.webCode;
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/getDeliveryType?"+params ,this,_$this.getDeliveryListBack,null,null);
 		},null,null);
 		this.uiSkin.areatxt.text=this.uiSkin.areaList.array[index].areaName;
 		this.uiSkin.areabox.visible=false;
@@ -48289,6 +49323,8 @@ var AddressEditControl=(function(_super){
 		this.uiSkin.townbox.visible=false;
 		this.uiSkin.towntxt.text=this.uiSkin.townList.array[index].areaName;
 		this.zoneid=this.uiSkin.townList.array[index].id;
+		var params="clientCode="+Userdata.instance.clientCode+"&addrId="+this.zoneid+"&webCode="+Userdata.instance.webCode;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/getDeliveryType?"+params ,this,this.getDeliveryListBack,null,null);
 	}
 
 	//companyareaId=uiSkin.townList.array[index].id;
@@ -48319,8 +49355,15 @@ var AddressEditControl=(function(_super){
 		requestStr.regionName=fullcityname;
 		if(this.customer !=null)
 			requestStr.customerId=this.customer.id;
+		if(this.uiSkin.defaulDeliveryType.selectedIndex >=0 && this.deliveryList !=null){
+			if(this.deliveryList[this.uiSkin.defaulDeliveryType.selectedIndex] !=null)
+				requestStr.defaultDelivery=this.deliveryList[this.uiSkin.defaulDeliveryType.selectedIndex].name;
+		}
 		if(this.isAddOrEdit==false)
 			requestStr.id=this.address.id;
+		if(this.isAddOrEdit)
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+this.httpUrl,this,this.addAddressback,JSON.stringify(requestStr),"post");
+		else
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+this.httpUrl,this,this.addAddressback,JSON.stringify(requestStr),"post");
 	}
 
@@ -48331,8 +49374,6 @@ var AddressEditControl=(function(_super){
 			if(this.customer==null){
 				if(this.isAddOrEdit)
 					Userdata.instance.addNewAddress(result.data);
-				else
-				Userdata.instance.updateAddress(result.data);
 			}
 			EventCenter.instance.event("UPDATE_MYADDRESS_LIST",Userdata.instance.addressList[Userdata.instance.addressList.length-1]);
 			this.onCloseView();
@@ -48446,8 +49487,8 @@ var FirstPageController=(function(_super){
 		this.uiSkin.leftMenuPanel.vScrollBarSkin="";
 		this.uiSkin.contentPanel.vScrollBarSkin="";
 		this.uiSkin.accountlbl.text=Userdata.instance.userName;
-		this.viewArr=[MyWorkPanelUI,PicManagerPanelUI,OrderListPanelUI,EnterPrizeInfoPaneUI,ChargePanelUI,AccountSettingPanelUI,CustomManagerPanelUI];
-		this.menuBtnList=[this.uiSkin.workBtn,this.uiSkin.picBtn,this.uiSkin.orderbtn,this.uiSkin.companyBtn,this.uiSkin.moneyBtn,this.uiSkin.settingBtn,this.uiSkin.customBtn];
+		this.viewArr=[MyWorkPanelUI,PicManagerPanelUI,OrderListPanelUI,EnterPrizeInfoPaneUI,ChargePanelUI,AccountSettingPanelUI,CustomManagerPanelUI,CustomerTransactionPanelUI,StatisticalAnalyPanelUI];
+		this.menuBtnList=[this.uiSkin.workBtn,this.uiSkin.picBtn,this.uiSkin.orderbtn,this.uiSkin.companyBtn,this.uiSkin.moneyBtn,this.uiSkin.settingBtn,this.uiSkin.customBtn,this.uiSkin.transactionBtn,this.uiSkin.statisticalBtn];
 		for(var i=0;i < this.menuBtnList.length;i++){
 			this.menuBtnList[i].on("click",this,this.onClickMenu,[i]);
 			this.menuBtnList[i].getChildByName("menuName").on("click",this,this.onClickMenu,[i]);
@@ -48467,6 +49508,7 @@ var FirstPageController=(function(_super){
 		EventCenter.instance.on("UPDAE_USER_NAME",this,this.updateUserName);
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/list?",this,this.getMyAddressBack,"page=1",null,null);
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/getInfo",this,this.getCompanyInfoBack,null,null,null);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.getPlatformConfig,this,this.getPlatformConfig,null,null,null);
 		this.uiSkin.exitBtn.on("click",this,this.onExit);
 	}
 
@@ -48493,7 +49535,7 @@ var FirstPageController=(function(_super){
 			Userdata.instance.initMyAddress(result.data.expressList);
 			Userdata.instance.defaultAddId=result.data.defaultId;
 		}
-		else if(result.code=="205" || result.code　=="404"){
+		else if(result.code=="1058" || result.code　=="404"){
 			ViewManager.instance.openView("VIEW_REGPANEL",true);
 		}
 	}
@@ -48507,6 +49549,13 @@ var FirstPageController=(function(_super){
 			Userdata.instance.company=result.data.name;
 			Userdata.instance.companyShort=result.data.shortName;
 			Userdata.instance.founderPhone=result.data.founderMobileNumber;
+		}
+	}
+
+	__proto.getPlatformConfig=function(data){
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			Userdata.instance.setPlatformConfig(result.data);
 		}
 	}
 
@@ -48626,6 +49675,8 @@ var FirstPageController=(function(_super){
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			UtilTool.setLocalVar("userToken","");
+			PaintOrderModel.instance.resetData();
+			DirectoryFileModel.instance.resetData();
 			Userdata.instance.isLogin=false;
 			Userdata.instance.resetData();
 			ViewManager.instance.openView("VIEW_lOGPANEL",true);
@@ -48877,7 +49928,6 @@ var MatAndProcFlowController=(function(_super){
 		this.uiSkin.closeBtn.on("click",this,this.closeView);
 		this.uiSkin.effectBtn.on("click",this,this.showEffectPanel);
 		EventCenter.instance.on("SHOW_SELECT_TECH",this,this.initTechView);
-		EventCenter.instance.on("CLOSE_PANEL_VIEW",this,this.onUpdateTechDes);
 		EventCenter.instance.on("CANCEL_CHOOSE_ATTACH",this,this.onCancaleChooseAttach);
 		EventCenter.instance.on("SHOW_MATERIAL_LIST_PANEL",this,this.showMaterialPanel);
 		EventCenter.instance.on("SELECT_PROCESS",this,this.selectProcess);
@@ -49052,7 +50102,6 @@ var MatAndProcFlowController=(function(_super){
 		this.uiSkin.operateArea.height=this.uiSkin.rightbox.height-this.uiSkin.matProcContainer.height-20;
 	}
 
-	__proto.onUpdateTechDes=function(){}
 	__proto.onCancaleChooseAttach=function(){}
 	__proto.onConfirmMatProcess=function(){
 		if(PaintOrderModel.instance.curSelectMat==null || PaintOrderModel.instance.curSelectMat.getTechDes(true)==""){
@@ -49080,7 +50129,7 @@ var MatAndProcFlowController=(function(_super){
 			}
 		}
 		for(var i=0;i < hasSelectedTech.length;i++){
-			if(hasSelectedTech[i].attachmentList.indexOf("SPpeijian")>=0){
+			if(hasSelectedTech[i].attachmentList.indexOf("SPpeijian")>=0 || hasSelectedTech[i].attachmentList.indexOf("SPMat")>=0){
 				if(hasSelectedTech[i].selectAttachVoList==null || hasSelectedTech[i].selectAttachVoList.length==0){
 					ViewManager.showAlert("未选择配件");
 					return;
@@ -49200,7 +50249,6 @@ var MatAndProcFlowController=(function(_super){
 
 	__proto.onDestroy=function(){
 		EventCenter.instance.off("SHOW_SELECT_TECH",this,this.initTechView);
-		EventCenter.instance.off("CLOSE_PANEL_VIEW",this,this.onUpdateTechDes);
 		EventCenter.instance.off("CANCEL_CHOOSE_ATTACH",this,this.onCancaleChooseAttach);
 		EventCenter.instance.off("SHOW_MATERIAL_LIST_PANEL",this,this.showMaterialPanel);
 		EventCenter.instance.off("SELECT_PROCESS",this,this.selectProcess);
@@ -49352,6 +50400,350 @@ var PicturePopUpController=(function(_super){
 })(Script)
 
 
+//class script.usercenter.CustomerTransactController extends laya.components.Script
+var CustomerTransactController=(function(_super){
+	function CustomerTransactController(){
+		this.uiSkin=null;
+		this.curpage=1;
+		this.totalPage=1;
+		this.dateInput=null;
+		this.dateInput2=null;
+		this.dateInputCharge=null;
+		this.curCustomer=null;
+		this.picList=null;
+		this.base64Arr=null;
+		this.excelData=[];
+		this.pageSize=30;
+		CustomerTransactController.__super.call(this);
+	}
+
+	__class(CustomerTransactController,'script.usercenter.CustomerTransactController',_super);
+	var __proto=CustomerTransactController.prototype;
+	__proto.onStart=function(){
+		var _$this=this;
+		this.uiSkin=this.owner;
+		this.uiSkin.customListPanel.visible=false;
+		this.uiSkin.curCustomName.editable=false;
+		this.uiSkin.customerName.editable=false;
+		this.uiSkin.showCustomList.on("click",this,function(){
+			_$this.uiSkin.customListPanel.visible=!_$this.uiSkin.customListPanel.visible;
+		})
+		this.uiSkin.addChargePanel.visible=false;
+		this.uiSkin.addChargeBtn.on("click",this,function(){
+			if(_$this.curCustomer==null){
+				ViewManager.showAlert("请先选择客户");
+				return;
+			}
+			_$this.uiSkin.addChargePanel.visible=true;
+			_$this.uiSkin.customerName.text=_$this.curCustomer.customerName;
+			_$this.onHideInputDate();
+			_$this.dateInputCharge.hidden=false;
+		});
+		this.uiSkin.writeoffBtn.on("click",this,this.onWriteOffOrder);
+		this.uiSkin.closeCharge.on("click",this,function(){
+			_$this.uiSkin.addChargePanel.visible=false;
+			_$this.dateInputCharge.hidden=true;
+			_$this.onshowInputDate(null);
+		});
+		this.uiSkin.confirmAdd.on("click",this,this.confirmAddCharge);
+		this.uiSkin.commentInput.maxChars=20;
+		this.uiSkin.orderList.itemRender=CustomerTransacCell;
+		this.uiSkin.orderList.repeatX=1;
+		this.uiSkin.orderList.spaceY=2;
+		this.uiSkin.orderList.renderHandler=new Handler(this,this.updateOrderList);
+		this.uiSkin.orderList.selectEnable=false;
+		this.uiSkin.orderList.array=[];
+		this.uiSkin.orderList.mouseThrough=true;
+		Laya.timer.frameLoop(1,this,this.updateDateInputPos);
+		var curdate=new Date();
+		this.uiSkin.lastpage.on("click",this,this.onLastPage);
+		this.uiSkin.nextpage.on("click",this,this.onNextPage);
+		this.uiSkin.paytype.selectedIndex=0;
+		this.uiSkin.paytype.on("change",this,this.queryOrderList);
+		this.uiSkin.orderList.on("mousedown",this,this.onMouseDwons);
+		this.uiSkin.orderList.on("mouseup",this,this.onMouseUpHandler);
+		this.uiSkin.btnsearch.on("click",this,this.queryOrderList);
+		EventCenter.instance.on("COMMON_CLOSE_PANEL_VIEW",this,this.onshowInputDate);
+		EventCenter.instance.on("OPEN_PANEL_VIEW",this,this.onHideInputDate);
+		this.uiSkin.orderList.on("mouseover",this,this.pauseParentScroll);
+		this.uiSkin.orderList.on("mouseout",this,this.resumeParentScroll);
+		Laya.stage.on("mouseup",this,this.onMouseUpHandler);
+		EventCenter.instance.on("SELECT_CUSTOMER",this,this.onSelectCustomer);
+		EventCenter.instance.on("DELETE_CUSTOMER_TRANSACTION",this,this.getOrderListAgain);
+		EventCenter.instance.on("CUSTOMER_LIST_INIT_SUCESS",this,this.onCustomerlistInitSucess);
+		EventCenter.instance.on("UPDATE_CUSTOMER_BALANCE",this,this.updateCurCustomer);
+		this.initDateSelector();
+	}
+
+	__proto.pauseParentScroll=function(){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",false);
+	}
+
+	__proto.resumeParentScroll=function(){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",true);
+	}
+
+	__proto.onshowInputDate=function(viewname){
+		if(ViewManager.instance.getTopViewName()=="VIEW_FIRST_PAGE" && !this.uiSkin.addChargePanel.visible){
+			this.dateInput.hidden=false;
+			this.dateInput2.hidden=false;
+		}
+		if(this.uiSkin.addChargePanel.visible)
+			this.dateInputCharge.hidden=false;
+	}
+
+	__proto.onHideInputDate=function(){
+		if(this.dateInput !=null){
+			this.dateInput.hidden=true;
+			this.dateInput2.hidden=true;
+		}
+	}
+
+	__proto.initDateSelector=function(){
+		var _$this=this;
+		var curdate=new Date((new Date()).getTime()-24 *3600 *1000);
+		var lastdate=new Date();
+		this.dateInput=Browser.document.createElement("input");
+		this.dateInput.style="filter:alpha(opacity=100);opacity:100;left:795px;top:240";
+		this.dateInput.style.width=222;
+		this.dateInput.style.height=44;
+		this.dateInput.type="date";
+		this.dateInput.style.position="absolute";
+		this.dateInput.style.zIndex=999;
+		this.dateInput.style.color="#003dc6";
+		this.dateInput.style.border="2px solid #003dc6";
+		this.dateInput.style.borderRadius="5px";
+		this.dateInput.value=UtilTool.formatFullDateTime(curdate,false);
+		Browser.document.body.appendChild(this.dateInput);
+		this.dateInput.onchange=function (datestr){
+			if(_$this.dateInput.value=="")
+				return;
+			var curdata=new Date(_$this.dateInput.value);
+			var nextdate=new Date(_$this.dateInput2.value);
+			if(nextdate.getTime()-curdata.getTime()> 30 *24 *3600 *1000){
+				nextdate=new Date(curdata.getTime()+30 *24 *3600 *1000);
+				_$this.dateInput2.value=UtilTool.formatFullDateTime(nextdate,false);
+			}
+			else if(nextdate.getTime()-curdata.getTime()< 0){
+				_$this.dateInput2.value=UtilTool.formatFullDateTime(curdata,false);
+			}
+		}
+		this.dateInput2=Browser.document.createElement("input");
+		this.dateInput2.style="filter:alpha(opacity=100);opacity:100;left:980px;top:240";
+		this.dateInput2.style.width=222;
+		this.dateInput2.style.height=44;
+		this.dateInput2.style.color="#003dc6";
+		this.dateInput2.style.border="2px solid #003dc6";
+		this.dateInput2.style.borderRadius="5px";
+		this.dateInput2.type="date";
+		this.dateInput2.style.position="absolute";
+		this.dateInput2.style.zIndex=999;
+		Browser.document.body.appendChild(this.dateInput2);
+		this.dateInput2.value=UtilTool.formatFullDateTime(lastdate,false);
+		this.dateInput2.onchange=function (datestr){
+			if(_$this.dateInput2.value=="")
+				return;
+			var curdata=new Date(_$this.dateInput2.value);
+			var lastdate=new Date(_$this.dateInput.value);
+			if(curdata.getTime()-lastdate.getTime()> 30 *24 *3600 *1000){
+				lastdate=new Date(curdata.getTime()-30 *24 *3600 *1000);
+				_$this.dateInput.value=UtilTool.formatFullDateTime(lastdate,false);
+			}
+			else if(curdata.getTime()-lastdate.getTime()< 0){
+				_$this.dateInput.value=UtilTool.formatFullDateTime(curdata,false);
+			}
+		}
+		this.dateInputCharge=Browser.document.createElement("input");
+		this.dateInputCharge.style="filter:alpha(opacity=100);opacity:100;left:795px;top:240";
+		this.dateInputCharge.style.width=322;
+		this.dateInputCharge.style.height=44;
+		this.dateInputCharge.type="datetime-local";
+		this.dateInputCharge.style.position="absolute";
+		this.dateInputCharge.style.zIndex=999;
+		this.dateInputCharge.style.color="#003dc6";
+		this.dateInputCharge.style.border="2px solid #003dc6";
+		this.dateInputCharge.style.borderRadius="5px";
+		this.dateInputCharge.value=UtilTool.formatFullDateTime(curdate,true).replace(" ","T");
+		Browser.document.body.appendChild(this.dateInputCharge);
+		this.dateInputCharge.hidden=true;
+	}
+
+	__proto.updateDateInputPos=function(){
+		if(this.dateInput !=null){
+			var pt=this.uiSkin.ordertime.localToGlobal(new Point(this.uiSkin.ordertime.x,this.uiSkin.ordertime.y),true);
+			var scaleNum=Browser.clientWidth/1920;
+			var offset=0;
+			this.dateInput.style.width=scaleNum *222;
+			this.dateInput.style.height=scaleNum *44;
+			this.dateInput.style.fontSize=24*scaleNum;
+			this.dateInput2.style.fontSize=24*scaleNum;
+			this.dateInput2.style.width=scaleNum *222;
+			this.dateInput2.style.height=scaleNum *44;
+			this.dateInput.style.top=(pt.y-121)*scaleNum+"px";
+			this.dateInput.style.left=(pt.x+65)*scaleNum+"px";
+			this.dateInput2.style.top=(pt.y-121)*scaleNum+"px";
+			this.dateInput2.style.left=(pt.x+330)*scaleNum+"px";
+			pt=this.uiSkin.ordertime.localToGlobal(new Point(this.uiSkin.getmoneyDate.x,this.uiSkin.getmoneyDate.y),true);
+			this.dateInputCharge.style.width=scaleNum *330;
+			this.dateInputCharge.style.height=scaleNum *44;
+			this.dateInputCharge.style.fontSize=24*scaleNum;
+			this.dateInputCharge.style.fontSize=24*scaleNum;
+			this.dateInputCharge.style.top=(pt.y-20)*scaleNum+"px";
+			this.dateInputCharge.style.left=(pt.x+307)*scaleNum+"px";
+		}
+	}
+
+	__proto.onLastPage=function(){
+		if(this.curpage > 1){
+			this.curpage--;
+			this.getOrderListAgain();
+		}
+	}
+
+	__proto.onNextPage=function(){
+		if(this.curpage < this.totalPage){
+			this.curpage++;
+			this.getOrderListAgain();
+		}
+	}
+
+	__proto.queryOrderList=function(){
+		this.curpage=1;
+		this.getOrderListAgain();
+	}
+
+	__proto.onCustomerlistInitSucess=function(custom){
+		if(custom !=null && this.curCustomer==null){
+			this.curCustomer=custom;
+			this.uiSkin.curCustomName.text=custom.customerName+"("+Constast.PAY_TYPE_NAME[custom.defaultPayment-1]+")";
+			this.uiSkin.balanceTxt.text="客户余额:"+this.curCustomer.balanceMoney.toFixed(2)+"元";
+			this.getOrderListAgain();
+		}
+	}
+
+	__proto.onSelectCustomer=function(custom){
+		if(this.curCustomer !=null && this.curCustomer.id==custom.id)
+			return;
+		this.curCustomer=custom;
+		this.uiSkin.curCustomName.text=custom.customerName+"("+Constast.PAY_TYPE_NAME[custom.defaultPayment-1]+")";
+		this.uiSkin.balanceTxt.text="客户余额:"+this.curCustomer.balanceMoney.toFixed(2)+"元";
+		this.getOrderListAgain();
+	}
+
+	__proto.getOrderListAgain=function(){
+		var param="beginDate="+this.dateInput.value+" 00:00:00&endDate="+this.dateInput2.value+" 23:59:59&transactionType="+this.uiSkin.paytype.selectedIndex+"&pageNo="+this.curpage+"&pageSize="+this.pageSize;
+		if(this.curCustomer !=null)
+			param+="&customerId="+this.curCustomer.id;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/customer/transaction/paging?"+param,this,this.onGetOrderListBack,null,null);
+	}
+
+	__proto.onMouseDwons=function(e){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",false);
+	}
+
+	__proto.onMouseUpHandler=function(e){
+		EventCenter.instance.event("PAUSE_SCROLL_VIEW",true);
+	}
+
+	__proto.onGetOrderListBack=function(data){
+		if(this.destroyed)
+			return;
+		if (data==null || data=="")
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			var totalNum=parseInt(result.data.totalCount);
+			this.totalPage=Math.ceil(totalNum/this.pageSize);
+			if(this.totalPage < 1)
+				this.totalPage=1;
+			this.uiSkin.pagenum.text=this.curpage+"/"+this.totalPage;
+			this.uiSkin.payMoney.text=result.data.receivableAccount;
+			this.uiSkin.totalSellMoney.text=result.data.totalReceivableAccount;
+			var arr=[];
+			for(var i=0;i < result.data.customerTransactions.length;i++){
+				var vo=new CustomerTransactionVo(result.data.customerTransactions[i]);
+				arr.push(vo);
+			}
+			this.uiSkin.orderList.array=arr;
+		}
+		else
+		ViewManager.showAlert("获取流水失败");
+	}
+
+	__proto.updateOrderList=function(cell){
+		cell.setData(cell.dataSource);
+	}
+
+	__proto.confirmAddCharge=function(){
+		if(this.uiSkin.transactionNum.text==""){
+			ViewManager.showAlert("请填写流水号");
+			this.dateInputCharge.hidden=true;
+			return;
+		}
+		if(this.uiSkin.getMoney.text==""){
+			ViewManager.showAlert("请填写收款金额");
+			this.dateInputCharge.hidden=true;
+			return;
+		};
+		var params={};
+		params.customerId=this.curCustomer.id;
+		params.amount=this.uiSkin.getMoney.text;
+		params.serialNo=this.uiSkin.transactionNum.text;
+		params.channel=this.uiSkin.channel.selectedLabel;
+		params.comment=this.uiSkin.commentInput.text;
+		params.collectTime=this.dateInputCharge.value.replace("T"," ");
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/collection/add?",this,this.addcollectback,JSON.stringify(params),"post");
+	}
+
+	__proto.addcollectback=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			this.getOrderListAgain();
+			this.uiSkin.addChargePanel.visible=false;
+			this.dateInputCharge.hidden=true;
+			this.onshowInputDate(null);
+		}
+	}
+
+	__proto.onWriteOffOrder=function(){
+		if(this.curCustomer==null){
+			ViewManager.showAlert("请先选择客户");
+			return;
+		}
+		ViewManager.instance.openView("WRITE_OFF_ORDER_PANEL",false,this.curCustomer);
+	}
+
+	__proto.updateCurCustomer=function(data){
+		if(this.curCustomer.id==data.id){
+			this.curCustomer.balance=data.balance;
+			this.curCustomer.balanceMoney=parseFloat(this.curCustomer.balance);
+			this.uiSkin.balanceTxt.text="客户余额:"+this.curCustomer.balanceMoney.toFixed(2)+"元";
+		}
+	}
+
+	__proto.onDestroy=function(){
+		Laya.stage.off("mouseup",this,this.onMouseUpHandler);
+		Laya.timer.clearAll(this);
+		if(this.dateInput !=null){
+			Browser.document.body.removeChild(this.dateInput);
+			Browser.document.body.removeChild(this.dateInput2);
+			Browser.document.body.removeChild(this.dateInputCharge);
+		}
+		EventCenter.instance.off("DELETE_ORDER_BACK",this,this.getOrderListAgain);
+		EventCenter.instance.off("COMMON_CLOSE_PANEL_VIEW",this,this.onshowInputDate);
+		EventCenter.instance.off("OPEN_PANEL_VIEW",this,this.onHideInputDate);
+		EventCenter.instance.off("SELECT_CUSTOMER",this,this.onSelectCustomer);
+		EventCenter.instance.off("DELETE_CUSTOMER_TRANSACTION",this,this.getOrderListAgain);
+		EventCenter.instance.off("CUSTOMER_LIST_INIT_SUCESS",this,this.onCustomerlistInitSucess);
+		EventCenter.instance.off("UPDATE_CUSTOMER_BALANCE",this,this.updateCurCustomer);
+	}
+
+	return CustomerTransactController;
+})(Script)
+
+
 //class script.order.SelectPackAddressController extends laya.components.Script
 var SelectPackAddressController=(function(_super){
 	function SelectPackAddressController(){
@@ -49362,14 +50754,17 @@ var SelectPackAddressController=(function(_super){
 		this.hasSelectGroup=null;
 		this.curPage=1;
 		this.totalPage=1;
+		this.addressPageSize=20;
 		this.province=null;
 		this.zoneid=null;
 		this.areaid=null;
 		this.grpCurPage=1;
 		this.grpTotalPage=1;
 		this.hasinit=false;
+		this.pageSize=50;
 		this.param=null;
 		this.MAX_NUM=100;
+		this.curCustomer=null;
 		SelectPackAddressController.__super.call(this);
 	}
 
@@ -49377,6 +50772,9 @@ var SelectPackAddressController=(function(_super){
 	var __proto=SelectPackAddressController.prototype;
 	__proto.onStart=function(){
 		this.uiSkin=this.owner;
+		this.curCustomer=this.param;
+		if(this.curCustomer==null || this.curCustomer.id=="0")
+			this.uiSkin.groupTab.visible=false;
 		this.tabBtns.push(this.uiSkin.addressTab);
 		this.tabBtns.push(this.uiSkin.groupTab);
 		this.uiSkin.addressTab.on("click",this,this.clickTabBtn,[0]);
@@ -49400,7 +50798,7 @@ var SelectPackAddressController=(function(_super){
 		this.uiSkin.provList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.provList.selectEnable=true;
 		this.uiSkin.provList.selectHandler=new Handler(this,this.selectProvince);
-		this.uiSkin.provList.array=[{id:0,areaname:"空"}];
+		this.uiSkin.provList.array=[{id:0,areaName:"空"}];
 		this.uiSkin.cityList.itemRender=CitySearchItem;
 		this.uiSkin.cityList.vScrollBarSkin="";
 		this.uiSkin.cityList.repeatX=1;
@@ -49408,7 +50806,7 @@ var SelectPackAddressController=(function(_super){
 		this.uiSkin.cityList.selectEnable=true;
 		this.uiSkin.cityList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.cityList.selectHandler=new Handler(this,this.selectCity);
-		this.uiSkin.cityList.array=[{id:0,areaname:"空"}];
+		this.uiSkin.cityList.array=[{id:0,areaName:"空"}];
 		this.uiSkin.areaList.itemRender=CitySearchItem;
 		this.uiSkin.areaList.vScrollBarSkin="";
 		this.uiSkin.areaList.selectEnable=true;
@@ -49416,7 +50814,7 @@ var SelectPackAddressController=(function(_super){
 		this.uiSkin.areaList.spaceY=2;
 		this.uiSkin.areaList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.areaList.selectHandler=new Handler(this,this.selectArea);
-		this.uiSkin.areaList.array=[{id:0,areaname:"空"}];
+		this.uiSkin.areaList.array=[{id:0,areaName:"空"}];
 		this.uiSkin.btnSelProv.on("click",this,this.onShowProvince);
 		this.uiSkin.btnSelCity.on("click",this,this.onShowCity);
 		this.uiSkin.btnSelArea.on("click",this,this.onShowArea);
@@ -49428,7 +50826,7 @@ var SelectPackAddressController=(function(_super){
 		this.uiSkin.nextPage.on("click",this,this.onNextPage);
 		this.uiSkin.searchInput.maxChars=20;
 		this.uiSkin.searchbtn.on("click",this,this.onSearchAddress);
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,this.initAddr,"parentid=0","post");
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0",this,this.initAddr,null,null);
 		this.hasSelectGroup={};
 		this.uiSkin.groupList.itemRender=AddressGroupSelCell;
 		this.uiSkin.groupList.repeatX=6;
@@ -49440,6 +50838,7 @@ var SelectPackAddressController=(function(_super){
 		this.uiSkin.searchGroupInput.text="";
 		this.uiSkin.groupList.array=arr;
 		this.uiSkin.searchGroupInput.maxChars=20;
+		this.uiSkin.pageNum.text="1/1";
 		this.uiSkin.gpPrevPage.on("click",this,this.onGpPrevPage);
 		this.uiSkin.gpNextPage.on("click",this,this.onGpNextPage);
 		this.uiSkin.searchGrpBtn.on("click",this,this.onSearchGroup);
@@ -49511,8 +50910,8 @@ var SelectPackAddressController=(function(_super){
 
 	__proto.initAddr=function(data){
 		var result=JSON.parse(data);
-		(result.status).unshift({id:0,areaname:"空"});
-		this.uiSkin.provList.array=result.status;
+		(result.data).unshift({id:0,areaName:"空"});
+		this.uiSkin.provList.array=result.data;
 	}
 
 	//selectProvince(selpro);
@@ -49520,44 +50919,44 @@ var SelectPackAddressController=(function(_super){
 		var _$this=this;
 		this.province=this.uiSkin.provList.array[index];
 		this.uiSkin.provbox.visible=false;
-		this.uiSkin.province.text=this.province.areaname;
+		this.uiSkin.province.text=this.province.areaName;
 		this.uiSkin.cityList.selectedIndex=0;
 		this.selectCity(0);
 		if(this.province.id==0){
-			this.uiSkin.cityList.array=[{id:0,areaname:"空"}];
+			this.uiSkin.cityList.array=[{id:0,areaName:"空"}];
 			return;
 		}
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,function(data){
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.province.id,this,function(data){
 			var result=JSON.parse(data);
-			(result.status).unshift({id:0,areaname:"空"});
-			_$this.uiSkin.cityList.array=result.status;
+			(result.data).unshift({id:0,areaName:"空"});
+			_$this.uiSkin.cityList.array=result.data;
 			_$this.uiSkin.cityList.refresh();
-		},"parentid="+this.province.id,"post");
+		},null,null);
 	}
 
 	__proto.selectCity=function(index){
 		var _$this=this;
 		this.uiSkin.citybox.visible=false;
-		this.uiSkin.citytxt.text=this.uiSkin.cityList.array[index].areaname;
+		this.uiSkin.citytxt.text=this.uiSkin.cityList.array[index].areaName;
 		this.uiSkin.areaList.selectedIndex=0;
 		this.selectArea(0);
 		if(this.uiSkin.cityList.array[index].id==0){
-			this.uiSkin.areaList.array=[{id:0,areaname:"空"}];
+			this.uiSkin.areaList.array=[{id:0,areaName:"空"}];
 			return;
 		}
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,function(data){
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.uiSkin.cityList.array[index].id,this,function(data){
 			var result=JSON.parse(data);
-			(result.status).unshift({id:0,areaname:"空"});
-			_$this.uiSkin.areaList.array=result.status;
+			(result.data).unshift({id:0,areaName:"空"});
+			_$this.uiSkin.areaList.array=result.data;
 			_$this.uiSkin.areaList.refresh();
-		},"parentid="+this.uiSkin.cityList.array[index].id,"post");
+		},null,null);
 	}
 
 	__proto.selectArea=function(index){
 		if(index==-1)
 			return;
 		this.areaid=this.uiSkin.areaList.array[index].id;
-		this.uiSkin.areatxt.text=this.uiSkin.areaList.array[index].areaname;
+		this.uiSkin.areatxt.text=this.uiSkin.areaList.array[index].areaName;
 		this.uiSkin.areabox.visible=false;
 	}
 
@@ -49618,7 +51017,49 @@ var SelectPackAddressController=(function(_super){
 			if(this.uiSkin.areaList.selectedIndex > 0)
 				addr+=" "+this.uiSkin.areatxt.text;
 		}
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.getMyAddressBack,"opt=list&page="+this.curPage+"&hidden=0&addr="+addr+"&keyword="+this.uiSkin.searchInput.text,"post");
+		if(this.curCustomer==null || this.curCustomer.id=="0"){
+			if(Userdata.instance.passedAddress.length==0){
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/list?",this,this.getMyAddressBack,"page=1",null,null);
+			}
+			else
+			this.uiSkin.addressList.array=Userdata.instance.passedAddress;
+		}
+		else
+		this.updateCustomeList();
+	}
+
+	//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page="+curPage+"&hidden=0&addr="+addr+"&keyword="+uiSkin.searchInput.text,"post");
+	__proto.updateCustomeList=function(){
+		var addr="";
+		if(this.uiSkin.areaList.selectedIndex > 0){
+			addr=this.uiSkin.areaList.array[this.uiSkin.areaList.selectedIndex].id;
+		}
+		else if(this.uiSkin.cityList.selectedIndex > 0)
+		addr=this.uiSkin.cityList.array[this.uiSkin.cityList.selectedIndex].id;
+		else if(this.uiSkin.provList.selectedIndex > 0)
+		addr=this.uiSkin.provList.array[this.uiSkin.provList.selectedIndex].id;
+		var paramdata="customerId="+this.curCustomer.id+"&pageNo="+this.curPage+"&pageSize="+this.addressPageSize+"&region="+addr+"&keyword="+this.uiSkin.searchInput.text;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listCustomerAddress+paramdata,this,this.getCustomerAddressBack,null,null,null);
+	}
+
+	__proto.getCustomerAddressBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			var addressList=[];
+			for(var i=0;i < result.data.expressList.length;i++){
+				addressList.push(new AddressVo(result.data.expressList[i]));
+				addressList[i].customerId=this.curCustomer.id;
+				addressList[i].customerName=this.curCustomer.customerName;
+				addressList[i].defaultPayType=this.curCustomer.defaultPayment;
+			}
+			this.totalPage=Math.ceil(result.data.totalCount/this.pageSize);
+			if(this.totalPage < 1)
+				this.totalPage=1;
+			this.uiSkin.pageNum.text=this.curPage+"/"+this.totalPage;
+			this.uiSkin.addressList.array=addressList;
+		}
 	}
 
 	__proto.getMyAddressBack=function(data){
@@ -49663,19 +51104,21 @@ var SelectPackAddressController=(function(_super){
 	}
 
 	__proto.refreshGroupList=function(){
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-addr-group?",this,this.listGroupBack,"opt=list&page="+this.grpCurPage+"&keyword="+this.uiSkin.searchGroupInput.text,"post");
+		var paramdata="customerId="+this.curCustomer.id+"&name="+this.uiSkin.searchGroupInput.text+"&pageNo="+this.grpCurPage+"&pageSize="+this.pageSize;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/paging?"+paramdata,this,this.listGroupBack,null,null);
 	}
 
 	__proto.listGroupBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
-		if(result.status==0){
+		if(result.code=="0"){
 			var groupList=[];
-			for(var i=0;i < result.data.length;i++){
-				groupList.push(new AddressGroupVo(result.data[i]));
-				groupList[i].selected=this.hasSelectGroup.hasOwnProperty(groupList[i].groupId);
+			for(var i=0;i < result.data.expressGroupList.length;i++){
+				groupList.push(new AddressGroupVo(result.data.expressGroupList[i]));
 			}
 			this.uiSkin.groupList.array=groupList;
-			this.grpTotalPage=result.totalpage;
+			this.grpTotalPage=Math.ceil(result.data.totalCount/this.pageSize);
 			if(this.grpTotalPage < 1)
 				this.grpTotalPage=1;
 			this.uiSkin.grPageNum.text=this.grpCurPage+"/"+this.grpTotalPage;
@@ -49700,8 +51143,9 @@ var SelectPackAddressController=(function(_super){
 		var selectgroup=[];
 		for(var key in this.hasSelectGroup)
 		selectgroup.push(key);
+		var postdata={"expressGroupIds":selectgroup};
 		if(selectgroup.length > 0){
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/list-all-group-addr?",this,this.getGroupAddressBack,"id="+selectgroup.join(","),"post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/listExpress?",this,this.getGroupAddressBack,JSON.stringify(postdata),"post");
 		}
 		else
 		this.sendAddressToPackage([]);
@@ -49709,10 +51153,10 @@ var SelectPackAddressController=(function(_super){
 
 	__proto.getGroupAddressBack=function(data){
 		var result=JSON.parse(data);
-		if(result.status==0){
+		if(result.code=="0"){
 			var addressList=[];
-			for(var i=0;i < result.addrs.length;i++){
-				addressList.push(new VipAddressVo(result.addrs[i]));
+			for(var i=0;i < result.data.length;i++){
+				addressList.push(new VipAddressVo(result.data[i]));
 			}
 			this.sendAddressToPackage(addressList);
 		}
@@ -50281,6 +51725,8 @@ var SelectMaterialControl=(function(_super){
 		var _$this=this;
 		var manufacturecode=PaintOrderModel.instance.curSelectMat.manufacturerCode;
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/procflowlist?manufacturer_code="+manufacturecode+"&procCat_name="+processCatvo.procCat_Name,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
 			if(!result.hasOwnProperty("status")){
 				PaintOrderModel.instance.curSelectProcList=result;
@@ -50331,7 +51777,7 @@ var SelectMaterialControl=(function(_super){
 		if(UtilTool.needChooseAttachPic(matvo)){
 			ViewManager.instance.openView("VIEW_SELECT_PIC_TO_ORDER",false,matvo);
 		}
-		if(matvo.attachmentList.indexOf("SPpeijian")>=0)
+		if(matvo.attachmentList.indexOf("SPpeijian")>=0 || matvo.attachmentList.indexOf("SPMat")>=0)
 			ViewManager.instance.openView("VIEW_SELECT_ATTACH",false,matvo);
 		else if(matvo.attachmentList.indexOf("SPpj")>=0)
 		ViewManager.instance.openView("INPUT_CUT_NUM",false,false);
@@ -50596,7 +52042,7 @@ var SelectMaterialControl=(function(_super){
 			}
 		}
 		for(var i=0;i < hasSelectedTech.length;i++){
-			if(hasSelectedTech[i].attachmentList.indexOf("SPpeijian")>=0){
+			if(hasSelectedTech[i].attachmentList.indexOf("SPpeijian")>=0 || hasSelectedTech[i].attachmentList.indexOf("SPMat")){
 				if(hasSelectedTech[i].selectAttachVoList==null || hasSelectedTech[i].selectAttachVoList.length==0){
 					ViewManager.showAlert("未选择配件");
 					return;
@@ -50631,8 +52077,8 @@ var SelectMaterialControl=(function(_super){
 	}
 
 	__proto.onUpdateTechDes=function(viewname){
-		if(viewname=="VIEW_SELECT_ATTACH"){
-			if(this.curclickItem.techmainvo.attachmentList.indexOf("SPpeijian")>=0){
+		if(viewname=="VIEW_SELECT_ATTACH" && this.curclickItem !=null && this.curclickItem.techmainvo !=null){
+			if(this.curclickItem.techmainvo.attachmentList.indexOf("SPpeijian")>=0 || this.curclickItem.techmainvo.attachmentList.indexOf("SPMat")>=0){
 				if(this.curclickItem.techmainvo.attachList==null || this.curclickItem.techmainvo.attachList.length==0){
 					this.hideItems(this.curclickItem.x,true);
 				}
@@ -50668,6 +52114,267 @@ var SelectMaterialControl=(function(_super){
 	}
 
 	return SelectMaterialControl;
+})(Script)
+
+
+//class script.usercenter.StatisticalAnalyController extends laya.components.Script
+var StatisticalAnalyController=(function(_super){
+	function StatisticalAnalyController(){
+		this.uiSkin=null;
+		this.province=null;
+		this.zoneid=null;
+		this.areaid=null;
+		this.businessManlist=null;
+		this.orderManlist=null;
+		this.tabBtns=null;
+		this.curTabIndex=-1;
+		StatisticalAnalyController.__super.call(this);
+	}
+
+	__class(StatisticalAnalyController,'script.usercenter.StatisticalAnalyController',_super);
+	var __proto=StatisticalAnalyController.prototype;
+	__proto.onStart=function(){
+		var _$this=this;
+		this.uiSkin=this.owner;
+		this.uiSkin.customListPanel.visible=false;
+		this.uiSkin.curCustomName.text="全部";
+		this.uiSkin.curCustomName.editable=false;
+		this.uiSkin.showCustomList.on("click",this,function(){
+			_$this.uiSkin.customListPanel.visible=!_$this.uiSkin.customListPanel.visible;
+		});
+		this.tabBtns=[];
+		this.tabBtns.push(this.uiSkin.customerTab);
+		this.tabBtns.push(this.uiSkin.productTab);
+		this.tabBtns.push(this.uiSkin.areaTab);
+		this.uiSkin.yearComBox.labels="2026,2025,2024";
+		this.uiSkin.monthComBox.labels="全年,01,02,03,04,05,06,07,08,09,10,11,12";
+		var curdate=new Date();
+		this.uiSkin.yearComBox.selectedLabel=curdate.getFullYear()+"";
+		this.uiSkin.monthComBox.selectedIndex=0;
+		this.uiSkin.customerTab.on("click",this,this.clickTabBtn,[0]);
+		this.uiSkin.productTab.on("click",this,this.clickTabBtn,[1]);
+		this.uiSkin.areaTab.on("click",this,this.clickTabBtn,[2]);
+		this.uiSkin.provList.itemRender=CitySearchItem;
+		this.uiSkin.provList.vScrollBarSkin="";
+		this.uiSkin.provList.repeatX=1;
+		this.uiSkin.provList.spaceY=2;
+		this.uiSkin.provList.renderHandler=new Handler(this,this.updateCityList);
+		this.uiSkin.provList.selectEnable=true;
+		this.uiSkin.provList.selectHandler=new Handler(this,this.selectProvince);
+		this.uiSkin.provList.array=[{id:0,areaName:"空"}];
+		this.uiSkin.cityList.itemRender=CitySearchItem;
+		this.uiSkin.cityList.vScrollBarSkin="";
+		this.uiSkin.cityList.repeatX=1;
+		this.uiSkin.cityList.spaceY=2;
+		this.uiSkin.cityList.selectEnable=true;
+		this.uiSkin.cityList.renderHandler=new Handler(this,this.updateCityList);
+		this.uiSkin.cityList.selectHandler=new Handler(this,this.selectCity);
+		this.uiSkin.cityList.array=[{id:0,areaName:"空"}];
+		this.uiSkin.areaList.itemRender=CitySearchItem;
+		this.uiSkin.areaList.vScrollBarSkin="";
+		this.uiSkin.areaList.selectEnable=true;
+		this.uiSkin.areaList.repeatX=1;
+		this.uiSkin.areaList.spaceY=2;
+		this.uiSkin.areaList.renderHandler=new Handler(this,this.updateCityList);
+		this.uiSkin.areaList.selectHandler=new Handler(this,this.selectArea);
+		this.uiSkin.areaList.array=[{id:0,areaName:"空"}];
+		this.uiSkin.townList.itemRender=CitySearchItem;
+		this.uiSkin.townList.vScrollBarSkin="";
+		this.uiSkin.townList.selectEnable=true;
+		this.uiSkin.townList.repeatX=1;
+		this.uiSkin.townList.spaceY=2;
+		this.uiSkin.townList.renderHandler=new Handler(this,this.updateCityList);
+		this.uiSkin.townList.selectHandler=new Handler(this,this.selectTown);
+		this.uiSkin.townList.array=[{id:0,areaName:"空"}];
+		this.uiSkin.btnSelProv.on("click",this,this.onShowProvince);
+		this.uiSkin.btnSelCity.on("click",this,this.onShowCity);
+		this.uiSkin.btnSelArea.on("click",this,this.onShowArea);
+		this.uiSkin.btnSelTown.on("click",this,this.onShowTown);
+		this.uiSkin.areabox.visible=false;
+		this.uiSkin.provbox.visible=false;
+		this.uiSkin.citybox.visible=false;
+		this.uiSkin.on("click",this,this.hideAddressPanel);
+		this.clickTabBtn(0);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0" ,this,this.initAddr,null,null);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listBusinessMan,this,this.getBusinessManBack,null,null);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listOrderMakers,this,this.getOrderMakersBack,null,null);
+	}
+
+	__proto.clickTabBtn=function(index){
+		if(this.curTabIndex==index)
+			return;
+		if(this.curTabIndex >=0)
+			(this.tabBtns [this.curTabIndex]).selected=false;
+		(this.tabBtns [index]).selected=true;
+		this.curTabIndex=index;
+		this.uiSkin.customerQueryBox.visible=index==0;
+		this.uiSkin.productQueryBox.visible=index==1;
+		this.uiSkin.areaQueryBox.visible=index==2;
+	}
+
+	__proto.updateCityList=function(cell,index){
+		cell.setData(cell.dataSource);
+	}
+
+	__proto.initAddr=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		(result.data).unshift({id:0,areaName:"空"});
+		this.uiSkin.provList.array=result.data;
+	}
+
+	//selectProvince(selpro);
+	__proto.selectProvince=function(index){
+		var _$this=this;
+		this.province=this.uiSkin.provList.array[index];
+		this.uiSkin.provbox.visible=false;
+		this.uiSkin.province.text=this.province.areaName;
+		this.uiSkin.cityList.selectedIndex=0;
+		this.selectCity(0);
+		if(this.province.id==0){
+			this.uiSkin.cityList.array=[{id:0,areaName:"空"}];
+			return;
+		}
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.province.id,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
+			var result=JSON.parse(data);
+			(result.data).unshift({id:0,areaName:"空"});
+			_$this.uiSkin.cityList.array=result.data;
+			_$this.uiSkin.cityList.refresh();
+		},null,null);
+	}
+
+	// companyareaId=uiSkin.townList.array[0].id;
+	__proto.selectCity=function(index){
+		var _$this=this;
+		this.uiSkin.citybox.visible=false;
+		this.uiSkin.citytxt.text=this.uiSkin.cityList.array[index].areaName;
+		this.uiSkin.areaList.selectedIndex=0;
+		this.selectArea(0);
+		if(this.uiSkin.cityList.array[index].id==0){
+			this.uiSkin.areaList.array=[{id:0,areaName:"空"}];
+			return;
+		}
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.uiSkin.cityList.array[index].id,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
+			var result=JSON.parse(data);
+			(result.data).unshift({id:0,areaName:"空"});
+			_$this.uiSkin.areaList.array=result.data;
+			_$this.uiSkin.areaList.refresh();
+		},null,null);
+	}
+
+	__proto.selectArea=function(index){
+		var _$this=this;
+		if(index==-1)
+			return;
+		this.areaid=this.uiSkin.areaList.array[index].id;
+		this.uiSkin.areatxt.text=this.uiSkin.areaList.array[index].areaName;
+		this.uiSkin.areabox.visible=false;
+		this.uiSkin.townList.selectedIndex=0;
+		this.selectTown(0);
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.uiSkin.areaList.array[index].id,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
+			var result=JSON.parse(data);
+			(result.data).unshift({id:0,areaName:"空"});
+			_$this.uiSkin.townList.array=result.data;
+			_$this.uiSkin.townList.refresh();
+		},null,null);
+	}
+
+	__proto.selectTown=function(index){
+		if(index==-1)
+			return;
+		this.areaid=this.uiSkin.townList.array[index].id;
+		this.uiSkin.towntxt.text=this.uiSkin.townList.array[index].areaName;
+		this.uiSkin.townbox.visible=false;
+	}
+
+	__proto.hideAddressPanel=function(e){
+		if((e.target instanceof laya.ui.List ))
+			return;
+		this.uiSkin.provbox.visible=false;
+		this.uiSkin.citybox.visible=false;
+		this.uiSkin.areabox.visible=false;
+		this.uiSkin.townbox.visible=false;
+	}
+
+	__proto.onShowProvince=function(e){
+		this.uiSkin.provbox.visible=true;
+		this.uiSkin.citybox.visible=false;
+		this.uiSkin.areabox.visible=false;
+		this.uiSkin.townbox.visible=false;
+		e.stopPropagation();
+	}
+
+	__proto.onShowCity=function(e){
+		this.uiSkin.provbox.visible=false;
+		this.uiSkin.citybox.visible=true;
+		this.uiSkin.areabox.visible=false;
+		this.uiSkin.townbox.visible=false;
+		e.stopPropagation();
+	}
+
+	__proto.onShowArea=function(e){
+		this.uiSkin.provbox.visible=false;
+		this.uiSkin.citybox.visible=false;
+		this.uiSkin.areabox.visible=true;
+		this.uiSkin.townbox.visible=false;
+		e.stopPropagation();
+	}
+
+	__proto.onShowTown=function(e){
+		this.uiSkin.provbox.visible=false;
+		this.uiSkin.citybox.visible=false;
+		this.uiSkin.areabox.visible=false;
+		this.uiSkin.townbox.visible=true;
+		e.stopPropagation();
+	}
+
+	__proto.getBusinessManBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		var mans=result.data;
+		var businessMan=[];
+		var businessManName="全部";
+		if(mans.length > 0)
+			businessManName+=",";
+		for(var i=0;i < mans.length;i++){
+			businessMan.push(new BusinessManVo(mans[i]));
+			businessManName+=businessMan[i].name+"_"+businessMan[i].mobileNumber;
+			if(i < mans.length-1)
+				businessManName+=",";
+		}
+		this.uiSkin.businessCombo.labels=businessManName;
+		this.uiSkin.businessCombo.selectedIndex=0;
+		this.businessManlist=businessMan;
+	}
+
+	__proto.getOrderMakersBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		var mans=result.data;
+		var businessMan=[];
+		var userName="全部";
+		if(mans.length > 0)
+			userName+=",";
+		for(var i=0;i < mans.length;i++){
+			userName+=mans[i].nickName+"_"+mans[i].mobileNumber;
+			if(i < mans.length-1)
+				userName+=",";
+		}
+		this.uiSkin.orderPlaceCombo.labels=userName;
+		this.uiSkin.orderPlaceCombo.selectedIndex=0;
+		this.orderManlist=mans;
+	}
+
+	return StatisticalAnalyController;
 })(Script)
 
 
@@ -50851,6 +52558,15 @@ var CustomerAddressMgr=(function(_super){
 	function CustomerAddressMgr(){
 		this.customerVo=null;
 		//private var param:Object;
+		this.addressPage=1;
+		this.addressTotalPage=1;
+		this.addressPageSize=20;
+		this.tabBtns=[];
+		this.curTabIndex=-1;
+		this.grpCurPage=1;
+		this.grpTotalPage=1;
+		this.pageSize=50;
+		this.hasinit=false;
 		this.uiSkin=null;
 		CustomerAddressMgr.__super.call(this);
 	}
@@ -50860,7 +52576,10 @@ var CustomerAddressMgr=(function(_super){
 	__proto.onStart=function(){
 		this.uiSkin=this.owner;
 		this.uiSkin.addlist.itemRender=CustomerAddressCell;
-		this.uiSkin.customerBox.visible=false;
+		this.tabBtns.push(this.uiSkin.addressTab);
+		this.tabBtns.push(this.uiSkin.groupTab);
+		this.uiSkin.addressTab.on("click",this,this.clickTabBtn,[0]);
+		this.uiSkin.groupTab.on("click",this,this.clickTabBtn,[1]);
 		this.uiSkin.addlist.repeatX=1;
 		this.uiSkin.addlist.spaceY=0;
 		this.uiSkin.addlist.renderHandler=new Handler(this,this.updateAddressList);
@@ -50868,11 +52587,34 @@ var CustomerAddressMgr=(function(_super){
 		var temparr=[];
 		this.uiSkin.addlist.array=temparr;
 		this.uiSkin.btnaddAddress.on("click",this,this.onClickAdd);
+		this.uiSkin.prevBtn.on("click",this,this.onAddressPrevPage);
+		this.uiSkin.nextBtn.on("click",this,this.onAddressNextPage);
 		this.uiSkin.numAddress.text="已经保存0条地址";
 		this.uiSkin.addlist.on("mouseover",this,this.pauseParentScroll);
 		this.uiSkin.addlist.on("mouseout",this,this.resumeParentScroll);
+		this.uiSkin.groupList.itemRender=AddressGroupCell;
+		this.uiSkin.groupList.repeatX=6;
+		this.uiSkin.groupList.spaceY=20;
+		this.uiSkin.groupList.spaceX=5;
+		this.uiSkin.groupList.renderHandler=new Handler(this,this.updateGroupList);
+		this.uiSkin.groupList.selectEnable=false;
+		var arr=[];
+		arr=[];
+		this.uiSkin.searchGroupInput.text="";
+		this.uiSkin.groupList.array=arr;
+		this.uiSkin.createGroupBox.visible=false;
+		this.uiSkin.addGroup.on("click",this,this.onshowCreateGroup);
+		this.uiSkin.closeNewGroup.on("click",this,this.oncloseCreateGroup);
+		this.uiSkin.newGroupName.maxChars=8;
+		this.uiSkin.searchGroupInput.maxChars=20;
+		this.uiSkin.confirmCreateGroup.on("click",this,this.createGroupNow);
+		this.uiSkin.gpPrevPage.on("click",this,this.onGpPrevPage);
+		this.uiSkin.gpNextPage.on("click",this,this.onGpNextPage);
+		this.uiSkin.searchGrpBtn.on("click",this,this.onSearchGroup);
+		this.clickTabBtn(0);
 		EventCenter.instance.on("UPDATE_MYADDRESS_LIST",this,this.updateList);
 		EventCenter.instance.on("SELECT_CUSTOMER",this,this.selectCustomer);
+		EventCenter.instance.on("UPDATE_ADDRESS_GROUP_LIST",this,this.refreshGroupList);
 	}
 
 	__proto.pauseParentScroll=function(){
@@ -50881,6 +52623,22 @@ var CustomerAddressMgr=(function(_super){
 
 	__proto.resumeParentScroll=function(){
 		EventCenter.instance.event("PAUSE_SCROLL_VIEW",true);
+	}
+
+	__proto.clickTabBtn=function(index){
+		if(this.curTabIndex==index)
+			return;
+		if(this.curTabIndex >=0)
+			(this.tabBtns [this.curTabIndex]).selected=false;
+		(this.tabBtns [index]).selected=true;
+		this.curTabIndex=index;
+		this.uiSkin.addressbox.visible=index==0;
+		this.uiSkin.groupBox.visible=index==1;
+		this.uiSkin.createGroupBox.visible=false;
+		if(index==1 && this.hasinit==false){
+			this.hasinit=true;
+			this.refreshGroupList();
+		}
 	}
 
 	__proto.selectCustomer=function(customer){
@@ -50896,22 +52654,44 @@ var CustomerAddressMgr=(function(_super){
 		this.uiSkin.customerBox.visible=true;
 		this.uiSkin.customeName.text=this.customerVo.customerName;
 		this.updateList();
+		this.refreshGroupList();
+	}
+
+	__proto.onAddressPrevPage=function(){
+		if(this.addressPage <=1)
+			return;
+		this.addressPage--;
+		this.updateList();
+	}
+
+	__proto.onAddressNextPage=function(){
+		if(this.addressPage >=this.addressTotalPage)
+			return;
+		this.addressPage++;
+		this.updateList();
 	}
 
 	__proto.updateList=function(){
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listCustomerAddress+"customerId="+this.customerVo.id,this,this.getMyAddressBack,null,null,null);
+		var paramdata="customerId="+this.customerVo.id+"&pageNo="+this.addressPage+"&pageSize="+this.addressPageSize
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listCustomerAddress+paramdata,this,this.getMyAddressBack,null,null,null);
 	}
 
 	__proto.getMyAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var addressList=[];
 			for(var i=0;i < result.data.expressList.length;i++){
 				addressList.push(new AddressVo(result.data.expressList[i]));
 			}
+			this.addressTotalPage=Math.ceil(result.data.totalCount/this.addressPageSize);
+			if(this.addressTotalPage < 1)
+				this.addressTotalPage=1;
+			this.uiSkin.addressPageTxt.text=this.addressPage+"/"+this.addressTotalPage;
 			addressList.sort(this.compareAddress);
 			this.uiSkin.addlist.array=addressList;
-			this.uiSkin.numAddress.text="已经保存"+addressList.length+"条地址";
+			this.uiSkin.numAddress.text="已经保存"+result.data.totalCount+"条地址";
 		}
 	}
 
@@ -50932,9 +52712,95 @@ var CustomerAddressMgr=(function(_super){
 		cell.setData(cell.dataSource);
 	}
 
+	//地址分组
+	__proto.updateGroupList=function(cell,index){
+		cell.setData(cell.dataSource);
+	}
+
+	__proto.onshowCreateGroup=function(){
+		this.uiSkin.createGroupBox.visible=true;
+	}
+
+	__proto.oncloseCreateGroup=function(){
+		this.uiSkin.createGroupBox.visible=false;
+	}
+
+	__proto.createGroupNow=function(){
+		var postdata={};
+		if(this.uiSkin.newGroupName.text.length <=0){
+			ViewManager.showAlert("请输入分组名");
+			return;
+		}
+		postdata.name=this.uiSkin.newGroupName.text;
+		postdata.customerId=this.customerVo.id;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/add?",this,this.createGroupBack,JSON.stringify(postdata),"post");
+	}
+
+	__proto.createGroupBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			this.refreshGroupList();
+		}
+		this.oncloseCreateGroup();
+	}
+
+	__proto.onSearchGroup=function(){
+		this.grpCurPage=1;
+		this.refreshGroupList();
+	}
+
+	__proto.onCloseView=function(viewname){
+		if(viewname=="VIEW_ADDRESS_GROUP_MGR_PANEL"){
+			this.refreshGroupList();
+		}
+	}
+
+	__proto.refreshGroupList=function(){
+		if(this.customerVo==null){
+			ViewManager.showAlert("请先选择客户");
+			return;
+		};
+		var paramdata="customerId="+this.customerVo.id+"&name="+this.uiSkin.searchGroupInput.text+"&pageNo="+this.grpCurPage+"&pageSize="+this.pageSize;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/paging?"+paramdata,this,this.listGroupBack,null,null);
+	}
+
+	__proto.listGroupBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			var groupList=[];
+			for(var i=0;i < result.data.expressGroupList.length;i++){
+				groupList.push(new AddressGroupVo(result.data.expressGroupList[i]));
+			}
+			this.uiSkin.groupList.array=groupList;
+			this.grpTotalPage=Math.ceil(result.data.totalCount/this.pageSize);
+			if(this.grpTotalPage < 1)
+				this.grpTotalPage=1;
+			this.uiSkin.grPageNum.text=this.grpCurPage+"/"+this.grpTotalPage;
+		}
+	}
+
+	__proto.onGpPrevPage=function(){
+		if(this.grpCurPage <=1)
+			return;
+		this.grpCurPage--;
+		this.refreshGroupList();
+	}
+
+	__proto.onGpNextPage=function(){
+		if(this.grpCurPage >=this.grpTotalPage)
+			return;
+		this.grpCurPage++;
+		this.refreshGroupList();
+	}
+
 	__proto.onDestroy=function(){
 		EventCenter.instance.off("UPDATE_MYADDRESS_LIST",this,this.updateList);
 		EventCenter.instance.off("SELECT_CUSTOMER",this,this.selectCustomer);
+		EventCenter.instance.off("UPDATE_ADDRESS_GROUP_LIST",this,this.refreshGroupList);
 	}
 
 	return CustomerAddressMgr;
@@ -51029,6 +52895,8 @@ var PayTypeSelectControl=(function(_super){
 	}
 
 	__proto.getCompanyInfoBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			Userdata.instance.money=Number(result.data.balance);
@@ -51085,7 +52953,7 @@ var PayTypeSelectControl=(function(_super){
 			};
 			var paykind=this.uiSkin.paytype.selectedIndex-1;
 			if(this.param.orderid !=null)
-				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order//payWithBal?",this,this.payMoneyBack,JSON.stringify({"orderSn":this.param.orderid ,"kind":paykind.toString()}),"post");
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/payWithBal?",this,this.payMoneyBack,JSON.stringify({"orderSn":this.param.orderid ,"kind":paykind.toString()}),"post");
 			else if(this.param.size !=null){
 				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"fs/payForStorage?",this,this.payMoneyBack,JSON.stringify({"size":this.param.size,"&kind":paykind}),"post");
 			}
@@ -51443,6 +53311,8 @@ var SelectAttchesControl=(function(_super){
 	}
 
 	__proto.onGetAccessorylistBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result){
 			this.matvo.attachList=[];
@@ -51528,6 +53398,132 @@ var SelectAttchesControl=(function(_super){
 	}
 
 	return SelectAttchesControl;
+})(Script)
+
+
+//class script.usercenter.OrderPriceSettingController extends laya.components.Script
+var OrderPriceSettingController=(function(_super){
+	function OrderPriceSettingController(){
+		this.uiSkin=null;
+		this.param=null;
+		OrderPriceSettingController.__super.call(this);
+	}
+
+	__class(OrderPriceSettingController,'script.usercenter.OrderPriceSettingController',_super);
+	var __proto=OrderPriceSettingController.prototype;
+	__proto.onStart=function(){
+		this.uiSkin=this.owner;
+		this.uiSkin.orderoanel.vScrollBarSkin="";
+		this.uiSkin.mainpanel.hScrollBarSkin="";
+		var status=parseInt(this.param.status);
+		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
+		this.uiSkin.orderSn.text=this.param.id;
+		this.orderdata=JSON.parse(this.param.detail);
+		var allproduct=this.orderdata.orderItemList;
+		this.uiSkin.deliveryCost.text=this.orderdata.shippingFee;
+		if(this.orderdata.moneyPaid !=null)
+			this.uiSkin.moneyPaidlbl.text=Number(this.orderdata.moneyPaid).toFixed(2);
+		else
+		this.uiSkin.moneyPaidlbl.text=Number(this.orderdata.money_paidStr).toFixed(2);
+		if(Userdata.instance.isHidePrice()){
+			this.uiSkin.moneyPaidlbl.text="***";
+		}
+		allproduct.sort(this.sortProduct);
+		this.uiSkin.orderbox.itemRender=OrderPriceSettingItem;
+		this.uiSkin.orderbox.repeatX=1;
+		this.uiSkin.orderbox.spaceY=2;
+		this.uiSkin.orderbox.renderHandler=new Handler(this,this.updateOrderList);
+		this.uiSkin.orderbox.selectEnable=false;
+		var productArr=[];
+		for(var i=0;i < allproduct.length;i++){
+			allproduct[i].orderId=this.param.id;
+		}
+		this.uiSkin.orderbox.array=allproduct;
+		this.uiSkin.orderbox.size(this.uiSkin.orderbox.width,this.uiSkin.orderbox.getBounds().height);
+		this.uiSkin.closebtn.on("click",this,this.onCloseView);
+		this.uiSkin.layoutCost.on("input",this,this.updateSellPrice);
+		this.uiSkin.designCost.on("input",this,this.updateSellPrice);
+		this.uiSkin.deliveryCost.on("input",this,this.updateSellPrice);
+		this.uiSkin.otherCost.on("input",this,this.updateSellPrice);
+		this.uiSkin.okbtn.on("click",this,this.onSettingConfirm);
+		this.uiSkin.shareBtn.on("click",this,this.onShare);
+		this.uiSkin.layoutCost.text=(this.orderdata.installationFee !=null && this.orderdata.installationFee !="")?this.orderdata.installationFee:"0";
+		this.uiSkin.designCost.text=(this.orderdata.designFee !=null && this.orderdata.designFee !="")?this.orderdata.designFee:"0";
+		this.uiSkin.deliveryCost.text=(this.orderdata.deliveryFee !=null && this.orderdata.designFee !="")?this.orderdata.deliveryFee:"0";
+		this.uiSkin.otherCost.text=(this.orderdata.otherFee !=null && this.orderdata.otherFee !="")?this.orderdata.otherFee:"0";
+		this.uiSkin.sellPrice.text=(this.orderdata.totalSalesPrice !=null && this.orderdata.totalSalesPrice !="")?this.orderdata.totalSalesPrice:"0";
+		EventCenter.instance.on("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
+		EventCenter.instance.on("UPDATE_ORDER_PRICE",this,this.updateSellPrice);
+		this.updateSellPrice();
+	}
+
+	__proto.onShare=function(){
+		Browser.window.open("about:self","_blank").location.href=Browser.window.location+"?"+"orderID="+this.param.id;
+	}
+
+	__proto.updateOrderList=function(cell){
+		cell.setData(cell.dataSource);
+	}
+
+	__proto.onResizeBrower=function(){
+		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
+	}
+
+	__proto.sortProduct=function(a,b){
+		if(parseInt(a.itemSeq)> parseInt(b.itemSeq))
+			return 1;
+		else
+		return-1;
+	}
+
+	__proto.refrshVbox=function(){
+		this.uiSkin.orderbox.refresh();
+		this.uiSkin.orderbox.size(this.uiSkin.orderbox.width,this.uiSkin.orderbox.getBounds().height);
+	}
+
+	//uiSkin.orderbox.height=uiSkin.orderbox.getBounds().height;
+	__proto.updateSellPrice=function(){
+		var productPrice=0;
+		var arr=this.uiSkin.orderbox.array;
+		for(var i=0;i < arr.length;i++){
+			productPrice+=(arr[i].totalSalesPrice !=null && arr[i].totalSalesPrice !="")?parseFloat(this.uiSkin.orderbox.array[i].totalSalesPrice):(Number(arr[i].itemPrice)*Number(arr[i].itemNumber));
+		};
+		var layoutPrice=parseFloat(this.uiSkin.layoutCost.text);
+		var designPrice=parseFloat(this.uiSkin.designCost.text);
+		var deliveryPrice=parseFloat(this.uiSkin.deliveryCost.text);
+		var otherPrice=parseFloat(this.uiSkin.otherCost.text);
+		this.uiSkin.sellPrice.text=(productPrice+layoutPrice+deliveryPrice+designPrice+otherPrice).toFixed(2);
+	}
+
+	__proto.onSettingConfirm=function(){
+		if(this.uiSkin.layoutCost.text=="" || this.uiSkin.designCost.text=="" || this.uiSkin.deliveryCost.text=="" || this.uiSkin.otherCost.text==""){
+			ViewManager.showAlert("价格不能为空，请输入正确的价格费用。");
+			return;
+		}
+		this.orderdata.totalSalesPrice=this.uiSkin.sellPrice.text;
+		this.orderdata.installationFee=parseFloat(this.uiSkin.layoutCost.text).toFixed(2);
+		this.orderdata.designFee=parseFloat(this.uiSkin.designCost.text).toFixed(2);
+		this.orderdata.deliveryFee=parseFloat(this.uiSkin.deliveryCost.text).toFixed(2);
+		this.orderdata.otherFee=parseFloat(this.uiSkin.otherCost.text).toFixed(2);
+		var arr=[this.orderdata];
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/updateSalesPrice?",this,this.onUpdateOrderBack,JSON.stringify(arr),"post");
+	}
+
+	__proto.onUpdateOrderBack=function(data){
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			EventCenter.instance.event("DELETE_ORDER_BACK");
+			this.onCloseView();
+		}
+	}
+
+	__proto.onCloseView=function(){
+		EventCenter.instance.off("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
+		ViewManager.instance.closeView("ORDER_PRICE_SETTING_PANEL");
+		EventCenter.instance.off("UPDATE_ORDER_PRICE",this,this.updateSellPrice);
+	}
+
+	return OrderPriceSettingController;
 })(Script)
 
 
@@ -51622,6 +53618,7 @@ var RegisterCntrol=(function(_super){
 		}
 		this.uiSkin.createAccountInput.maxChars=11;
 		this.uiSkin.createAccountInput.restrict="0-9";
+		this.uiSkin.codeValid.visible=false;
 		this.uiSkin.commentInput.maxChars=8;
 		this.uiSkin.applyEnter.on("click",this,function(){
 			_$this.uiSkin.applyJoinPanel.visible=true;
@@ -51749,6 +53746,8 @@ var RegisterCntrol=(function(_super){
 	}
 
 	__proto.onGetPhoneCodeBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		this.coutdown=60;
 		if(result.code=="0"){
@@ -51769,6 +53768,7 @@ var RegisterCntrol=(function(_super){
 			this.uiSkin.btnGetCode.disabled=false;
 			this.uiSkin.btnGetCode.label="获取验证码";
 			Laya.timer.clear(this,this.countdownCode);
+			this.uiSkin.codeValid.visible=true;
 		}
 	}
 
@@ -51834,6 +53834,8 @@ var RegisterCntrol=(function(_super){
 
 	//Browser.window.loadVerifyCode();
 	__proto.onRegisterBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code==0){
 			this.uiSkin.step1Panel.visible=false;
@@ -51850,6 +53852,8 @@ var RegisterCntrol=(function(_super){
 	}
 
 	__proto.onLoginBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			Userdata.instance.resetData();
@@ -51859,12 +53863,15 @@ var RegisterCntrol=(function(_super){
 			Userdata.instance.privilege=result.data.userPermisson;
 			Userdata.instance.token=result.data.token;
 			Userdata.instance.userName=result.data.nickName;
+			Userdata.instance.orgAudit=result.data.needAuditOrg;
+			Userdata.instance.orgAuditState=result.data.orgAuditState;
 			Userdata.instance.step=result.data.step;
 			Userdata.instance.firstOrder=result.data.firstOrder;
 			if(result.data.token !=null && result.data.token !=""){
 				Userdata.instance.token=result.data.token;
 				UtilTool.setLocalVar("userToken",Userdata.instance.token);
 			}
+			this.updateAuditState();
 			EventCenter.instance.event("LOGIN_SUCESS",this.uiSkin.input_phone.text);
 			UtilTool.setLocalVar("useraccount",this.uiSkin.input_phone.text);
 			UtilTool.setLocalVar("userpwd",this.uiSkin.input_pwd.text);
@@ -51883,6 +53890,41 @@ var RegisterCntrol=(function(_super){
 		this.uiSkin.input_companyname.focus=true;
 		this.curStep=1;
 		this.updateStep();
+		this.updateAuditState();
+	}
+
+	__proto.updateAuditState=function(){
+		if(Userdata.instance.orgAudit)
+			this.uiSkin.applyBtn.label="提交审核";
+		if(Userdata.instance.orgAuditState==0){
+			this.uiSkin.applyBtn.disabled=true;
+			this.uiSkin.applyBtn.label="审核中...";
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/getOrgReq?",this,this.getAuditInfoBack,null,null);
+			this.uiSkin.applyEnter.visible=false;
+		}
+		else
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0",this,this.initView,null,null);
+		if(Userdata.instance.orgAuditState==2){
+			this.uiSkin.auditTips.visible=true;
+		}
+		else
+		this.uiSkin.auditTips.visible=false;
+	}
+
+	__proto.getAuditInfoBack=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			this.uiSkin.input_companyname.text=result.data.name;
+			this.uiSkin.contactName.text=result.data.cnee;
+			this.uiSkin.contactPhone.text=result.data.mobileNumber;
+			this.uiSkin.detail_addr.text=result.data.addr;
+			this.proid=(result.data.regionId).slice(0,2)+"0000";
+			this.cityid=(result.data.regionId).slice(0,4)+"00";
+			this.areaid=(result.data.regionId).slice(0,6);
+			this.townid=result.data.regionId;
+		}
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0",this,this.initView,null,null);
 	}
 
@@ -51941,6 +53983,8 @@ var RegisterCntrol=(function(_super){
 	}
 
 	__proto.initView=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		this.uiSkin.provList.array=result.data;
 		var selpro=0;
@@ -52116,6 +54160,13 @@ var RegisterCntrol=(function(_super){
 		if(result.code=="0"){
 			Userdata.instance.firstOrder="1";
 			Userdata.instance.isLogin=false;
+			if(Userdata.instance.orgAudit){
+				ViewManager.showAlert("公司信息提交成功，请等待审核");
+				this.uiSkin.applyBtn.label="审核中...";
+				this.uiSkin.applyBtn.disabled=true;
+				this.uiSkin.applyEnter.visible=false;
+			}
+			else
 			this.onCloseScene();
 		}
 		else{
@@ -52249,10 +54300,12 @@ var LailiaoOrderController=(function(_super){
 		if(state==0){
 			this.uiSkin.opeBox.x=1456;
 			this.uiSkin.pricelbl.x=1364;
+			this.uiSkin.unitpricelbl.x=1273;
 		}
 		else{
 			this.uiSkin.opeBox.x=1556;
-			this.uiSkin.pricelbl.x=1414;
+			this.uiSkin.pricelbl.x=1468;
+			this.uiSkin.unitpricelbl.x=1373;
 		}
 	}
 
@@ -52271,7 +54324,7 @@ var LailiaoOrderController=(function(_super){
 				if(orderitem.ordervo.orderData !=null && !orderFactory.hasOwnProperty(orderitem.ordervo.manufacturer_code)){
 					orderdata={};
 					orderdata.order_sn=PaintOrderModel.getOrderSn();
-					orderdata.client_code="CL10600";
+					orderdata.client_code=Userdata.instance.clientCode;
 					orderdata.consignee=Userdata.instance.companyShort+"#"+PaintOrderModel.instance.selectAddress.receiverName;
 					orderdata.tel=PaintOrderModel.instance.selectAddress.phone;
 					orderdata.address=PaintOrderModel.instance.selectAddress.proCityArea;
@@ -52457,6 +54510,8 @@ var LailiaoOrderController=(function(_super){
 	}
 
 	__proto.ongetUidsBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var ids=result.data;
@@ -52568,7 +54623,7 @@ var LailiaoOrderController=(function(_super){
 			if(!orderFactory.hasOwnProperty(orderitem.ordervo.manufacturer_code)){
 				orderdata={};
 				orderdata.orderSn=PaintOrderModel.getOrderSn();
-				orderdata.clientCode="CL10600";
+				orderdata.clientCode=Userdata.instance.clientCode;
 				orderdata.userCode=Userdata.instance.userAccount;
 				orderdata.userOrgCode=Userdata.instance.founderPhone;
 				orderdata.customerId=PaintOrderModel.instance.selectAddress.customerId.toString();
@@ -52774,6 +54829,9 @@ var AddressMgrControl=(function(_super){
 	__proto.onStart=function(){
 		this.uiSkin=this.owner;
 		this.uiSkin.addlist.itemRender=CompanyAddressItem;
+		this.uiSkin.addressTab.visible=false;
+		this.uiSkin.groupTab.visible=false;
+		this.uiSkin.groupBox.visible=false;
 		this.uiSkin.customerBox.visible=false;
 		this.uiSkin.addlist.repeatX=1;
 		this.uiSkin.addlist.spaceY=0;
@@ -52781,6 +54839,7 @@ var AddressMgrControl=(function(_super){
 		this.uiSkin.addlist.selectEnable=false;
 		var temparr=[];
 		this.uiSkin.addlist.array=temparr;
+		this.uiSkin.defaultDelivery.visible=false;
 		this.uiSkin.btnaddAddress.on("click",this,this.onClickAdd);
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/list?",this,this.getMyAddressBack,"page=1",null,null);
 		this.uiSkin.numAddress.text="已经保存"+Userdata.instance.addressList.length+"条地址";
@@ -52802,6 +54861,8 @@ var AddressMgrControl=(function(_super){
 	}
 
 	__proto.getMyAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			Userdata.instance.initMyAddress(result.data.expressList);
@@ -52924,7 +54985,7 @@ var SelectAddressControl=(function(_super){
 		this.uiSkin=this.owner;
 		this.customer=this.param;
 		if(this.customer !=null && this.customer.id !="0")
-			this.uiSkin.curCustomName.text=this.customer.customerName;
+			this.uiSkin.curCustomName.text=this.customer.customerName+"("+Constast.PAY_TYPE_NAME[this.customer.defaultPayment-1]+")";
 		else
 		this.uiSkin.curCustomName.text=Userdata.instance.company;
 		this.uiSkin.list_address.itemRender=SelAddressItem;
@@ -52979,6 +55040,8 @@ var SelectAddressControl=(function(_super){
 	}
 
 	__proto.getMyAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			Userdata.instance.initMyAddress(result.data.expressList);
@@ -53066,7 +55129,7 @@ var SelectAddressControl=(function(_super){
 		this.tempaddress=null;
 		this.uiSkin.list_address.selectedIndex=-1;
 		this.customer=custom;
-		this.uiSkin.curCustomName.text=custom.customerName;
+		this.uiSkin.curCustomName.text=custom.customerName+"("+Constast.PAY_TYPE_NAME[custom.defaultPayment-1]+")";;
 		if(this.customer.id=="0"){
 			if(Userdata.instance.passedAddress.length==0){
 				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/list?",this,this.getMyAddressBack,"page=1",null,null);
@@ -53083,12 +55146,16 @@ var SelectAddressControl=(function(_super){
 	}
 
 	__proto.getCustomerAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var addressList=[];
 			for(var i=0;i < result.data.expressList.length;i++){
 				addressList.push(new AddressVo(result.data.expressList[i]));
 				addressList[i].customerId=this.customer.id;
+				addressList[i].customerName=this.customer.customerName;
+				addressList[i].defaultPayType=this.customer.defaultPayment;
 			}
 			this.uiSkin.list_address.array=addressList;
 		}
@@ -53122,7 +55189,6 @@ var PackageVipController=(function(_super){
 	var __proto=PackageVipController.prototype;
 	__proto.onStart=function(){
 		this.uiSkin=this.owner;
-		this.uiSkin.addpackbtn.visible=false;
 		this.uiSkin.packagelist.itemRender=PackageEditCell;
 		this.uiSkin.packagelist.repeatY=1;
 		this.uiSkin.packagelist.spaceY=1;
@@ -53171,7 +55237,12 @@ var PackageVipController=(function(_super){
 			ordermoney=parseFloat(ordermoney.toFixed(1));
 			total+=ordermoney;
 		}
-		this.uiSkin.textDiscount.text=(parseFloat(PaintOrderModel.instance.rawPrice)-total).toFixed(1);
+		if(total < Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length)
+			total=Userdata.instance.orderBasePrice*PaintOrderModel.instance.finalOrderData.length;
+		if((parseFloat(PaintOrderModel.instance.rawPrice)-total)> 0)
+			this.uiSkin.textDiscount.text=(parseFloat(PaintOrderModel.instance.rawPrice)-total).toFixed(1);
+		else
+		this.uiSkin.textDiscount.text="0";
 		this.uiSkin.textPayPrice.text=total.toFixed(1)+"元";
 	}
 
@@ -53212,25 +55283,15 @@ var PackageVipController=(function(_super){
 	}
 
 	__proto.onShowAddress=function(){
-		ViewManager.instance.openView("VIEW_SELECT_PACK_ADDRESS_PANEL");
+		ViewManager.instance.openView("VIEW_SELECT_PACK_ADDRESS_PANEL",false,PaintOrderModel.instance.curOrderCustomer);
 	}
 
 	__proto.onConfirmPackage=function(){
-		if(PaintOrderModel.instance.packageList.length > 1){
-			var firstpack=PaintOrderModel.instance.packageList[0];
-			for(var i=0;i < firstpack.itemlist.length;i++){
-				if(firstpack.itemlist[i].itemCount > 0){
-					ViewManager.showAlert("第一个包裹的所有产品数量必须为0");
-					return;
-				}
-			}
-		};
 		var arr=PaintOrderModel.instance.finalOrderData;
 		this.requestnum=0;
 		for(var i=0;i < arr.length;i++){
 			PaintOrderModel.instance.curTimePrefer=this.uiSkin.timepreferRdo.selectedIndex+2;
-			var datas=JSON.stringify({"manufacturer_code":"SP0792300","addr_id":"330681117","orderItemList":[{"orderItem_sn":"CL010000911","prod_code":"MPR231020145318433","processList":[{"proc_code":"SPTE231020140227874","cap_occupy":0.1468,"proc_seq":1},{"proc_code":"SPTE231020151954497","cap_occupy":0,"proc_seq":2},{"proc_code":"SPTE12330","cap_occupy":0,"proc_seq":3}]}],"delivery_prefer":2});
-			console.log("产能数据:"+datas);
+			var datas=PaintOrderModel.instance.getOrderCapcaityData(arr[i],this.uiSkin.timepreferRdo.selectedIndex+2);
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"business/getAvailebleDeliveryDates?",this,this.ongetAvailableDateBack,datas,"post");
 		}
 		this.uiSkin.okbtn.disabled=true;
@@ -53283,10 +55344,14 @@ var PackageVipController=(function(_super){
 				if(PaintOrderModel.instance.packageList==null || PaintOrderModel.instance.packageList.length <=0)
 					return;
 				if(!PaintOrderModel.instance.setVipPackageData()){
-					ViewManager.showAlert("打包异常，请返回上一步重新打包");
+					this.uiSkin.okbtn.disabled=false;
 					return;
+				};
+				var itemlist=[];
+				for(var i=0;i < PaintOrderModel.instance.finalOrderData.length;i++){
+					itemlist=itemlist.concat(PaintOrderModel.instance.finalOrderData[i].orderItemList);
 				}
-				EventCenter.instance.event("SHOW_CONTENT_PANEL",[ChooseDeliveryTimePanelUI,0,{orders:this.orderDatas,delaypay:false}]);
+				EventCenter.instance.event("SHOW_CONTENT_PANEL",[ChooseDeliveryTimePanelUI,0,{orders:itemlist,delaypay:false}]);
 				PaintOrderModel.instance.packageList=[];
 			}
 			else{
@@ -53386,9 +55451,9 @@ var UpLoadAndOrderContrl=(function(_super){
 	__proto.onClickOpenFile=function(){
 		Laya.timer.clearAll(this);
 		this.file.click();
-		this.file.value;
 	}
 
+	//file.value ;
 	__proto.initFileOpen=function(){
 		var _$this=this;
 		this.file=Browser.document.createElement("input");
@@ -53408,9 +55473,15 @@ var UpLoadAndOrderContrl=(function(_super){
 			_$this.curFinishNum=0;
 			_$this.fileListData=[];
 			for(var i=0;i < _$this.file.files.length;i++){
-				_$this.file.files[i].progress=0;
-				_$this.file.files[i].unNormal=false;
-				_$this.fileListData.push(_$this.file.files[i]);
+				if(_$this.file.files[i].type=="image/jpg" || _$this.file.files[i].type=="image/jpeg" || _$this.file.files[i].type=="image/tif" || _$this.file.files[i].type=="image/tiff" || "image/png"){
+					if(!UtilTool.isValidString(_$this.file.files[i].name)){
+						ViewManager.showAlert("图片文件名不能包含特殊字符及表情，请修改后重新上传");
+						return;
+					}
+					_$this.file.files[i].progress=0;
+					_$this.file.files[i].unNormal=false;
+					_$this.fileListData.push(_$this.file.files[i]);
+				}
 			}
 			_$this.uiSkin.fileList.array=_$this.fileListData;
 			_$this.onClickBegin();
@@ -53424,6 +55495,8 @@ var UpLoadAndOrderContrl=(function(_super){
 
 	__proto.onGetAuthor=function(data){
 		var _$this=this;
+		if(this.destroyed)
+			return;
 		var authordata=JSON.parse(data);
 		if(authordata==null || authordata.data==null)
 			return;
@@ -53518,6 +55591,8 @@ var UpLoadAndOrderContrl=(function(_super){
 	}
 
 	__proto.onReadyToUpload=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			this.callbackparam={};
@@ -53686,6 +55761,7 @@ var AddressListController=(function(_super){
 		this.hasSelectAddressId=null;
 		this.curPage=1;
 		this.totalPage=1;
+		this.pageSize=30;
 		this.province=null;
 		this.zoneid=null;
 		this.areaid=null;
@@ -53717,7 +55793,7 @@ var AddressListController=(function(_super){
 		this.uiSkin.provList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.provList.selectEnable=true;
 		this.uiSkin.provList.selectHandler=new Handler(this,this.selectProvince);
-		this.uiSkin.provList.array=[{id:0,areaname:"空"}];
+		this.uiSkin.provList.array=[{id:0,areaName:"空"}];
 		this.uiSkin.cityList.itemRender=CitySearchItem;
 		this.uiSkin.cityList.vScrollBarSkin="";
 		this.uiSkin.cityList.repeatX=1;
@@ -53725,7 +55801,7 @@ var AddressListController=(function(_super){
 		this.uiSkin.cityList.selectEnable=true;
 		this.uiSkin.cityList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.cityList.selectHandler=new Handler(this,this.selectCity);
-		this.uiSkin.cityList.array=[{id:0,areaname:"空"}];
+		this.uiSkin.cityList.array=[{id:0,areaName:"空"}];
 		this.uiSkin.areaList.itemRender=CitySearchItem;
 		this.uiSkin.areaList.vScrollBarSkin="";
 		this.uiSkin.areaList.selectEnable=true;
@@ -53733,7 +55809,7 @@ var AddressListController=(function(_super){
 		this.uiSkin.areaList.spaceY=2;
 		this.uiSkin.areaList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.areaList.selectHandler=new Handler(this,this.selectArea);
-		this.uiSkin.areaList.array=[{id:0,areaname:"空"}];
+		this.uiSkin.areaList.array=[{id:0,areaName:"空"}];
 		this.uiSkin.btnSelProv.on("click",this,this.onShowProvince);
 		this.uiSkin.btnSelCity.on("click",this,this.onShowCity);
 		this.uiSkin.btnSelArea.on("click",this,this.onShowArea);
@@ -53746,7 +55822,7 @@ var AddressListController=(function(_super){
 		this.uiSkin.searchInput.maxChars=20;
 		this.uiSkin.searchbtn.on("click",this,this.onSearchAddress);
 		this.uiSkin.okbtn.on("click",this,this.onAddAddress);
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,this.initAddr,"parentid=0","post");
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0" ,this,this.initAddr,null,null);
 		this.uiSkin.dragImg.on("mousedown",this,this.startDragPanel);
 		this.uiSkin.dragImg.on("mouseup",this,this.stopDragPanel);
 		this.uiSkin.closebtn.on("click",this,this.closeView);
@@ -53804,9 +55880,11 @@ var AddressListController=(function(_super){
 	}
 
 	__proto.initAddr=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
-		(result.status).unshift({id:0,areaname:"空"});
-		this.uiSkin.provList.array=result.status;
+		(result.data).unshift({id:0,areaName:"空"});
+		this.uiSkin.provList.array=result.data;
 	}
 
 	//selectProvince(selpro);
@@ -53814,45 +55892,49 @@ var AddressListController=(function(_super){
 		var _$this=this;
 		this.province=this.uiSkin.provList.array[index];
 		this.uiSkin.provbox.visible=false;
-		this.uiSkin.province.text=this.province.areaname;
+		this.uiSkin.province.text=this.province.areaName;
 		this.uiSkin.cityList.selectedIndex=0;
 		this.selectCity(0);
 		if(this.province.id==0){
-			this.uiSkin.cityList.array=[{id:0,areaname:"空"}];
+			this.uiSkin.cityList.array=[{id:0,areaName:"空"}];
 			return;
 		}
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,function(data){
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.province.id,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
-			(result.status).unshift({id:0,areaname:"空"});
-			_$this.uiSkin.cityList.array=result.status;
+			(result.data).unshift({id:0,areaName:"空"});
+			_$this.uiSkin.cityList.array=result.data;
 			_$this.uiSkin.cityList.refresh();
-		},"parentid="+this.province.id,"post");
+		},null,null);
 	}
 
 	// companyareaId=uiSkin.townList.array[0].id;
 	__proto.selectCity=function(index){
 		var _$this=this;
 		this.uiSkin.citybox.visible=false;
-		this.uiSkin.citytxt.text=this.uiSkin.cityList.array[index].areaname;
+		this.uiSkin.citytxt.text=this.uiSkin.cityList.array[index].areaName;
 		this.uiSkin.areaList.selectedIndex=0;
 		this.selectArea(0);
 		if(this.uiSkin.cityList.array[index].id==0){
-			this.uiSkin.areaList.array=[{id:0,areaname:"空"}];
+			this.uiSkin.areaList.array=[{id:0,areaName:"空"}];
 			return;
 		}
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?" ,this,function(data){
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId="+this.uiSkin.cityList.array[index].id,this,function(data){
+			if(_$this.uiSkin.destroyed)
+				return;
 			var result=JSON.parse(data);
-			(result.status).unshift({id:0,areaname:"空"});
-			_$this.uiSkin.areaList.array=result.status;
+			(result.data).unshift({id:0,areaName:"空"});
+			_$this.uiSkin.areaList.array=result.data;
 			_$this.uiSkin.areaList.refresh();
-		},"parentid="+this.uiSkin.cityList.array[index].id,"post");
+		},null,null);
 	}
 
 	__proto.selectArea=function(index){
 		if(index==-1)
 			return;
 		this.areaid=this.uiSkin.areaList.array[index].id;
-		this.uiSkin.areatxt.text=this.uiSkin.areaList.array[index].areaname;
+		this.uiSkin.areatxt.text=this.uiSkin.areaList.array[index].areaName;
 		this.uiSkin.areabox.visible=false;
 	}
 
@@ -53908,36 +55990,47 @@ var AddressListController=(function(_super){
 
 	__proto.updateList=function(){
 		var addr="";
-		if(this.uiSkin.provList.selectedIndex > 0){
-			addr+=this.uiSkin.province.text;
-			if(this.uiSkin.cityList.selectedIndex > 0)
-				addr+=" "+this.uiSkin.citytxt.text;
-			if(this.uiSkin.areaList.selectedIndex > 0)
-				addr+=" "+this.uiSkin.areatxt.text;
-		};
-		var hidden=this.uiSkin.hidebtn.selected ? 1:0;
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.getMyAddressBack,"opt=list&page="+this.curPage+"&hidden="+hidden+"&addr="+addr+"&keyword="+this.uiSkin.searchInput.text,"post");
+		if(this.uiSkin.areaList.selectedIndex > 0){
+			addr=this.uiSkin.areaList.array[this.uiSkin.areaList.selectedIndex].id;
+		}
+		else if(this.uiSkin.cityList.selectedIndex > 0)
+		addr=this.uiSkin.cityList.array[this.uiSkin.cityList.selectedIndex].id;
+		else if(this.uiSkin.provList.selectedIndex > 0)
+		addr=this.uiSkin.provList.array[this.uiSkin.provList.selectedIndex].id;
+		var paramdata="customerId="+this.grpVo.customerId+"&pageNo="+this.curPage+"&pageSize="+this.pageSize+"&region="+addr+"&keyword="+this.uiSkin.searchInput.text;
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.listCustomerAddress+paramdata,this,this.getMyAddressBack,null,null,null);
 	}
 
+	//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page="+curPage+"&hidden="+hidden+"&addr="+addr+"&keyword="+uiSkin.searchInput.text,"post");
 	__proto.getMyAddressBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
-		if(result.status==0){
+		if(result.code=="0"){
 			var addressList=[];
-			for(var i=0;i < result.data.length;i++){
-				addressList.push(new VipAddressVo(result.data[i]));
+			for(var i=0;i < result.data.expressList.length;i++){
+				addressList.push(new AddressVo(result.data.expressList[i]));
 			}
-			this.uiSkin.addressList.array=addressList;
-			this.totalPage=result.totalpage;
+			this.totalPage=Math.ceil(result.data.totalCount/this.pageSize);
 			if(this.totalPage < 1)
 				this.totalPage=1;
 			this.uiSkin.pageNum.text=this.curPage+"/"+this.totalPage;
-			this.refreshNum();
+			addressList.sort(this.compareAddress);
+			this.uiSkin.addressList.array=addressList;
 		}
+	}
+
+	//uiSkin.numAddress.text="已经保存"+addressList.length+"条地址";
+	__proto.compareAddress=function(a,b){
+		return parseInt(a.id)< parseInt(b.id)?-1:1;
 	}
 
 	__proto.onAddAddress=function(){
 		if(this.hasSelectAddressId.length > 0){
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-addr-group-rel?",this,this.addAddressBack,"opt=add&id="+this.grpVo.groupId+"&ids="+this.hasSelectAddressId.join(","),"post");
+			var postdata={};
+			postdata.expressGroupId=this.grpVo.groupId;
+			postdata.expressIds=this.hasSelectAddressId;
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/addExpress?",this,this.addAddressBack,JSON.stringify(postdata),"post");
 		}
 		else{
 			ViewManager.showAlert("请选择需要添加的地址！");
@@ -53946,8 +56039,8 @@ var AddressListController=(function(_super){
 
 	__proto.addAddressBack=function(data){
 		var result=JSON.parse(data);
-		if(result.status==0){
-			EventCenter.instance.event("INSERT_ADDRESS_TO_GROUP",[result.totalcount]);
+		if(result.code=="0"){
+			EventCenter.instance.event("INSERT_ADDRESS_TO_GROUP",[parseInt(result.data.expressCount)]);
 			this.closeView();
 		}
 	}
@@ -54353,6 +56446,8 @@ var CreateFolderController=(function(_super){
 
 	//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.createDirectory,this,onCreateDirBack,"path=0|"+"&name="+uiSkin.input_folename.text,"post");
 	__proto.onCreateDirBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			var picinfo=new PicInfoVo(result.data,0);
@@ -60374,6 +62469,8 @@ var FirstPagePanelUI=(function(_super){
 		this.settingBtn=null;
 		this.coverbg=null;
 		this.customBtn=null;
+		this.transactionBtn=null;
+		this.statisticalBtn=null;
 		this.contentPanel=null;
 		this.shrinkBtn=null;
 		this.arrow=null;
@@ -66429,7 +68526,7 @@ var CityAreaItemUI=(function(_super){
 		this.createView(CityAreaItemUI.uiView);
 	}
 
-	CityAreaItemUI.uiView={"type":"View","props":{"width":252,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"bg","top":0,"skin":"commers/grayback.jpg","right":0,"left":0,"bottom":0},"compId":5},{"type":"Label","props":{"y":1,"x":41,"width":252,"var":"productname","valign":"middle","top":0,"text":"江西省","left":0,"height":28,"fontSize":28,"font":"SimHei","color":"#262B2E","align":"center"},"compId":3}],"loadList":["commers/grayback.jpg"],"loadList3D":[]};
+	CityAreaItemUI.uiView={"type":"View","props":{"right":0,"left":0,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"bg","top":0,"skin":"commers/grayback.jpg","right":0,"left":0,"bottom":0},"compId":5},{"type":"Label","props":{"y":1,"var":"productname","valign":"middle","top":0,"text":"江西省","right":0,"left":0,"height":28,"fontSize":28,"font":"SimHei","color":"#262B2E","align":"center"},"compId":3}],"loadList":["commers/grayback.jpg"],"loadList3D":[]};
 	return CityAreaItemUI;
 })(View)
 
@@ -66671,6 +68768,7 @@ var LogPhonePanelUI=(function(_super){
 		this.icp=null;
 		this.loginedBox=null;
 		this.gotoFirst=null;
+		this.companyPic=null;
 		LogPhonePanelUI.__super.call(this);
 	}
 
@@ -66694,6 +68792,7 @@ var LailiaoOrderPanelUI=(function(_super){
 		this.step2=null;
 		this.step3=null;
 		this.step4=null;
+		this.unitpricelbl=null;
 		this.pricelbl=null;
 		this.selectAll=null;
 		this.btnaddpic=null;
@@ -66741,7 +68840,7 @@ var AddressItemUI=(function(_super){
 		this.createView(AddressItemUI.uiView);
 	}
 
-	AddressItemUI.uiView={"type":"View","props":{"width":940,"height":80},"compId":2,"child":[{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":55,"bottom":0},"compId":17},{"type":"Label","props":{"y":28,"x":56,"width":115,"var":"conName","valign":"middle","text":"徐建华","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"left"},"compId":3},{"type":"Label","props":{"y":28,"x":191,"width":156,"var":"phonetxt","valign":"middle","text":"13564113173","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"left"},"compId":5},{"type":"Label","props":{"x":386,"wordWrap":true,"width":322,"var":"detailaddr","valign":"middle","top":0,"text":"上海市浦东新区周浦镇瑞浦路612弄23号1001室","fontSize":20,"font":"SimHei","color":"#0","bottom":0,"align":"left"},"compId":6},{"type":"Text","props":{"y":32,"x":797,"var":"btnDel","text":"删除","presetID":1,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":8,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":32,"x":840,"text":"|","presetID":1,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":16},{"type":"Text","props":{"y":34,"x":858,"width":47,"var":"btndefault","text":"设为默认","presetID":1,"height":12,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":11,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":12}]},{"type":"Label","props":{"y":10,"x":1,"width":52,"var":"defaultlbl","valign":"middle","text":"默认","height":32,"fontSize":18,"font":"SimHei","color":"#003dc6","borderColor":"#003dc6","bold":true,"align":"center"},"compId":19}],"loadList":["commers/cutline.png","prefabs/LinksText.prefab"],"loadList3D":[]};
+	AddressItemUI.uiView={"type":"View","props":{"width":940,"height":80},"compId":2,"child":[{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":55,"bottom":0},"compId":17},{"type":"Label","props":{"y":28,"x":56,"width":197,"var":"conName","valign":"middle","text":"上海万能科技公司","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"center"},"compId":3},{"type":"Label","props":{"y":28,"x":259,"width":156,"var":"phonetxt","valign":"middle","text":"13564113173","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"left"},"compId":5},{"type":"Label","props":{"x":422,"wordWrap":true,"width":322,"var":"detailaddr","valign":"middle","top":0,"text":"上海市浦东新区周浦镇瑞浦路612弄23号1001室","fontSize":20,"font":"SimHei","color":"#0","bottom":0,"align":"left"},"compId":6},{"type":"Text","props":{"y":32,"x":797,"var":"btnDel","text":"删除","presetID":1,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":8,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":32,"x":840,"text":"|","presetID":1,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":16},{"type":"Text","props":{"y":34,"x":858,"width":47,"var":"btndefault","text":"设为默认","presetID":1,"height":12,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":11,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":12}]},{"type":"Label","props":{"y":10,"x":1,"width":52,"var":"defaultlbl","valign":"middle","text":"默认","height":32,"fontSize":18,"font":"SimHei","color":"#003dc6","borderColor":"#003dc6","bold":true,"align":"center"},"compId":19}],"loadList":["commers/cutline.png","prefabs/LinksText.prefab"],"loadList3D":[]};
 	return AddressItemUI;
 })(View)
 
@@ -66877,8 +68976,9 @@ var CustomerAddressItemUI=(function(_super){
 		this.phonetxt=null;
 		this.detailaddr=null;
 		this.btnDel=null;
-		this.btndefault=null;
 		this.defaultlbl=null;
+		this.defaultDelivery=null;
+		this.editTxt=null;
 		CustomerAddressItemUI.__super.call(this);
 	}
 
@@ -66889,7 +68989,7 @@ var CustomerAddressItemUI=(function(_super){
 		this.createView(CustomerAddressItemUI.uiView);
 	}
 
-	CustomerAddressItemUI.uiView={"type":"View","props":{"width":940,"height":80},"compId":2,"child":[{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":55,"bottom":0},"compId":17},{"type":"Label","props":{"y":28,"x":56,"width":115,"var":"conName","valign":"middle","text":"徐建华","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"left"},"compId":3},{"type":"Label","props":{"y":28,"x":191,"width":156,"var":"phonetxt","valign":"middle","text":"13564113173","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"left"},"compId":5},{"type":"Label","props":{"x":386,"wordWrap":true,"width":322,"var":"detailaddr","valign":"middle","top":0,"text":"上海市浦东新区周浦镇瑞浦路612弄23号1001室","fontSize":20,"font":"SimHei","color":"#0","bottom":0,"align":"left"},"compId":6},{"type":"Text","props":{"y":32,"x":825,"var":"btnDel","text":"删除","presetID":1,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":8,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":32,"x":840,"visible":false,"text":"|","presetID":1,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":16},{"type":"Text","props":{"y":34,"x":858,"width":47,"visible":false,"var":"btndefault","text":"设为默认","presetID":1,"height":12,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":11,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":12}]},{"type":"Label","props":{"y":10,"x":1,"width":52,"visible":false,"var":"defaultlbl","valign":"middle","text":"默认","height":32,"fontSize":18,"font":"SimHei","color":"#003dc6","borderColor":"#003dc6","bold":true,"align":"center"},"compId":19}],"loadList":["commers/cutline.png","prefabs/LinksText.prefab"],"loadList3D":[]};
+	CustomerAddressItemUI.uiView={"type":"View","props":{"width":940,"height":80},"compId":2,"child":[{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":55,"bottom":0},"compId":17},{"type":"Label","props":{"y":28,"x":56,"width":197,"var":"conName","valign":"middle","text":"上海万能科技公司","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"center"},"compId":3},{"type":"Label","props":{"y":28,"x":259,"width":156,"var":"phonetxt","valign":"middle","text":"13564113173","height":24,"fontSize":24,"font":"SimHei","color":"#0","align":"left"},"compId":5},{"type":"Label","props":{"x":422,"wordWrap":true,"width":273,"var":"detailaddr","valign":"middle","top":0,"text":"上海市浦东新区周浦镇瑞浦路612弄23号1001室","height":80,"fontSize":20,"font":"SimHei","color":"#0","bottom":0,"align":"left"},"compId":6},{"type":"Text","props":{"y":32,"x":829,"var":"btnDel","text":"删除","presetID":1,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":8,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Label","props":{"y":10,"x":1,"width":52,"visible":false,"var":"defaultlbl","valign":"middle","text":"默认","height":32,"fontSize":18,"font":"SimHei","color":"#003dc6","borderColor":"#003dc6","bold":true,"align":"center"},"compId":19},{"type":"Label","props":{"y":28,"x":696,"width":126,"var":"defaultDelivery","valign":"middle","text":"工厂自提","height":24,"fontSize":20,"font":"SimHei","color":"#0","align":"center"},"compId":22},{"type":"Text","props":{"y":32,"x":883,"width":47,"visible":true,"var":"editTxt","text":"修改","presetID":1,"height":12,"fontSize":16,"font":"SimHei","color":"#354052","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":24,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":25}]}],"loadList":["commers/cutline.png","prefabs/LinksText.prefab"],"loadList3D":[]};
 	return CustomerAddressItemUI;
 })(View)
 
@@ -66990,93 +69090,6 @@ var InvoiceHistoryItemUI=(function(_super){
 })(View)
 
 
-//class ui.order.OrderItemUI extends laya.ui.View
-var OrderItemUI=(function(_super){
-	function OrderItemUI(){
-		this.bgimg=null;
-		this.manuicon=null;
-		this.fileimg=null;
-		this.backimg=null;
-		this.yingxback=null;
-		this.yixingimg=null;
-		this.numindex=null;
-		this.filename=null;
-		this.price=null;
-		this.total=null;
-		this.operatebox=null;
-		this.addmsg=null;
-		this.deleteorder=null;
-		this.hascomment=null;
-		this.architype=null;
-		this.matbox=null;
-		this.mattxt=null;
-		this.changemat=null;
-		this.checkSel=null;
-		this.editbox=null;
-		this.editwidth=null;
-		this.editheight=null;
-		this.lockratio=null;
-		this.editmat=null;
-		this.setMatBtn=null;
-		this.numbox=null;
-		this.inputnum=null;
-		this.addbtn=null;
-		this.subtn=null;
-		this.deletBtn=null;
-		this.dengxiangRaid=null;
-		this.semiRadius=null;
-		OrderItemUI.__super.call(this);
-	}
-
-	__class(OrderItemUI,'ui.order.OrderItemUI',_super);
-	var __proto=OrderItemUI.prototype;
-	__proto.createChildren=function(){
-		laya.display.Scene.prototype.createChildren.call(this);
-		this.createView(OrderItemUI.uiView);
-	}
-
-	OrderItemUI.uiView={"type":"View","props":{"width":1750,"visible":true,"right":0,"left":0,"height":134},"compId":2,"child":[{"type":"Image","props":{"var":"bgimg","skin":"commers/cutline.png","right":0,"left":0,"bottom":0},"compId":26},{"type":"Image","props":{"y":11,"x":12.5,"width":23,"var":"manuicon","skin":"commers/star.png","height":23,"anchorY":0.5,"anchorX":0.5},"compId":52},{"type":"Image","props":{"y":67,"x":181,"width":108,"visible":true,"var":"fileimg","skin":"comp/image.png","height":108,"anchorY":0.5,"anchorX":0.5},"compId":4},{"type":"Image","props":{"y":67,"x":417,"width":108,"var":"backimg","skin":"comp/image.png","height":108,"anchorY":0.5,"anchorX":0.5},"compId":38},{"type":"Image","props":{"y":67,"x":417,"width":108,"var":"yingxback","skin":"comp/image.png","scaleX":1,"mouseEnabled":false,"height":108,"anchorY":0.5,"anchorX":0.5,"alpha":0.5},"compId":40},{"type":"Image","props":{"y":67,"x":181,"width":108,"var":"yixingimg","skin":"comp/image.png","height":108,"anchorY":0.5,"anchorX":0.5,"alpha":0.5},"compId":39},{"type":"Label","props":{"y":52,"x":33,"width":64,"var":"numindex","valign":"middle","text":"123","height":30,"fontSize":30,"font":"SimHei","color":"#262B2E","align":"left"},"compId":3},{"type":"Label","props":{"y":28,"x":243,"wordWrap":true,"width":104,"visible":true,"var":"filename","valign":"middle","text":"PP纸无背胶（海报、展架）.tif","overflow":"hidden","height":82,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":5},{"type":"Label","props":{"y":29,"x":1356,"width":58,"visible":false,"var":"price","text":"175.2","fontSize":16,"font":"SimHei","color":"#152326","bold":true,"align":"center"},"compId":15},{"type":"Label","props":{"y":58,"x":1364,"width":80,"var":"total","text":"12680","fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":17},{"type":"Box","props":{"y":5,"visible":false,"var":"operatebox","right":10},"compId":21,"child":[{"type":"Text","props":{"y":8,"x":0,"var":"addmsg","text":"添加备注","fontSize":16,"font":"SimHei","color":"#262B2E","runtime":"laya.display.Text"},"compId":18},{"type":"Text","props":{"y":24,"x":0,"var":"deleteorder","text":"删除订单","fontSize":16,"font":"SimHei","color":"#262B2E","runtime":"laya.display.Text"},"compId":19},{"type":"Label","props":{"y":-13,"x":65,"width":14,"var":"hascomment","valign":"middle","text":"'''","height":17,"fontSize":24,"font":"Helvetica","color":"#39B25A","align":"center"},"compId":36}]},{"type":"Label","props":{"x":862,"wordWrap":true,"width":365,"var":"architype","valign":"middle","top":5,"text":"户外材料--白胶车贴","overflow":"hidden","height":124,"fontSize":18,"font":"SimHei","color":"#262B2E","bottom":5,"bold":true,"align":"center"},"compId":12},{"type":"Sprite","props":{"y":15,"x":394,"width":158,"visible":false,"var":"matbox","height":43},"compId":25,"child":[{"type":"Label","props":{"width":187,"var":"mattxt","text":"展架专用布","height":21,"fontSize":16,"font":"SimHei","color":"#262B2E","align":"center"},"compId":6},{"type":"Text","props":{"y":25,"x":59,"var":"changemat","text":"更换材料","presetID":1,"fontSize":16,"font":"SimHei","color":"#39B25A","isPresetRoot":true,"runtime":"laya.display.Text"},"compId":27,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":28}]}]},{"type":"CheckBox","props":{"y":53,"x":0,"var":"checkSel","skin":"uiCommonUpdate/grennsel.png","scaleY":1.4,"scaleX":1.4},"compId":31},{"type":"Box","props":{"y":22,"x":499,"var":"editbox"},"compId":56,"child":[{"type":"Label","props":{"y":10,"text":"宽(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":8},{"type":"Label","props":{"y":64,"x":1,"text":"高(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":9},{"type":"TextInput","props":{"x":68,"width":85,"var":"editwidth","text":"729.89","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","mouseEnabled":true,"height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true},"compId":10},{"type":"TextInput","props":{"y":54,"x":68,"width":85,"var":"editheight","text":"16","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","mouseEnabled":true,"height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true},"compId":11},{"type":"Image","props":{"y":34,"x":161,"width":20,"var":"lockratio","skin":"commers/lock.png","rotation":0,"height":20},"compId":37},{"type":"Image","props":{"y":6,"x":162,"skin":"iconsNew/zhexian.png"},"compId":54},{"type":"Image","props":{"y":83,"x":162,"skin":"iconsNew/zhexian.png","scaleY":-1},"compId":55}]},{"type":"Button","props":{"y":54,"x":1231,"width":83,"var":"editmat","stateNum":1,"skin":"uiCommonUpdate/radiusCorner.png","labelSize":18,"labelColors":"#003dc6,#003dc6,#003dc6","labelBold":true,"label":"修改","height":26,"sizeGrid":"1,12,2,8"},"compId":57},{"type":"Button","props":{"y":44,"x":944,"width":217,"var":"setMatBtn","stateNum":3,"skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","label":"设置材料和工艺","height":46,"sizeGrid":"2,22,3,22"},"compId":58},{"type":"Box","props":{"y":49,"x":718,"var":"numbox"},"compId":59,"child":[{"type":"TextInput","props":{"x":34,"width":52,"var":"inputnum","text":"10","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":16},{"type":"Button","props":{"y":4,"x":91,"width":27,"var":"addbtn","skin":"uiCommonUpdate/blackbtn.png","sizeGrid":"4,4,4,4","rotation":0,"labelSize":25,"labelFont":"SimHei","labelColors":"#FFFFFF,#0,#FFFFFF","label":"+","height":27},"compId":33},{"type":"Button","props":{"y":4,"width":27,"var":"subtn","skin":"uiCommonUpdate/blackbtn.png","labelSize":25,"labelFont":"SimHei","labelColors":"#FFFFFF,#0,#FFFFFF","label":"-","height":27,"sizeGrid":"7,5,8,4"},"compId":34}]},{"type":"Button","props":{"y":51,"x":1566,"width":84,"var":"deletBtn","stateNum":1,"skin":"uiCommonUpdate/radiusCorner.png","labelSize":18,"labelColors":"#003dc6,#003dc6,#003dc6","labelBold":true,"label":"删除","height":36,"sizeGrid":"1,12,2,8"},"compId":60},{"type":"Box","props":{"y":49,"x":499,"visible":false,"var":"dengxiangRaid"},"compId":61,"child":[{"type":"Label","props":{"y":7,"x":0,"text":"直径(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":62},{"type":"TextInput","props":{"y":0,"x":74,"width":85,"var":"semiRadius","text":"729.89","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","mouseEnabled":true,"height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true},"compId":64}]}],"loadList":["commers/cutline.png","commers/star.png","comp/image.png","prefabs/LinksText.prefab","uiCommonUpdate/grennsel.png","commers/inputbg.png","commers/lock.png","iconsNew/zhexian.png","uiCommonUpdate/radiusCorner.png","uiCommonUpdate/greenBtn.png","uiCommonUpdate/blackbtn.png"],"loadList3D":[]};
-	return OrderItemUI;
-})(View)
-
-
-//class ui.login.LogPanelUI extends laya.ui.View
-var LogPanelUI=(function(_super){
-	function LogPanelUI(){
-		this.mainpanel=null;
-		this.logBox=null;
-		this.pwdImg=null;
-		this.input_pwd=null;
-		this.pwdError=null;
-		this.delBtn=null;
-		this.accoutImg=null;
-		this.input_account=null;
-		this.accountError=null;
-		this.delBtn=null;
-		this.btn_login=null;
-		this.checkAuto=null;
-		this.titleBar=null;
-		this.txt_forget=null;
-		this.txt_reg=null;
-		this.copyRight=null;
-		this.comInfo=null;
-		this.icp=null;
-		this.loginedBox=null;
-		this.gotoFirst=null;
-		LogPanelUI.__super.call(this);
-	}
-
-	__class(LogPanelUI,'ui.login.LogPanelUI',_super);
-	var __proto=LogPanelUI.prototype;
-	__proto.createChildren=function(){
-		laya.display.Scene.prototype.createChildren.call(this);
-		this.loadScene("login/LogPanel");
-	}
-
-	return LogPanelUI;
-})(View)
-
-
 //class script.order.item.PackageOrderCell extends ui.order.PackageOrderItemUI
 var PackageOrderCell=(function(_super){
 	function PackageOrderCell(){
@@ -67111,27 +69124,20 @@ var PackageOrderCell=(function(_super){
 		var total=this.orderData.itemNumber;
 		if(PaintOrderModel.instance.packageList.length==1)
 			return;
-		var average=Math.floor(total/(PaintOrderModel.instance.packageList.length-1));
+		var average=Math.floor(total/(PaintOrderModel.instance.packageList.length));
 		if(average==0)
 			average=1;
-		var left=total-average*(PaintOrderModel.instance.packageList.length-1);
+		var left=total-average*(PaintOrderModel.instance.packageList.length);
 		if(left < 0)
 			left=0;
 		var fisrtNum=average+left;
 		var hasDistrictNum=0;
-		var firstpackvo=PaintOrderModel.instance.packageList[0];
-		for(var j=0;j < firstpackvo.itemlist.length;j++){
-			if(firstpackvo.itemlist[j].itemId==this.orderData.orderItemSn){
-				firstpackvo.itemlist[j].itemCount=0;
-				break ;
-			}
-		}
-		for(var i=1;i < PaintOrderModel.instance.packageList.length;i++){
+		for(var i=0;i < PaintOrderModel.instance.packageList.length;i++){
 			if(hasDistrictNum < total){
 				var packvo=PaintOrderModel.instance.packageList[i];
 				for(var j=0;j < packvo.itemlist.length;j++){
 					if(packvo.itemlist[j].itemId==this.orderData.orderItemSn){
-						packvo.itemlist[j].itemCount=i==1?fisrtNum:average;
+						packvo.itemlist[j].itemCount=i==0?fisrtNum:average;
 						hasDistrictNum+=packvo.itemlist[j].itemCount;
 						break ;
 					}
@@ -67143,6 +69149,91 @@ var PackageOrderCell=(function(_super){
 
 	return PackageOrderCell;
 })(PackageOrderItemUI)
+
+
+//class ui.order.OrderItemUI extends laya.ui.View
+var OrderItemUI=(function(_super){
+	function OrderItemUI(){
+		this.bgimg=null;
+		this.manuicon=null;
+		this.fileimg=null;
+		this.backimg=null;
+		this.yingxback=null;
+		this.yixingimg=null;
+		this.numindex=null;
+		this.filename=null;
+		this.total=null;
+		this.operatebox=null;
+		this.addmsg=null;
+		this.deleteorder=null;
+		this.hascomment=null;
+		this.architype=null;
+		this.checkSel=null;
+		this.editbox=null;
+		this.editwidth=null;
+		this.editheight=null;
+		this.lockratio=null;
+		this.editmat=null;
+		this.setMatBtn=null;
+		this.numbox=null;
+		this.inputnum=null;
+		this.addbtn=null;
+		this.subtn=null;
+		this.deletBtn=null;
+		this.dengxiangRaid=null;
+		this.semiRadius=null;
+		this.unitPrice=null;
+		OrderItemUI.__super.call(this);
+	}
+
+	__class(OrderItemUI,'ui.order.OrderItemUI',_super);
+	var __proto=OrderItemUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.createView(OrderItemUI.uiView);
+	}
+
+	OrderItemUI.uiView={"type":"View","props":{"width":1750,"visible":true,"right":0,"left":0,"height":134},"compId":2,"child":[{"type":"Image","props":{"var":"bgimg","skin":"commers/cutline.png","right":0,"left":-5,"bottom":0},"compId":26},{"type":"Image","props":{"y":11,"x":12.5,"width":23,"var":"manuicon","skin":"commers/star.png","height":23,"anchorY":0.5,"anchorX":0.5},"compId":52},{"type":"Image","props":{"y":67,"x":181,"width":108,"visible":true,"var":"fileimg","skin":"comp/image.png","height":108,"anchorY":0.5,"anchorX":0.5},"compId":4},{"type":"Image","props":{"y":67,"x":417,"width":108,"var":"backimg","skin":"comp/image.png","height":108,"anchorY":0.5,"anchorX":0.5},"compId":38},{"type":"Image","props":{"y":67,"x":417,"width":108,"var":"yingxback","skin":"comp/image.png","scaleX":1,"mouseEnabled":false,"height":108,"anchorY":0.5,"anchorX":0.5,"alpha":0.5},"compId":40},{"type":"Image","props":{"y":67,"x":181,"width":108,"var":"yixingimg","skin":"comp/image.png","height":108,"anchorY":0.5,"anchorX":0.5,"alpha":0.5},"compId":39},{"type":"Label","props":{"y":52,"x":33,"width":64,"var":"numindex","valign":"middle","text":"123","height":30,"fontSize":30,"font":"SimHei","color":"#262B2E","align":"left"},"compId":3},{"type":"Label","props":{"y":28,"x":243,"wordWrap":true,"width":104,"visible":true,"var":"filename","valign":"middle","text":"PP纸无背胶（海报、展架）.tif","overflow":"hidden","height":82,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":5},{"type":"Label","props":{"y":58,"x":1424,"width":80,"var":"total","text":"12680","fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":17},{"type":"Box","props":{"y":5,"visible":false,"var":"operatebox","right":10},"compId":21,"child":[{"type":"Text","props":{"y":8,"x":0,"var":"addmsg","text":"添加备注","fontSize":16,"font":"SimHei","color":"#262B2E","runtime":"laya.display.Text"},"compId":18},{"type":"Text","props":{"y":24,"x":0,"var":"deleteorder","text":"删除订单","fontSize":16,"font":"SimHei","color":"#262B2E","runtime":"laya.display.Text"},"compId":19},{"type":"Label","props":{"y":-13,"x":65,"width":14,"var":"hascomment","valign":"middle","text":"'''","height":17,"fontSize":24,"font":"Helvetica","color":"#39B25A","align":"center"},"compId":36}]},{"type":"Label","props":{"x":833,"wordWrap":true,"width":309,"var":"architype","valign":"middle","top":5,"text":"户外材料--白胶车贴","overflow":"hidden","height":124,"fontSize":18,"font":"SimHei","color":"#262B2E","bottom":5,"bold":true,"align":"center"},"compId":12},{"type":"CheckBox","props":{"y":53,"x":0,"var":"checkSel","skin":"uiCommonUpdate/grennsel.png","scaleY":1.4,"scaleX":1.4},"compId":31},{"type":"Box","props":{"y":22,"x":499,"var":"editbox"},"compId":56,"child":[{"type":"Label","props":{"y":10,"text":"宽(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":8},{"type":"Label","props":{"y":64,"x":1,"text":"高(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":9},{"type":"TextInput","props":{"x":68,"width":85,"var":"editwidth","text":"729.89","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","mouseEnabled":true,"height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true},"compId":10},{"type":"TextInput","props":{"y":54,"x":68,"width":85,"var":"editheight","text":"16","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","mouseEnabled":true,"height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true},"compId":11},{"type":"Image","props":{"y":34,"x":161,"width":20,"var":"lockratio","skin":"commers/lock.png","rotation":0,"height":20},"compId":37},{"type":"Image","props":{"y":6,"x":162,"skin":"iconsNew/zhexian.png"},"compId":54},{"type":"Image","props":{"y":83,"x":162,"skin":"iconsNew/zhexian.png","scaleY":-1},"compId":55}]},{"type":"Button","props":{"y":54,"x":1157,"width":60,"var":"editmat","stateNum":1,"skin":"uiCommonUpdate/radiusCorner.png","labelSize":18,"labelColors":"#003dc6,#003dc6,#003dc6","labelBold":true,"label":"修改","height":26,"sizeGrid":"1,12,2,8"},"compId":57},{"type":"Button","props":{"y":44,"x":886,"width":217,"var":"setMatBtn","stateNum":3,"skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","label":"设置材料和工艺","height":46,"sizeGrid":"2,22,3,22"},"compId":58},{"type":"Box","props":{"y":49,"x":712,"var":"numbox"},"compId":59,"child":[{"type":"TextInput","props":{"x":34,"width":52,"var":"inputnum","text":"10","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":16},{"type":"Button","props":{"y":4,"x":91,"width":27,"var":"addbtn","skin":"uiCommonUpdate/blackbtn.png","sizeGrid":"4,4,4,4","rotation":0,"labelSize":25,"labelFont":"SimHei","labelColors":"#FFFFFF,#0,#FFFFFF","label":"+","height":27},"compId":33},{"type":"Button","props":{"y":4,"width":27,"var":"subtn","skin":"uiCommonUpdate/blackbtn.png","labelSize":25,"labelFont":"SimHei","labelColors":"#FFFFFF,#0,#FFFFFF","label":"-","height":27,"sizeGrid":"7,5,8,4"},"compId":34}]},{"type":"Button","props":{"y":51,"x":1566,"width":84,"var":"deletBtn","stateNum":1,"skin":"uiCommonUpdate/radiusCorner.png","labelSize":18,"labelColors":"#003dc6,#003dc6,#003dc6","labelBold":true,"label":"删除","height":36,"sizeGrid":"1,12,2,8"},"compId":60},{"type":"Box","props":{"y":49,"x":499,"visible":false,"var":"dengxiangRaid"},"compId":61,"child":[{"type":"Label","props":{"y":7,"x":0,"text":"直径(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":62},{"type":"TextInput","props":{"y":0,"x":74,"width":85,"var":"semiRadius","text":"729.89","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","mouseEnabled":true,"height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true},"compId":64}]},{"type":"Label","props":{"y":58,"x":1323,"width":80,"var":"unitPrice","text":"12680","fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":70}],"loadList":["commers/cutline.png","commers/star.png","comp/image.png","uiCommonUpdate/grennsel.png","commers/inputbg.png","commers/lock.png","iconsNew/zhexian.png","uiCommonUpdate/radiusCorner.png","uiCommonUpdate/greenBtn.png","uiCommonUpdate/blackbtn.png"],"loadList3D":[]};
+	return OrderItemUI;
+})(View)
+
+
+//class ui.login.LogPanelUI extends laya.ui.View
+var LogPanelUI=(function(_super){
+	function LogPanelUI(){
+		this.mainpanel=null;
+		this.companyPic=null;
+		this.logBox=null;
+		this.pwdImg=null;
+		this.input_pwd=null;
+		this.pwdError=null;
+		this.delBtn=null;
+		this.accoutImg=null;
+		this.input_account=null;
+		this.accountError=null;
+		this.delBtn=null;
+		this.btn_login=null;
+		this.checkAuto=null;
+		this.titleBar=null;
+		this.txt_forget=null;
+		this.txt_reg=null;
+		this.copyRight=null;
+		this.comInfo=null;
+		this.icp=null;
+		this.loginedBox=null;
+		this.gotoFirst=null;
+		LogPanelUI.__super.call(this);
+	}
+
+	__class(LogPanelUI,'ui.login.LogPanelUI',_super);
+	var __proto=LogPanelUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.loadScene("login/LogPanel");
+	}
+
+	return LogPanelUI;
+})(View)
 
 
 //class ui.common.TipPicturePanelUI extends laya.ui.View
@@ -67264,15 +69355,25 @@ var EnterPrizeInfoPaneUI=(function(_super){
 		this.leaveGroupBtn=null;
 		this.searchBox=null;
 		this.companyList=null;
-		this.leaveGrpPanel=null;
-		this.verifyCode=null;
-		this.confirmLeave=null;
-		this.closeLeaveBtn=null;
 		this.companyName=null;
 		this.shortName=null;
 		this.companyAddr=null;
 		this.reditCode=null;
 		this.changeCompanyInfo=null;
+		this.addBusinessman=null;
+		this.businessList=null;
+		this.rightpanel=null;
+		this.leaveGrpPanel=null;
+		this.verifyCode=null;
+		this.confirmLeave=null;
+		this.closeLeaveBtn=null;
+		this.addBusinessManPanel=null;
+		this.businessName=null;
+		this.delBtn=null;
+		this.contactPhone=null;
+		this.delBtn=null;
+		this.confrimAddMan=null;
+		this.closeAdd=null;
 		EnterPrizeInfoPaneUI.__super.call(this);
 	}
 
@@ -67367,6 +69468,7 @@ var RegisterPanelUI=(function(_super){
 		this.inputCode=null;
 		this.delBtn=null;
 		this.btnGetCode=null;
+		this.codeValid=null;
 		this.input_phonecode=null;
 		this.delBtn=null;
 		this.txtRefresh=null;
@@ -67380,6 +69482,7 @@ var RegisterPanelUI=(function(_super){
 		this.delBtn=null;
 		this.contactPhone=null;
 		this.delBtn=null;
+		this.auditTips=null;
 		this.applyEnter=null;
 		this.applyBtn=null;
 		this.btnSelProv=null;
@@ -67556,6 +69659,29 @@ var ProdEditItemUI=(function(_super){
 	}
 
 	return ProdEditItemUI;
+})(View)
+
+
+//class ui.usercenter.items.BusinessManItemUI extends laya.ui.View
+var BusinessManItemUI=(function(_super){
+	function BusinessManItemUI(){
+		this.selectImg=null;
+		this.businessName=null;
+		this.phoneNumber=null;
+		this.updateInfoTxt=null;
+		this.deleteTxt=null;
+		BusinessManItemUI.__super.call(this);
+	}
+
+	__class(BusinessManItemUI,'ui.usercenter.items.BusinessManItemUI',_super);
+	var __proto=BusinessManItemUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.createView(BusinessManItemUI.uiView);
+	}
+
+	BusinessManItemUI.uiView={"type":"View","props":{"width":500,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"selectImg","top":0,"skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","right":0,"left":0,"bottom":0},"compId":13},{"type":"Label","props":{"y":7,"x":5,"width":161,"var":"businessName","text":"客户名称最多六个字","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":3},{"type":"Label","props":{"y":8,"x":217,"width":80,"var":"phoneNumber","text":"13899998888","height":14,"fontSize":14,"font":"SimHei"},"compId":4},{"type":"Text","props":{"y":7,"x":410,"visible":false,"var":"updateInfoTxt","text":"修改","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":6,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":8}]},{"type":"Text","props":{"y":7,"x":458,"var":"deleteTxt","text":"删除","presetID":1,"fontSize":14,"font":"SimHei","color":"#d92e16","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":7,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":0,"bottom":0},"compId":12}],"loadList":["commers/inputbg.png","prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
+	return BusinessManItemUI;
 })(View)
 
 
@@ -67748,6 +69874,40 @@ var ChargePanelUI=(function(_super){
 })(View)
 
 
+//class ui.usercenter.OrderPriceSettingItemUI extends laya.ui.View
+var OrderPriceSettingItemUI=(function(_super){
+	function OrderPriceSettingItemUI(){
+		this.pronum=null;
+		this.widthtxt=null;
+		this.heighttxt=null;
+		this.money=null;
+		this.filename=null;
+		this.tech=null;
+		this.matname=null;
+		this.itemseq=null;
+		this.picimg=null;
+		this.deliverydate=null;
+		this.isurgent=null;
+		this.bgimg=null;
+		this.unitPriceInput=null;
+		this.totalPriceInput=null;
+		this.unitPriceTxt=null;
+		this.measureUnit=null;
+		OrderPriceSettingItemUI.__super.call(this);
+	}
+
+	__class(OrderPriceSettingItemUI,'ui.usercenter.OrderPriceSettingItemUI',_super);
+	var __proto=OrderPriceSettingItemUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.createView(OrderPriceSettingItemUI.uiView);
+	}
+
+	OrderPriceSettingItemUI.uiView={"type":"View","props":{"width":1745,"height":175},"compId":2,"child":[{"type":"Box","props":{"y":68,"x":257},"compId":66,"child":[{"type":"Label","props":{"y":-2,"x":7,"width":58,"text":"宽(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"center"},"compId":68},{"type":"Label","props":{"y":75,"x":98,"width":38,"var":"pronum","text":"10","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":false,"align":"left"},"compId":69},{"type":"Label","props":{"y":34,"x":7,"width":58,"text":"高(cm)","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":70},{"type":"Label","props":{"y":1,"x":78,"width":50,"var":"widthtxt","text":"10000","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":71},{"type":"Label","props":{"y":34,"x":78,"width":58,"var":"heighttxt","text":"100","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":72},{"type":"Label","props":{"y":75,"x":3,"width":81,"text":"制作数量","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":73}]},{"type":"Label","props":{"y":79,"x":819,"width":100,"var":"money","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":65},{"type":"Label","props":{"y":22,"x":257,"wordWrap":true,"width":190,"var":"filename","valign":"middle","text":"PP纸无背胶.jpg","overflow":"hidden","height":18,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":64},{"type":"Label","props":{"y":62,"x":458,"wordWrap":true,"width":169,"var":"tech","valign":"top","text":"户外材料--白胶车贴","rotation":0,"overflow":"hidden","height":95,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":63},{"type":"Label","props":{"y":20,"x":458,"wordWrap":true,"width":202,"var":"matname","valign":"middle","text":"户内PP纸无背胶","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"left"},"compId":67},{"type":"Label","props":{"y":22,"x":25,"width":29,"var":"itemseq","text":"1","height":21,"fontSize":28,"font":"SimHei","color":"#0","align":"left"},"compId":62},{"type":"Image","props":{"y":87,"x":154,"width":155,"var":"picimg","skin":"comp/image.png","height":155,"anchorY":0.5,"anchorX":0.5},"compId":61},{"type":"Label","props":{"y":79,"x":1242,"var":"deliverydate","text":"2012-12-25 21:15:52","height":16,"fontSize":18,"font":"SimHei","color":"#0","bold":true,"align":"center"},"compId":59},{"type":"Label","props":{"y":7,"x":8,"var":"isurgent","valign":"middle","text":"加急","fontSize":18,"font":"SimHei","color":"#f3300b","align":"center"},"compId":58},{"type":"Image","props":{"var":"bgimg","skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":3},{"type":"TextInput","props":{"y":77,"x":972,"width":94,"var":"unitPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},"compId":75},{"type":"TextInput","props":{"y":77,"x":1134,"width":94,"var":"totalPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},"compId":76},{"type":"Label","props":{"y":79,"x":693,"width":100,"var":"unitPriceTxt","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":77},{"type":"Label","props":{"y":108,"x":971,"width":66,"var":"measureUnit","text":"平方米","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"left"},"compId":78}],"loadList":["PP纸无背胶.jpg","comp/image.png","commers/cutline.png","commers/inputbg.png"],"loadList3D":[]};
+	return OrderPriceSettingItemUI;
+})(View)
+
+
 //class ui.order.MoreProductPanelUI extends laya.ui.View
 var MoreProductPanelUI=(function(_super){
 	function MoreProductPanelUI(){
@@ -67785,6 +69945,7 @@ var OrderPicManagerPanelUI=(function(_super){
 		this.freshbtn=null;
 		this.refreshTxt=null;
 		this.radiosel=null;
+		this.tifAi=null;
 		this.picList=null;
 		this.upgradestore=null;
 		this.prgcap=null;
@@ -67847,6 +70008,7 @@ var DengxiangOrderPanelUI=(function(_super){
 		this.step2=null;
 		this.step3=null;
 		this.step4=null;
+		this.unitpricelbl=null;
 		this.pricelbl=null;
 		this.selectAll=null;
 		this.btnaddpic=null;
@@ -68121,6 +70283,7 @@ var RegisterPhonePanelUI=(function(_super){
 		this.inputCode=null;
 		this.delBtn=null;
 		this.btnGetCode=null;
+		this.codeValid=null;
 		this.input_phonecode=null;
 		this.delBtn=null;
 		this.txtRefresh=null;
@@ -68159,6 +70322,7 @@ var RegisterPhonePanelUI=(function(_super){
 		this.delBtn=null;
 		this.confirmJoin=null;
 		this.closeJoin=null;
+		this.auditTips=null;
 		this.contractpanel=null;
 		this.txtpanel=null;
 		this.sevicepro=null;
@@ -68219,6 +70383,67 @@ var CreateFolderPanelUI=(function(_super){
 })(View)
 
 
+//class ui.orderList.StatisticalAnalyPanelUI extends laya.ui.View
+var StatisticalAnalyPanelUI=(function(_super){
+	function StatisticalAnalyPanelUI(){
+		this.customerTab=null;
+		this.productTab=null;
+		this.areaTab=null;
+		this.orderBtn=null;
+		this.transactionBtn=null;
+		this.exportExcel=null;
+		this.btnsearch=null;
+		this.orderList=null;
+		this.ordertotalNum=null;
+		this.ordertotalMoney=null;
+		this.pagenum=null;
+		this.lastpage=null;
+		this.nextpage=null;
+		this.customerQueryBox=null;
+		this.orderPlaceCombo=null;
+		this.showCustomList=null;
+		this.curCustomName=null;
+		this.customListPanel=null;
+		this.businessCombo=null;
+		this.payTypeComBox=null;
+		this.productQueryBox=null;
+		this.categoryComBox=null;
+		this.rpoductComBoc=null;
+		this.areaQueryBox=null;
+		this.btnSelArea=null;
+		this.areatxt=null;
+		this.btnSelCity=null;
+		this.citytxt=null;
+		this.btnSelProv=null;
+		this.province=null;
+		this.btnSelTown=null;
+		this.towntxt=null;
+		this.provbox=null;
+		this.provList=null;
+		this.citybox=null;
+		this.cityList=null;
+		this.townbox=null;
+		this.townList=null;
+		this.areabox=null;
+		this.areaList=null;
+		this.timeBox=null;
+		this.monthComBox=null;
+		this.yearComBox=null;
+		this.ordertime=null;
+		StatisticalAnalyPanelUI.__super.call(this);
+	}
+
+	__class(StatisticalAnalyPanelUI,'ui.orderList.StatisticalAnalyPanelUI',_super);
+	var __proto=StatisticalAnalyPanelUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.loadScene("orderList/StatisticalAnalyPanel");
+	}
+
+	return StatisticalAnalyPanelUI;
+})(View)
+
+
 //class ui.inuoView.SetMaterialPanelUI extends laya.ui.View
 var SetMaterialPanelUI=(function(_super){
 	function SetMaterialPanelUI(){
@@ -68227,8 +70452,8 @@ var SetMaterialPanelUI=(function(_super){
 		this.step2=null;
 		this.step3=null;
 		this.step4=null;
-		this.step5=null;
 		this.pricelbl=null;
+		this.unitpricelbl=null;
 		this.selectAll=null;
 		this.btnaddpic=null;
 		this.batchChange=null;
@@ -68241,6 +70466,7 @@ var SetMaterialPanelUI=(function(_super){
 		this.textDiscount=null;
 		this.textTotalPrice=null;
 		this.goToNext=null;
+		this.curCustomer=null;
 		SetMaterialPanelUI.__super.call(this);
 	}
 
@@ -68334,6 +70560,7 @@ var SimpleOrderItemUI=(function(_super){
 //class ui.usercenter.OrderListItemUI extends laya.ui.View
 var OrderListItemUI=(function(_super){
 	function OrderListItemUI(){
+		this.customeName=null;
 		this.orderid=null;
 		this.ordertime=null;
 		this.productnum=null;
@@ -68344,6 +70571,8 @@ var OrderListItemUI=(function(_super){
 		this.deletebtn=null;
 		this.retrybtn=null;
 		this.deleteorder=null;
+		this.sellPriceSet=null;
+		this.sellPrice=null;
 		OrderListItemUI.__super.call(this);
 	}
 
@@ -68354,7 +70583,7 @@ var OrderListItemUI=(function(_super){
 		this.createView(OrderListItemUI.uiView);
 	}
 
-	OrderListItemUI.uiView={"type":"View","props":{"width":1521,"height":90},"compId":2,"child":[{"type":"Label","props":{"y":30,"x":0,"width":158,"var":"orderid","valign":"middle","text":"18014398509481987","height":29,"fontSize":18,"font":"SimHei","bold":true,"align":"left"},"compId":3},{"type":"Label","props":{"y":30,"x":190,"width":237,"var":"ordertime","valign":"middle","text":"2019-05-22 15:30:00","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":4},{"type":"Label","props":{"y":30,"x":460,"width":63,"var":"productnum","valign":"middle","text":"1","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":5},{"type":"Label","props":{"y":30,"x":598,"width":115,"var":"paymoney","valign":"middle","text":"3495","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":6},{"type":"Label","props":{"y":32,"x":706,"width":323,"var":"orderstatus","valign":"middle","text":"已支付（03分10秒后可继续支付）","height":26,"fontSize":20,"font":"SimHei","bold":true,"align":"center"},"compId":7},{"type":"Button","props":{"y":23,"x":1057,"var":"payagain","skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","labelBold":true,"label":"去支付","sizeGrid":"2,22,3,22"},"compId":20},{"type":"Text","props":{"y":33,"x":1227,"var":"detailbtn","text":"详情","presetID":1,"fontSize":24,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":8,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":33,"x":1297,"var":"deletebtn","text":"撤回","presetID":1,"fontSize":24,"font":"SimHei","color":"#ef0e0b","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":10,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":11}]},{"type":"Text","props":{"y":33,"x":1367,"width":63,"var":"retrybtn","text":"重试","presetID":1,"height":24,"fontSize":24,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":15,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":16}]},{"type":"Text","props":{"y":33,"x":1297,"var":"deleteorder","text":"删除","presetID":1,"fontSize":24,"font":"SimHei","color":"#d96b17","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":17,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":18}]},{"type":"Image","props":{"x":0,"width":1521,"skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":12}],"loadList":["uiCommonUpdate/greenBtn.png","prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
+	OrderListItemUI.uiView={"type":"View","props":{"width":1600,"height":90},"compId":2,"child":[{"type":"Label","props":{"y":29,"x":1,"width":200,"var":"customeName","valign":"middle","text":"客户名称可以八个大字","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":22},{"type":"Label","props":{"y":30,"x":253,"width":158,"var":"orderid","valign":"middle","text":"18014398509481987","height":29,"fontSize":18,"font":"SimHei","bold":true,"align":"left"},"compId":3},{"type":"Label","props":{"y":30,"x":443,"width":237,"var":"ordertime","valign":"middle","text":"2019-05-22 15:30:00","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":4},{"type":"Label","props":{"y":30,"x":685,"width":60,"var":"productnum","valign":"middle","text":"1","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":5},{"type":"Label","props":{"y":30,"x":761,"width":90,"var":"paymoney","valign":"middle","text":"3495","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":6},{"type":"Label","props":{"y":32,"x":947,"width":211,"var":"orderstatus","valign":"middle","text":"已支付（03分10秒后可继续支付）","height":26,"fontSize":16,"font":"SimHei","bold":true,"align":"center"},"compId":7},{"type":"Button","props":{"y":23,"x":1198,"var":"payagain","skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","labelBold":true,"label":"去支付","sizeGrid":"2,22,3,22"},"compId":20},{"type":"Text","props":{"y":33,"x":1457,"var":"detailbtn","text":"详情","presetID":1,"fontSize":24,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":8,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":33,"x":1527,"var":"deletebtn","text":"撤回","presetID":1,"fontSize":24,"font":"SimHei","color":"#ef0e0b","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":10,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":11}]},{"type":"Text","props":{"y":33,"x":1597,"width":63,"var":"retrybtn","text":"重试","presetID":1,"height":24,"fontSize":24,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":15,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":16}]},{"type":"Text","props":{"y":33,"x":1527,"var":"deleteorder","text":"删除","presetID":1,"fontSize":24,"font":"SimHei","color":"#d96b17","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":17,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":18}]},{"type":"Image","props":{"skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":12},{"type":"Text","props":{"y":33,"x":1349,"width":96,"var":"sellPriceSet","text":"售价配置","presetID":1,"height":24,"fontSize":24,"font":"SimHei","color":"#d96b17","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":23,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":24}]},{"type":"Label","props":{"y":30,"x":861,"width":85,"var":"sellPrice","valign":"middle","text":"3495","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":25}],"loadList":["uiCommonUpdate/greenBtn.png","prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
 	return OrderListItemUI;
 })(View)
 
@@ -68406,6 +70635,33 @@ var CustomerProdCategoryPanelUI=(function(_super){
 	}
 
 	return CustomerProdCategoryPanelUI;
+})(View)
+
+
+//class ui.usercenter.items.CustomerTransacItemUI extends laya.ui.View
+var CustomerTransacItemUI=(function(_super){
+	function CustomerTransacItemUI(){
+		this.customerNamelbl=null;
+		this.transacNum=null;
+		this.transactDate=null;
+		this.transactName=null;
+		this.money=null;
+		this.transacType=null;
+		this.userNamelbl=null;
+		this.deleteBtn=null;
+		this.commentlbl=null;
+		CustomerTransacItemUI.__super.call(this);
+	}
+
+	__class(CustomerTransacItemUI,'ui.usercenter.items.CustomerTransacItemUI',_super);
+	var __proto=CustomerTransacItemUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.createView(CustomerTransacItemUI.uiView);
+	}
+
+	CustomerTransacItemUI.uiView={"type":"View","props":{"width":1600,"height":36},"compId":2,"child":[{"type":"Label","props":{"y":0,"x":2,"width":260,"var":"customerNamelbl","valign":"middle","text":"客户名称可以八个大字","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":3},{"type":"Label","props":{"y":1,"x":284,"width":221,"var":"transacNum","valign":"middle","text":"18014398509481987","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":4},{"type":"Label","props":{"y":1,"x":610,"width":237,"var":"transactDate","valign":"middle","text":"2019-05-22 15:30:00","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":5},{"type":"Label","props":{"y":1,"x":976,"width":88,"var":"transactName","valign":"middle","text":"支付宝","height":26,"fontSize":20,"font":"SimHei","bold":true,"align":"center"},"compId":8},{"type":"Label","props":{"y":1,"x":876,"width":85,"var":"money","valign":"middle","text":"3495","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":15},{"type":"Label","props":{"y":3,"x":523,"width":64,"var":"transacType","valign":"middle","text":"订单","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":21},{"type":"Label","props":{"y":1,"x":1080,"width":109,"var":"userNamelbl","valign":"middle","text":"老李","height":26,"fontSize":20,"font":"SimHei","bold":true,"align":"center"},"compId":22},{"type":"Text","props":{"y":6.5,"x":1544,"var":"deleteBtn","text":"删除","presetID":1,"fontSize":18,"font":"SimHei","color":"#d92e16","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":23,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":24}]},{"type":"Image","props":{"y":0,"x":0,"skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":13},{"type":"Label","props":{"y":1,"x":1207,"width":282,"var":"commentlbl","valign":"middle","text":"老李这里是备注需要二十个字以内","height":26,"fontSize":16,"font":"SimHei","bold":true,"align":"left"},"compId":25}],"loadList":["prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
+	return CustomerTransacItemUI;
 })(View)
 
 
@@ -68506,6 +70762,31 @@ var CutImageItemUI=(function(_super){
 })(View)
 
 
+//class ui.usercenter.WriteOffOrderItemUI extends laya.ui.View
+var WriteOffOrderItemUI=(function(_super){
+	function WriteOffOrderItemUI(){
+		this.orderid=null;
+		this.ordertime=null;
+		this.productnum=null;
+		this.sellPrice=null;
+		this.WriteoffMoney=null;
+		this.unWriteOffMoney=null;
+		this.selectBox=null;
+		WriteOffOrderItemUI.__super.call(this);
+	}
+
+	__class(WriteOffOrderItemUI,'ui.usercenter.WriteOffOrderItemUI',_super);
+	var __proto=WriteOffOrderItemUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.createView(WriteOffOrderItemUI.uiView);
+	}
+
+	WriteOffOrderItemUI.uiView={"type":"View","props":{"width":1600,"height":50},"compId":2,"child":[{"type":"Label","props":{"y":10,"x":157,"width":237,"var":"orderid","valign":"middle","text":"18014398509481987","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":3},{"type":"Label","props":{"y":10,"x":443,"width":237,"var":"ordertime","valign":"middle","text":"2019-05-22 15:30:00","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"left"},"compId":4},{"type":"Label","props":{"y":10,"x":722,"width":60,"var":"productnum","valign":"middle","text":"1","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":5},{"type":"Label","props":{"y":10,"x":849,"width":90,"var":"sellPrice","valign":"middle","text":"3495","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":6},{"type":"Image","props":{"skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":12},{"type":"Label","props":{"y":10,"x":1002,"width":85,"var":"WriteoffMoney","valign":"middle","text":"3495","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":25},{"type":"Label","props":{"y":10,"x":1150,"width":85,"var":"unWriteOffMoney","valign":"middle","text":"3495","height":29,"fontSize":24,"font":"SimHei","bold":true,"align":"center"},"compId":26},{"type":"CheckBox","props":{"y":10,"x":34,"var":"selectBox","skin":"uiCommonUpdate/grennsel.png","scaleY":1.5,"scaleX":1.5},"compId":27}],"loadList":["commers/cutline.png","uiCommonUpdate/grennsel.png"],"loadList3D":[]};
+	return WriteOffOrderItemUI;
+})(View)
+
+
 //class ui.usercenter.CustomManagerPanelUI extends laya.ui.View
 var CustomManagerPanelUI=(function(_super){
 	function CustomManagerPanelUI(){
@@ -68522,10 +70803,10 @@ var CustomManagerPanelUI=(function(_super){
 		this.delBtn=null;
 		this.customPhone=null;
 		this.delBtn=null;
-		this.contactName=null;
-		this.delBtn=null;
 		this.confirmAddCustom=null;
 		this.closeAddBtn=null;
+		this.payType=null;
+		this.businessMan=null;
 		CustomManagerPanelUI.__super.call(this);
 	}
 
@@ -68638,11 +70919,30 @@ var ProdParamItemUI=(function(_super){
 //class ui.usercenter.AddressMgrPanelUI extends laya.ui.View
 var AddressMgrPanelUI=(function(_super){
 	function AddressMgrPanelUI(){
+		this.customerBox=null;
+		this.customeName=null;
+		this.addressTab=null;
+		this.groupTab=null;
+		this.addressbox=null;
 		this.addlist=null;
 		this.numAddress=null;
 		this.btnaddAddress=null;
-		this.customerBox=null;
-		this.customeName=null;
+		this.defaultDelivery=null;
+		this.addressPageTxt=null;
+		this.prevBtn=null;
+		this.nextBtn=null;
+		this.groupBox=null;
+		this.addGroup=null;
+		this.groupList=null;
+		this.searchGroupInput=null;
+		this.searchGrpBtn=null;
+		this.grPageNum=null;
+		this.gpPrevPage=null;
+		this.gpNextPage=null;
+		this.createGroupBox=null;
+		this.newGroupName=null;
+		this.confirmCreateGroup=null;
+		this.closeNewGroup=null;
 		AddressMgrPanelUI.__super.call(this);
 	}
 
@@ -68951,6 +71251,7 @@ var ResetPwdPanelUI=(function(_super){
 		this.btngetcode=null;
 		this.btnClose=null;
 		this.btnok=null;
+		this.codeValid=null;
 		ResetPwdPanelUI.__super.call(this);
 	}
 
@@ -68972,6 +71273,7 @@ var ChooseDeliveryTimePanelUI=(function(_super){
 		this.step2=null;
 		this.step3=null;
 		this.step4=null;
+		this.curCustomer=null;
 		this.deliverdateBoc=null;
 		this.deliveryDate0=null;
 		this.deliveryDate1=null;
@@ -69127,6 +71429,9 @@ var NewAddressPanelUI=(function(_super){
 		this.delBtn=null;
 		this.input_address=null;
 		this.delBtn=null;
+		this.deliveryBox=null;
+		this.defaulDeliveryType=null;
+		this.getDeliveryList=null;
 		this.provbox=null;
 		this.provList=null;
 		this.citybox=null;
@@ -69176,6 +71481,7 @@ var PicManagerPanelUI=(function(_super){
 		this.freshbtn=null;
 		this.refreshTxt=null;
 		this.radiosel=null;
+		this.tifAi=null;
 		this.searchInput=null;
 		this.showCustomList=null;
 		this.curCustomName=null;
@@ -69273,10 +71579,12 @@ var CustomeItemUI=(function(_super){
 		this.selectImg=null;
 		this.customName=null;
 		this.phoneNumber=null;
-		this.contactName=null;
+		this.businessManlbl=null;
 		this.updateInfoTxt=null;
 		this.deleteTxt=null;
 		this.addressTxt=null;
+		this.defaultPayType=null;
+		this.balancelbl=null;
 		CustomeItemUI.__super.call(this);
 	}
 
@@ -69287,7 +71595,7 @@ var CustomeItemUI=(function(_super){
 		this.createView(CustomeItemUI.uiView);
 	}
 
-	CustomeItemUI.uiView={"type":"View","props":{"width":500,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"selectImg","top":0,"skin":"commers/graydisable.jpg","right":0,"left":0,"bottom":0},"compId":13},{"type":"Label","props":{"y":7,"x":5,"width":161,"var":"customName","text":"客户名称最多六个字","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":3},{"type":"Label","props":{"y":8,"x":175,"width":80,"var":"phoneNumber","text":"13899998888","height":14,"fontSize":14,"font":"SimHei"},"compId":4},{"type":"Label","props":{"y":8,"x":283,"width":80,"visible":false,"var":"contactName","text":"联系人名称","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":5},{"type":"Text","props":{"y":7,"x":381,"var":"updateInfoTxt","text":"修改","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":6,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":8}]},{"type":"Text","props":{"y":7,"x":458,"var":"deleteTxt","text":"删除","presetID":1,"fontSize":14,"font":"SimHei","color":"#d92e16","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":7,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":7,"x":419,"var":"addressTxt","text":"地址","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":10,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":11}]},{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":0,"bottom":0},"compId":12}],"loadList":["commers/graydisable.jpg","prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
+	CustomeItemUI.uiView={"type":"View","props":{"width":580,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"selectImg","top":0,"skin":"commers/graydisable.jpg","right":0,"left":0,"height":30,"bottom":0},"compId":13},{"type":"Label","props":{"y":7,"x":5,"width":161,"var":"customName","text":"客户名称最多六个字","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":3},{"type":"Label","props":{"y":8,"x":175,"width":80,"var":"phoneNumber","text":"13899998888","height":14,"fontSize":14,"font":"SimHei"},"compId":4},{"type":"Label","props":{"y":8,"x":267,"width":60,"visible":true,"var":"businessManlbl","text":"小李路","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":5},{"type":"Text","props":{"y":8,"x":470,"var":"updateInfoTxt","text":"修改","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":6,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":8}]},{"type":"Text","props":{"y":8,"x":547,"var":"deleteTxt","text":"删除","presetID":1,"fontSize":14,"font":"SimHei","color":"#d92e16","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":7,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":8,"x":508,"var":"addressTxt","text":"地址","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":10,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":11}]},{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":0,"bottom":0},"compId":12},{"type":"Label","props":{"y":8,"x":401,"width":58,"visible":true,"var":"defaultPayType","text":"预充","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":14},{"type":"Label","props":{"y":8,"x":335,"width":63,"visible":true,"var":"balancelbl","text":"0.00","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":15}],"loadList":["commers/graydisable.jpg","prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
 	return CustomeItemUI;
 })(View)
 
@@ -69563,9 +71871,12 @@ var OrderListPanelUI=(function(_super){
 		this.pagenum=null;
 		this.lastpage=null;
 		this.nextpage=null;
+		this.orderPlaceCombo=null;
 		this.showCustomList=null;
 		this.curCustomName=null;
 		this.customListPanel=null;
+		this.businessCombo=null;
+		this.writeOffRadio=null;
 		OrderListPanelUI.__super.call(this);
 	}
 
@@ -69577,6 +71888,35 @@ var OrderListPanelUI=(function(_super){
 	}
 
 	return OrderListPanelUI;
+})(View)
+
+
+//class ui.orderList.WriteOffOrderPanelUI extends laya.ui.View
+var WriteOffOrderPanelUI=(function(_super){
+	function WriteOffOrderPanelUI(){
+		this.ordertime=null;
+		this.transactionBtn=null;
+		this.selectall=null;
+		this.orderList=null;
+		this.btnsearch=null;
+		this.selectMoney=null;
+		this.totalWriteMoney=null;
+		this.pagenum=null;
+		this.lastpage=null;
+		this.nextpage=null;
+		this.confirmBtn=null;
+		this.closeBtn=null;
+		WriteOffOrderPanelUI.__super.call(this);
+	}
+
+	__class(WriteOffOrderPanelUI,'ui.orderList.WriteOffOrderPanelUI',_super);
+	var __proto=WriteOffOrderPanelUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.loadScene("orderList/WriteOffOrderPanel");
+	}
+
+	return WriteOffOrderPanelUI;
 })(View)
 
 
@@ -69631,6 +71971,36 @@ var MyWorkPanelUI=(function(_super){
 	}
 
 	return MyWorkPanelUI;
+})(View)
+
+
+//class ui.usercenter.SellPriceSettingPanelUI extends laya.ui.View
+var SellPriceSettingPanelUI=(function(_super){
+	function SellPriceSettingPanelUI(){
+		this.mainpanel=null;
+		this.orderSn=null;
+		this.orderoanel=null;
+		this.orderbox=null;
+		this.closebtn=null;
+		this.layoutCost=null;
+		this.designCost=null;
+		this.deliveryCost=null;
+		this.otherCost=null;
+		this.sellPrice=null;
+		this.okbtn=null;
+		this.moneyPaidlbl=null;
+		this.shareBtn=null;
+		SellPriceSettingPanelUI.__super.call(this);
+	}
+
+	__class(SellPriceSettingPanelUI,'ui.usercenter.SellPriceSettingPanelUI',_super);
+	var __proto=SellPriceSettingPanelUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.loadScene("usercenter/SellPriceSettingPanel");
+	}
+
+	return SellPriceSettingPanelUI;
 })(View)
 
 
@@ -69851,6 +72221,53 @@ var BackImgItemUI=(function(_super){
 
 	BackImgItemUI.uiView={"type":"View","props":{},"compId":2,"child":[{"type":"Image","props":{"width":80,"var":"img","skin":"textureU3d/stone/stone1.jpg","height":80},"compId":3},{"type":"Image","props":{"width":82,"var":"frame","skin":"commers/inputfocus.png","sizeGrid":"3,3,3,3","height":82},"compId":4}],"loadList":["textureU3d/stone/stone1.jpg","commers/inputfocus.png"],"loadList3D":[]};
 	return BackImgItemUI;
+})(View)
+
+
+//class ui.orderList.CustomerTransactionPanelUI extends laya.ui.View
+var CustomerTransactionPanelUI=(function(_super){
+	function CustomerTransactionPanelUI(){
+		this.ordertime=null;
+		this.orderBtn=null;
+		this.transactionBtn=null;
+		this.addChargeBtn=null;
+		this.balanceTxt=null;
+		this.paytype=null;
+		this.orderList=null;
+		this.btnsearch=null;
+		this.totalSellMoney=null;
+		this.payMoney=null;
+		this.pagenum=null;
+		this.lastpage=null;
+		this.nextpage=null;
+		this.showCustomList=null;
+		this.curCustomName=null;
+		this.customListPanel=null;
+		this.addChargePanel=null;
+		this.customerName=null;
+		this.delBtn=null;
+		this.transactionNum=null;
+		this.delBtn=null;
+		this.getMoney=null;
+		this.delBtn=null;
+		this.commentInput=null;
+		this.delBtn=null;
+		this.confirmAdd=null;
+		this.closeCharge=null;
+		this.channel=null;
+		this.getmoneyDate=null;
+		this.writeoffBtn=null;
+		CustomerTransactionPanelUI.__super.call(this);
+	}
+
+	__class(CustomerTransactionPanelUI,'ui.orderList.CustomerTransactionPanelUI',_super);
+	var __proto=CustomerTransactionPanelUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.loadScene("orderList/CustomerTransactionPanel");
+	}
+
+	return CustomerTransactionPanelUI;
 })(View)
 
 
@@ -75130,7 +77547,7 @@ var VipAddressCell=(function(_super){
 
 	__proto.confirmDelete=function(result){
 		if(result)
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-express?",this,this.delMyAddressBack,"opt=delete&id="+this.addressVo.id,"post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/pagingExpress?",this,this.delMyAddressBack,"opt=delete&id="+this.addressVo.id,"post");
 	}
 
 	__proto.delMyAddressBack=function(data){
@@ -75141,7 +77558,7 @@ var VipAddressCell=(function(_super){
 	}
 
 	__proto.onEditAddr=function(){
-		ViewManager.instance.openView("VIEW_ADD_NEW_ADDRESS",false,{url:"group/opt-vip-express?",address:this.addressVo});
+		ViewManager.instance.openView("VIEW_ADD_NEW_ADDRESS",false,{url:"org/express/group/pagingExpress?",address:this.addressVo});
 	}
 
 	__proto.selectData=function(){
@@ -75160,44 +77577,6 @@ var VipAddressCell=(function(_super){
 
 	return VipAddressCell;
 })(VipAddressItemUI)
-
-
-//class script.usercenter.item.ApplyJoinItem extends ui.usercenter.ApplyJoinItemUI
-var ApplyJoinItem=(function(_super){
-	function ApplyJoinItem(){
-		this.joindata=null;
-		ApplyJoinItem.__super.call(this);
-	}
-
-	__class(ApplyJoinItem,'script.usercenter.item.ApplyJoinItem',_super);
-	var __proto=ApplyJoinItem.prototype;
-	__proto.setData=function(data){
-		this.joindata=data;
-		this.account.text=data.mobileNumber;
-		this.msgtxt.text=data.msg;
-		this.reqdate.text=data.createdAt;
-		this.agreebtn.on("click",this,this.onAgreeJoin);
-		this.refusebtn.on("click",this,this.onRefuseJoin);
-	}
-
-	__proto.onAgreeJoin=function(){
-		EventCenter.instance.event("AGREE_JOIN_REQUEST",this.joindata);
-	}
-
-	__proto.onRefuseJoin=function(){
-		var param={"id":this.joindata.id,"action":"2"};
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/handleJoinReq?",this,this.onhandleBack,JSON.stringify(param),"post");
-	}
-
-	__proto.onhandleBack=function(data){
-		var result=JSON.parse(data);
-		if(result.code=="0"){
-			EventCenter.instance.event("REFRESH_JOIN_REQUEST");
-		}
-	}
-
-	return ApplyJoinItem;
-})(ApplyJoinItemUI)
 
 
 //class script.usercenter.item.InvoiceHistoryCell extends ui.usercenter.InvoiceHistoryItemUI
@@ -75248,6 +77627,44 @@ var InvoiceHistoryCell=(function(_super){
 })(InvoiceHistoryItemUI)
 
 
+//class script.usercenter.item.ApplyJoinItem extends ui.usercenter.ApplyJoinItemUI
+var ApplyJoinItem=(function(_super){
+	function ApplyJoinItem(){
+		this.joindata=null;
+		ApplyJoinItem.__super.call(this);
+	}
+
+	__class(ApplyJoinItem,'script.usercenter.item.ApplyJoinItem',_super);
+	var __proto=ApplyJoinItem.prototype;
+	__proto.setData=function(data){
+		this.joindata=data;
+		this.account.text=data.mobileNumber;
+		this.msgtxt.text=data.msg;
+		this.reqdate.text=data.createdAt;
+		this.agreebtn.on("click",this,this.onAgreeJoin);
+		this.refusebtn.on("click",this,this.onRefuseJoin);
+	}
+
+	__proto.onAgreeJoin=function(){
+		EventCenter.instance.event("AGREE_JOIN_REQUEST",this.joindata);
+	}
+
+	__proto.onRefuseJoin=function(){
+		var param={"id":this.joindata.id,"action":"2"};
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/handleJoinReq?",this,this.onhandleBack,JSON.stringify(param),"post");
+	}
+
+	__proto.onhandleBack=function(data){
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			EventCenter.instance.event("REFRESH_JOIN_REQUEST");
+		}
+	}
+
+	return ApplyJoinItem;
+})(ApplyJoinItemUI)
+
+
 //class script.lailiao.LailiaoOrderItemCell extends ui.order.OrderItemUI
 var LailiaoOrderItemCell=(function(_super){
 	function LailiaoOrderItemCell(vo){
@@ -75283,10 +77700,12 @@ var LailiaoOrderItemCell=(function(_super){
 		if(state==0){
 			this.deletBtn.x=1466;
 			this.total.x=1314;
+			this.unitPrice.x=1223;
 		}
 		else{
 			this.deletBtn.x=1566;
-			this.total.x=1364;
+			this.total.x=1415;
+			this.unitPrice.x=1324;
 		}
 	}
 
@@ -75336,13 +77755,9 @@ var LailiaoOrderItemCell=(function(_super){
 		this.deletBtn.on("click",this,this.onDeleteOrder);
 		this.addmsg.underline=true;
 		this.addmsg.underlineColor="#222222";
-		this.price.text="0";
 		this.addmsg.on("click",this,this.onAddComment);
 		this.total.visible=!Userdata.instance.isHidePrice();
-		this.mattxt.text="";
-		this.changemat.underline=true;
-		this.changemat.underlineColor="#222222";
-		this.changemat.on("click",this,this.onShowMaterialView);
+		this.unitPrice.text="0";
 		this.inputnum.on("input",this,this.onNumChange);
 		this.editwidth.on("input",this,this.onWidthSizeChange);
 		this.editheight.on("input",this,this.onHeightSizeChange);
@@ -75403,11 +77818,8 @@ var LailiaoOrderItemCell=(function(_super){
 				this.yingxback.skin=HttpRequestUtil.biggerPicUrl+yixingqiegeImg+".jpg";
 			}
 		}
-		if(provo.measureUnit=="平方米")
-			this.price.text=(provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-		else
-		this.price.text=(provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 		this.total.text=(parseInt(this.inputnum.text)*provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
+		this.unitPrice.text=this.ordervo.orderData.unitPrice;
 		var tech=provo.getTechDes(false,this.finalWidth,this.finalHeight);
 		if(tech.indexOf("超宽拼接")>=0)
 			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
@@ -75430,9 +77842,8 @@ var LailiaoOrderItemCell=(function(_super){
 	}
 
 	__proto.reset=function(){
-		this.mattxt.text="";
 		this.architype.text="";
-		this.price.text="0";
+		this.unitPrice.text="0";
 		this.total.text="0";
 		this.ordervo.orderData=null;
 		this.ordervo.productVo=null;
@@ -75545,7 +77956,6 @@ var LailiaoOrderItemCell=(function(_super){
 		this.yingxback.y=this.height/2;
 		this.yixingimg.y=this.height/2;
 		this.filename.y=(this.height-this.filename.height)/2;
-		this.matbox.y=(this.height-42)/2;
 		this.editbox.y=(this.height-this.editbox.height)/2;
 		this.numbox.y=(this.height)/2-12;
 		this.total.y=(this.height-this.total.height)/2;
@@ -75567,10 +77977,6 @@ var LailiaoOrderItemCell=(function(_super){
 			this.updateOrderData(this.curproductvo);
 			var area=(this.finalHeight *this.finalWidth)/10000;
 			var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-			if(this.curproductvo.measureUnit=="平方米")
-				this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-			else
-			this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 			this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
 		}
 		EventCenter.instance.event("UPDATE_ORDER_ITEM_TECH");
@@ -75635,10 +78041,6 @@ var LailiaoOrderItemCell=(function(_super){
 				this.updateOrderDataPrice();
 				var area=(this.finalHeight *this.finalWidth)/10000;
 				var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-				if(this.curproductvo.measureUnit=="平方米")
-					this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-				else
-				this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 				this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
 			}
 		}
@@ -75723,6 +78125,9 @@ var LailiaoOrderItemCell=(function(_super){
 		orderitemdata.fixedDiscount=productVo.isFixedCustomerRatio;
 		orderitemdata.discountProcessPrice=productVo.getDiscountProcessPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		orderitemdata.materialPrice=this.ordervo.orderPrice-orderitemdata.discountProcessPrice;
+		orderitemdata.unitPrice=this.ordervo.orderPrice-productVo.getAllAttachPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		orderitemdata.unitPrice=orderitemdata.unitPrice/(this.finalWidth/100*this.finalHeight/100);
+		orderitemdata.unitPrice=orderitemdata.unitPrice.toFixed(2);
 		orderitemdata.one_mat_cost=productVo.getMaterialPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		var cost=productVo.getProcessAndGrossPrices(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		orderitemdata.one_proc_cost=cost[0];
@@ -76823,6 +79228,45 @@ var DeliveryTypeItem=(function(_super){
 })(OrderAddressItemUI)
 
 
+//class script.usercenter.item.BusinessManCell extends ui.usercenter.items.BusinessManItemUI
+var BusinessManCell=(function(_super){
+	function BusinessManCell(){
+		this.manvo=null;
+		BusinessManCell.__super.call(this);
+		this.deleteTxt.on("click",this,this.ondelte);
+	}
+
+	__class(BusinessManCell,'script.usercenter.item.BusinessManCell',_super);
+	var __proto=BusinessManCell.prototype;
+	__proto.ondelte=function(){
+		ViewManager.instance.openView("VIEW_POPUPDIALOG",false,{msg:"确定删除"+this.manvo.name+"吗？",caller:this,callback:this.confirmDelete});
+	}
+
+	__proto.setData=function(data){
+		this.manvo=data;
+		this.businessName.text=data.name;
+		this.phoneNumber.text=data.mobileNumber;
+	}
+
+	__proto.confirmDelete=function(b){
+		if(b){
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.deleteBusinessMan,this,this.deleteBusinessback,JSON.stringify({"id":this.manvo.id}),"post");
+		}
+	}
+
+	__proto.deleteBusinessback=function(data){
+		if(this.destroyed)
+			return;
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			EventCenter.instance.event("UPDATE_BUSINESSMAN_LIST");
+		}
+	}
+
+	return BusinessManCell;
+})(BusinessManItemUI)
+
+
 //class script.picUpload.DirectFolderItem extends ui.picManager.DirectItemUI
 var DirectFolderItem=(function(_super){
 	function DirectFolderItem(){
@@ -77293,7 +79737,7 @@ var SelAddressItem=(function(_super){
 		this.addresstxt.text=this.address.addressDetail;
 		this.btnSetDefault.visible=Userdata.instance.defaultAddId !=this.address.id;
 		this.defaultMark.visible=Userdata.instance.defaultAddId==this.address.id;
-		if(this.address.customerId > 0)
+		if(this.address.customerId !="0")
 			this.btnSetDefault.visible=false;
 		this.btnSetDefault.on("click",this,this.setDefaultAdd);
 		this.ShowSelected=false;
@@ -77472,35 +79916,6 @@ var CarvingOrderItemCell=(function(_super){
 
 	return CarvingOrderItemCell;
 })(CavingOderItemUI)
-
-
-//class script.prodCustomer.item.ProdCell extends ui.prodCustom.ProdCategoryItemUI
-var ProdCell=(function(_super){
-	function ProdCell(){
-		this.prodVo=null;
-		ProdCell.__super.call(this);
-		this.frame.visible=false;
-		this.on("mouseover",this,function(){
-			this.frame.visible=true;
-		});
-		this.on("mouseout",this,function(){
-			this.frame.visible=false;
-		});
-		this.on("doubleclick",this,this.onChooseProd);
-	}
-
-	__class(ProdCell,'script.prodCustomer.item.ProdCell',_super);
-	var __proto=ProdCell.prototype;
-	__proto.setData=function(data){
-		this.categoryName.text=data.cateName;
-	}
-
-	__proto.onChooseProd=function(){
-		ViewManager.instance.openView("VIEW_PRODUCT_CUSTOMIZATION_PANEL",true,this.prodVo);
-	}
-
-	return ProdCell;
-})(ProdCategoryItemUI)
 
 
 //class script.picUpload.PicInfoItem extends ui.inuoPicStore.PicShortItemNuoUI
@@ -77904,6 +80319,35 @@ var PicInfoItem=(function(_super){
 })(PicShortItemNuoUI)
 
 
+//class script.prodCustomer.item.ProdCell extends ui.prodCustom.ProdCategoryItemUI
+var ProdCell=(function(_super){
+	function ProdCell(){
+		this.prodVo=null;
+		ProdCell.__super.call(this);
+		this.frame.visible=false;
+		this.on("mouseover",this,function(){
+			this.frame.visible=true;
+		});
+		this.on("mouseout",this,function(){
+			this.frame.visible=false;
+		});
+		this.on("doubleclick",this,this.onChooseProd);
+	}
+
+	__class(ProdCell,'script.prodCustomer.item.ProdCell',_super);
+	var __proto=ProdCell.prototype;
+	__proto.setData=function(data){
+		this.categoryName.text=data.cateName;
+	}
+
+	__proto.onChooseProd=function(){
+		ViewManager.instance.openView("VIEW_PRODUCT_CUSTOMIZATION_PANEL",true,this.prodVo);
+	}
+
+	return ProdCell;
+})(ProdCategoryItemUI)
+
+
 //class script.dengxiang.DengxiangOrderItemCell extends ui.order.OrderItemUI
 var DengxiangOrderItemCell=(function(_super){
 	function DengxiangOrderItemCell(vo){
@@ -77939,10 +80383,12 @@ var DengxiangOrderItemCell=(function(_super){
 		if(state==0){
 			this.deletBtn.x=1466;
 			this.total.x=1314;
+			this.unitPrice.x=1223;
 		}
 		else{
 			this.deletBtn.x=1566;
-			this.total.x=1364;
+			this.total.x=1415;
+			this.unitPrice.x=1324;
 		}
 	}
 
@@ -78001,13 +80447,9 @@ var DengxiangOrderItemCell=(function(_super){
 		this.deletBtn.on("click",this,this.onDeleteOrder);
 		this.addmsg.underline=true;
 		this.addmsg.underlineColor="#222222";
-		this.price.text="0";
 		this.addmsg.on("click",this,this.onAddComment);
 		this.total.visible=!Userdata.instance.isHidePrice();
-		this.mattxt.text="";
-		this.changemat.underline=true;
-		this.changemat.underlineColor="#222222";
-		this.changemat.on("click",this,this.onShowMaterialView);
+		this.unitPrice.text="0";
 		this.inputnum.on("input",this,this.onNumChange);
 		this.editwidth.on("input",this,this.onWidthSizeChange);
 		this.editheight.on("input",this,this.onHeightSizeChange);
@@ -78069,11 +80511,8 @@ var DengxiangOrderItemCell=(function(_super){
 				this.yingxback.skin=HttpRequestUtil.biggerPicUrl+yixingqiegeImg+".jpg";
 			}
 		}
-		if(provo.measureUnit=="平方米")
-			this.price.text=(provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-		else
-		this.price.text=(provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 		this.total.text=(parseInt(this.inputnum.text)*provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
+		this.unitPrice.text=this.ordervo.orderData.unitPrice;
 		var tech=provo.getTechDes(false,this.finalWidth,this.finalHeight);
 		if(tech.indexOf("超宽拼接")>=0)
 			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
@@ -78096,10 +80535,9 @@ var DengxiangOrderItemCell=(function(_super){
 	}
 
 	__proto.reset=function(){
-		this.mattxt.text="";
 		this.architype.text="";
-		this.price.text="0";
 		this.total.text="0";
+		this.unitPrice.text="0";
 		this.ordervo.orderData=null;
 		this.ordervo.productVo=null;
 		this.curproductvo=null;
@@ -78220,7 +80658,6 @@ var DengxiangOrderItemCell=(function(_super){
 		this.yingxback.y=this.height/2;
 		this.yixingimg.y=this.height/2;
 		this.filename.y=(this.height-this.filename.height)/2;
-		this.matbox.y=(this.height-42)/2;
 		this.editbox.y=(this.height-this.editbox.height)/2;
 		this.numbox.y=(this.height)/2-12;
 		this.total.y=(this.height-this.total.height)/2;
@@ -78242,10 +80679,6 @@ var DengxiangOrderItemCell=(function(_super){
 			this.updateOrderData(this.curproductvo);
 			var area=(this.finalHeight *this.finalWidth)/10000;
 			var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-			if(this.curproductvo.measureUnit=="平方米")
-				this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-			else
-			this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 			this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
 		}
 		EventCenter.instance.event("UPDATE_ORDER_ITEM_TECH");
@@ -78310,10 +80743,6 @@ var DengxiangOrderItemCell=(function(_super){
 				this.updateOrderDataPrice();
 				var area=(this.finalHeight *this.finalWidth)/10000;
 				var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-				if(this.curproductvo.measureUnit=="平方米")
-					this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-				else
-				this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 				this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
 			}
 		}
@@ -78403,6 +80832,9 @@ var DengxiangOrderItemCell=(function(_super){
 		orderitemdata.fixedDiscount=productVo.isFixedCustomerRatio;
 		orderitemdata.discountProcessPrice=productVo.getDiscountProcessPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		orderitemdata.materialPrice=this.ordervo.orderPrice-orderitemdata.discountProcessPrice;
+		orderitemdata.unitPrice=this.ordervo.orderPrice-productVo.getAllAttachPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		orderitemdata.unitPrice=orderitemdata.unitPrice/(this.finalWidth/100*this.finalHeight/100);
+		orderitemdata.unitPrice=orderitemdata.unitPrice.toFixed(2);
 		orderitemdata.one_mat_cost=productVo.getMaterialPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		var cost=productVo.getProcessAndGrossPrices(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		orderitemdata.one_proc_cost=cost[0];
@@ -78473,7 +80905,8 @@ var OutputCenterCell=(function(_super){
 		this.factoryVo=null;
 		OutputCenterCell.__super.call(this);
 		this.factoryVo=factdata;
-		this.checkselect.selected=true;
+		this.checkselect.selected=Userdata.instance.defaultManufactureSelected;
+		this.factoryVo.isSelected=Userdata.instance.defaultManufactureSelected;
 		this.qqContact.on("click",this,this.onClickOpenQQ);
 		this.factorytxt.text=factdata.name;
 		this.holaday.text="";
@@ -78499,6 +80932,115 @@ var OutputCenterCell=(function(_super){
 
 	return OutputCenterCell;
 })(OutPutCenterUI)
+
+
+//class script.usercenter.item.OrderPriceSettingItem extends ui.usercenter.OrderPriceSettingItemUI
+var OrderPriceSettingItem=(function(_super){
+	function OrderPriceSettingItem(){
+		this.adjustHeight=null;
+		this.caller=null;
+		this.ordata=null;
+		this.ordersn=null;
+		this.hasgetState=false;
+		OrderPriceSettingItem.__super.call(this);
+	}
+
+	__class(OrderPriceSettingItem,'script.usercenter.item.OrderPriceSettingItem',_super);
+	var __proto=OrderPriceSettingItem.prototype;
+	__proto.setData=function(orderdata){
+		this.itemseq.text=orderdata.itemSeq;
+		if(orderdata.conponent.thumbnailsPath !=null && orderdata.conponent.thumbnailsPath !="")
+			this.picimg.skin=orderdata.conponent.thumbnailsPath;
+		else
+		this.picimg.skin="commers/blackbg.png";
+		this.isurgent.visible=orderdata.isUrgent;
+		this.ordata=orderdata;
+		this.ordersn=orderdata.orderId;
+		this.matname.text=orderdata.conponent.prodName;
+		var sizearr=(orderdata.conponent.LWH).split("/");
+		if(orderdata.deliveryDate !=null)
+			this.deliverydate.text=UtilTool.getNextDayStr(orderdata.deliveryDate+" 00:00:00");
+		else
+		this.deliverydate.text="";
+		this.widthtxt.text=sizearr[0];
+		this.heighttxt.text=sizearr[1];
+		var picwidth=parseFloat(sizearr[0]);
+		var picheight=parseFloat(sizearr[1]);
+		if(picwidth > picheight){
+			this.picimg.width=155;
+			this.picimg.height=155/picwidth *picheight;
+		}
+		else{
+			this.picimg.height=155;
+			this.picimg.width=155/picheight *picwidth;
+		}
+		this.pronum.text=orderdata.itemNumber+"";
+		var techstr="";
+		if(orderdata.conponent.procInfoList !=null){
+			for(var i=0;i < orderdata.conponent.procInfoList.length;i++)
+			techstr+=orderdata.conponent.procInfoList[i].procDescription+"-";
+		}
+		this.tech.text=techstr.substr(0,techstr.length-1);
+		this.money.text=(Number(orderdata.itemPrice)*Number(orderdata.itemNumber)).toFixed(2);
+		this.unitPriceTxt.text=orderdata.itemPrice;
+		this.measureUnit.text=orderdata.measureUnit !=null? orderdata.measureUnit:"平方米";
+		if(orderdata.totalMeasureNum !=null && orderdata.totalMeasureNum !="")
+			var unitprice=(parseFloat(this.money.text)/parseFloat(orderdata.totalMeasureNum)).toFixed(2);
+		else
+		unitprice=orderdata.itemPrice;
+		this,this.unitPriceInput.text=(this.ordata.unitSalesPrice !=null && this.ordata.unitSalesPrice !="")?this.ordata.unitSalesPrice:unitprice;
+		this.totalPriceInput.text=(this.ordata.totalSalesPrice !=null && this.ordata.totalSalesPrice !="")?this.ordata.totalSalesPrice:this.money.text;
+		this.unitPriceInput.on("input",this,this.onChangeUnitPrice);
+		this.totalPriceInput.on("input",this,this.onChangeTotalPrice);
+		if(Userdata.instance.isHidePrice())
+			this.money.text="****";
+		if(orderdata.conponent.filename !=null)
+			this.filename.text=orderdata.conponent.filename;
+		else
+		this.filename.text="";
+	}
+
+	//this.txtDetailInfo.text="收货地址："+orderdata.address;
+	__proto.onChangeUnitPrice=function(){
+		if(this.unitPriceInput.text=="")
+			return;
+		var price=parseFloat(this.unitPriceInput.text);
+		var totalprice=NaN;
+		if(this.ordata.totalMeasureNum !=null && this.ordata.totalMeasureNum !="")
+			totalprice=price*parseFloat(this.ordata.totalMeasureNum);
+		else
+		totalprice=price*parseInt(this.ordata.itemNumber);
+		this.totalPriceInput.text=totalprice.toFixed(2);
+		this.ordata.unitSalesPrice=price.toFixed(2);
+		this.ordata.totalSalesPrice=(parseFloat(this.totalPriceInput.text)).toFixed(2);
+		this.updateTotalPrice();
+	}
+
+	__proto.onChangeTotalPrice=function(){
+		if(this.totalPriceInput.text=="")
+			return;
+		var totalprice=parseFloat(this.totalPriceInput.text);
+		var price=NaN;
+		if(this.ordata.totalMeasureNum !=null && this.ordata.totalMeasureNum !="")
+			price=totalprice/parseFloat(this.ordata.totalMeasureNum);
+		else
+		price=totalprice/parseInt(this.ordata.itemNumber);
+		this.unitPriceInput.text=price.toFixed(2);
+		this.ordata.unitSalesPrice=price.toFixed(2);
+		this.ordata.totalSalesPrice=(parseFloat(this.totalPriceInput.text)).toFixed(2);
+		this.updateTotalPrice();
+	}
+
+	__proto.updateTotalPrice=function(){
+		EventCenter.instance.event("UPDATE_ORDER_PRICE");
+	}
+
+	__proto.onShowComment=function(){
+		ViewManager.instance.openView("VIEW_ADD_MESSAGE",false,{msg:this.ordata.comments});
+	}
+
+	return OrderPriceSettingItem;
+})(OrderPriceSettingItemUI)
 
 
 //class script.order.MaterialClassBtn extends ui.order.TabChooseBtnUI
@@ -78529,12 +81071,6 @@ var CityAreaItem=(function(_super){
 	function CityAreaItem(){
 		this.areaVo=null;
 		CityAreaItem.__super.call(this);
-		if(typeof(Browser.window.orientation)!="undefined"){
-			this.width=300;
-		}
-		else{
-			this.width=252;
-		}
 		this.on("mouseover",this,this.onMouseOver);
 		this.on("mouseout",this,this.onMouseOut);
 		this.bg.visible=false;
@@ -78623,8 +81159,9 @@ var CustomerAddressCell=(function(_super){
 		this.conName.text=add.receiverName;
 		this.phonetxt.text=add.phone;
 		this.detailaddr.text=add.proCityArea;
+		this.defaultDelivery.text=add.defaultDeliveryType;
 		this.btnDel.on("click",this,this.onDeleteAddr);
-		this.btndefault.on("click",this,this.onSetDefaultAddr);
+		this.editTxt.on("click",this,this.onEditAddr);
 	}
 
 	//this.defaultlbl.visible=Userdata.instance.defaultAddId==addvo.id;
@@ -78645,7 +81182,7 @@ var CustomerAddressCell=(function(_super){
 	}
 
 	__proto.onEditAddr=function(){
-		ViewManager.instance.openView("VIEW_ADD_NEW_ADDRESS",false,this.addvo);
+		ViewManager.instance.openView("VIEW_ADD_NEW_ADDRESS",false,{"address":this.addvo,url:HttpRequestUtil.updateCustomerAddress});
 	}
 
 	__proto.onSetDefaultAddr=function(){
@@ -78760,6 +81297,58 @@ var QuestOrderItem=(function(_super){
 
 	return QuestOrderItem;
 })(OrderQuestItemUI)
+
+
+//class script.usercenter.item.WriteOffOrderCell extends ui.usercenter.WriteOffOrderItemUI
+var WriteOffOrderCell=(function(_super){
+	function WriteOffOrderCell(){
+		this.orderdata=null;
+		WriteOffOrderCell.__super.call(this);
+		this.selectBox.on("click",this,this.changeSelected);
+	}
+
+	__class(WriteOffOrderCell,'script.usercenter.item.WriteOffOrderCell',_super);
+	var __proto=WriteOffOrderCell.prototype;
+	__proto.setData=function(data){
+		this.orderdata=data;
+		this.orderid.text=this.orderdata.id;
+		this.ordertime.text=this.orderdata.createdAt;
+		this.selectBox.selected=this.orderdata.selected;
+		try{
+			var detail=JSON.parse(this.orderdata.detail);
+			this.sellPrice.text=(detail.totalSalesPrice !=null && detail.totalSalesPrice !="")?detail.totalSalesPrice:Number(detail.moneyPaid).toFixed(2);
+			this.productnum.text=detail.orderItemList.length+"";
+			this.WriteoffMoney.text=this.orderdata.writeOffMoney.toFixed(2);
+			this.unWriteOffMoney.text=(parseFloat(this.sellPrice.text)-this.orderdata.writeOffMoney).toFixed(2);
+		}
+		catch(e){
+		}
+	}
+
+	__proto.changeSelected=function(){
+		EventCenter.instance.event("CHANGE_WRITEOFF_ORDER_SELECTED",this.orderdata);
+	}
+
+	__proto.setWriteOffMoney=function(money){
+		this.orderdata.writeOffMoney=money;
+		this.WriteoffMoney.text=money.toFixed(2);
+		this.unWriteOffMoney.text=(parseFloat(this.sellPrice.text)-money).toFixed(2);
+	}
+
+	__proto.setSelected=function(sel){
+		if(this.orderdata !=null){
+			this.selectBox.selected=sel;
+			this.orderdata.selected=sel;
+			if(sel){
+				this.setWriteOffMoney(Number(this.sellPrice.text));
+			}
+			else
+			this.setWriteOffMoney(0);
+		}
+	}
+
+	return WriteOffOrderCell;
+})(WriteOffOrderItemUI)
 
 
 //class script.order.SelectAttachBtn extends ui.order.TabChooseBtnUI
@@ -78910,10 +81499,12 @@ var PicOrderItem=(function(_super){
 		if(state==0){
 			this.deletBtn.x=1466;
 			this.total.x=1314;
+			this.unitPrice.x=1223;
 		}
 		else{
 			this.deletBtn.x=1566;
-			this.total.x=1364;
+			this.total.x=1415;
+			this.unitPrice.x=1324;
 		}
 	}
 
@@ -78959,13 +81550,9 @@ var PicOrderItem=(function(_super){
 		this.deletBtn.on("click",this,this.onDeleteOrder);
 		this.addmsg.underline=true;
 		this.addmsg.underlineColor="#222222";
-		this.price.text="0";
 		this.addmsg.on("click",this,this.onAddComment);
 		this.total.visible=!Userdata.instance.isHidePrice();
-		this.mattxt.text="";
-		this.changemat.underline=true;
-		this.changemat.underlineColor="#222222";
-		this.changemat.on("click",this,this.onShowMaterialView);
+		this.unitPrice.text="0";
 		this.inputnum.on("input",this,this.onNumChange);
 		this.editwidth.on("input",this,this.onWidthSizeChange);
 		this.editheight.on("input",this,this.onHeightSizeChange);
@@ -79026,11 +81613,8 @@ var PicOrderItem=(function(_super){
 				this.yingxback.skin=HttpRequestUtil.biggerPicUrl+yixingqiegeImg+".jpg";
 			}
 		}
-		if(provo.measureUnit=="平方米")
-			this.price.text=(provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-		else
-		this.price.text=(provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 		this.total.text=(parseInt(this.inputnum.text)*provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
+		this.unitPrice.text=this.ordervo.orderData.unitPrice;
 		var tech=provo.getTechDes(false,this.finalWidth,this.finalHeight);
 		if(tech.indexOf("超宽拼接")>=0)
 			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
@@ -79053,10 +81637,9 @@ var PicOrderItem=(function(_super){
 	}
 
 	__proto.reset=function(){
-		this.mattxt.text="";
 		this.architype.text="";
-		this.price.text="0";
 		this.total.text="0";
+		this.unitPrice.text="0";
 		this.ordervo.orderData=null;
 		this.ordervo.productVo=null;
 		this.curproductvo=null;
@@ -79166,7 +81749,6 @@ var PicOrderItem=(function(_super){
 		this.yingxback.y=this.height/2;
 		this.yixingimg.y=this.height/2;
 		this.filename.y=(this.height-this.filename.height)/2;
-		this.matbox.y=(this.height-42)/2;
 		this.editbox.y=(this.height-this.editbox.height)/2;
 		this.numbox.y=(this.height)/2-12;
 		this.total.y=(this.height-this.total.height)/2;
@@ -79188,10 +81770,6 @@ var PicOrderItem=(function(_super){
 			this.updateOrderData(this.curproductvo);
 			var area=(this.finalHeight *this.finalWidth)/10000;
 			var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-			if(this.curproductvo.measureUnit=="平方米")
-				this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-			else
-			this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 			this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
 		}
 		EventCenter.instance.event("UPDATE_ORDER_ITEM_TECH");
@@ -79256,10 +81834,6 @@ var PicOrderItem=(function(_super){
 				this.updateOrderDataPrice();
 				var area=(this.finalHeight *this.finalWidth)/10000;
 				var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-				if(this.curproductvo.measureUnit=="平方米")
-					this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/area *this.discount).toFixed(1);
-				else
-				this.price.text=(this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,true,this.ordervo)/perimeter *this.discount).toFixed(1);
 				this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
 			}
 		}
@@ -79335,17 +81909,22 @@ var PicOrderItem=(function(_super){
 		orderitemdata.itemNumber=parseInt(this.inputnum.text);
 		orderitemdata.itemPrice=this.ordervo.orderPrice.toString();
 		orderitemdata.actualAmount=parseFloat((parseInt(this.inputnum.text)*this.ordervo.orderPrice *this.discount).toFixed(1)).toExponential();
-		orderitemdata.isMerchandise=1;
+		orderitemdata.isMerchandise=0;
 		orderitemdata.itemStatus="0";
 		orderitemdata.fixedDiscount=productVo.isFixedCustomerRatio;
 		orderitemdata.discountProcessPrice=productVo.getDiscountProcessPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		orderitemdata.materialPrice=this.ordervo.orderPrice-orderitemdata.discountProcessPrice;
+		orderitemdata.unitPrice=this.ordervo.orderPrice-productVo.getAllAttachPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		orderitemdata.unitPrice=orderitemdata.unitPrice/(this.finalWidth/100*this.finalHeight/100);
+		orderitemdata.unitPrice=orderitemdata.unitPrice.toFixed(2);
 		orderitemdata.one_mat_cost=productVo.getMaterialPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		var cost=productVo.getProcessAndGrossPrices(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
 		orderitemdata.one_proc_cost=cost[0];
 		orderitemdata.gross_margin=cost[1]+cost[2];
 		orderitemdata.oneDiscountGrossMargin=cost[1];
 		orderitemdata.oneNoDiscountGrossMargin=cost[2];
+		orderitemdata.measureUnit=productVo.getFirstTechMeasureUnit();
+		orderitemdata.totalMeasureNum=(productVo.getTotalMeasureNum(this.finalWidth/100,this.finalHeight/100)*orderitemdata.itemNumber).toFixed(2);
 		var tempstr="";
 		var hasfinddot=false;
 		for(var i=this.ordervo.picinfo.directName.length-1;i >=0;i--){
@@ -79404,40 +81983,6 @@ var PicOrderItem=(function(_super){
 })(OrderItemUI)
 
 
-//class script.usercenter.PublicChargeCell extends ui.usercenter.PublicChargeRecordItemUI
-var PublicChargeCell=(function(_super){
-	function PublicChargeCell(){
-		PublicChargeCell.__super.call(this);
-	}
-
-	__class(PublicChargeCell,'script.usercenter.PublicChargeCell',_super);
-	var __proto=PublicChargeCell.prototype;
-	__proto.setData=function(data){
-		this.chargemoney.text=data.checkAmount+"";
-		this.transfermoney.text=data.amount+"";
-		this.confirmtime.text=data.logDate+"";
-		if(data.status.toString()=="0")
-			this.chargetime.text="";
-		else
-		this.chargetime.text=data.checkDate+"";
-		if(data.status.toString()=="0"){
-			this.state.text="待确认";
-			this.state.color="#223322";
-		}
-		else if(data.status.toString()=="1"){
-			this.state.text="已确认";
-			this.state.color="#003dc6";
-		}
-		if(data.status.toString()=="2"){
-			this.state.text="已拒绝";
-			this.state.color="#FF1122";
-		}
-	}
-
-	return PublicChargeCell;
-})(PublicChargeRecordItemUI)
-
-
 //class script.order.SelFactoryItem extends ui.order.OrderAddressItemUI
 var SelFactoryItem=(function(_super){
 	function SelFactoryItem(){
@@ -79483,30 +82028,38 @@ var SelFactoryItem=(function(_super){
 })(OrderAddressItemUI)
 
 
-//class script.picUpload.CustomeSimpleCell extends ui.inuoView.items.CustomPicCellUI
-var CustomeSimpleCell=(function(_super){
-	function CustomeSimpleCell(){
-		this.customerVo=null;
-		CustomeSimpleCell.__super.call(this);
-		this.btmLine.visible=false;
-		this.on("mouseover",this,function(){
-			this.btmLine.visible=true;
-		});
-		this.on("mouseout",this,function(){
-			this.btmLine.visible=false;
-		});
+//class script.usercenter.PublicChargeCell extends ui.usercenter.PublicChargeRecordItemUI
+var PublicChargeCell=(function(_super){
+	function PublicChargeCell(){
+		PublicChargeCell.__super.call(this);
 	}
 
-	__class(CustomeSimpleCell,'script.picUpload.CustomeSimpleCell',_super);
-	var __proto=CustomeSimpleCell.prototype;
+	__class(PublicChargeCell,'script.usercenter.PublicChargeCell',_super);
+	var __proto=PublicChargeCell.prototype;
 	__proto.setData=function(data){
-		this.customerVo=data;
-		this.customName.text=this.customerVo.customerName;
-		this.phoneNum.text=this.customerVo.mobileNumber;
+		this.chargemoney.text=data.checkAmount+"";
+		this.transfermoney.text=data.amount+"";
+		this.confirmtime.text=data.logDate+"";
+		if(data.status.toString()=="0")
+			this.chargetime.text="";
+		else
+		this.chargetime.text=data.checkDate+"";
+		if(data.status.toString()=="0"){
+			this.state.text="待确认";
+			this.state.color="#223322";
+		}
+		else if(data.status.toString()=="1"){
+			this.state.text="已确认";
+			this.state.color="#003dc6";
+		}
+		if(data.status.toString()=="2"){
+			this.state.text="已拒绝";
+			this.state.color="#FF1122";
+		}
 	}
 
-	return CustomeSimpleCell;
-})(CustomPicCellUI)
+	return PublicChargeCell;
+})(PublicChargeRecordItemUI)
 
 
 //class script.usercenter.OrderCheckListItem extends ui.usercenter.OrderListItemUI
@@ -79522,10 +82075,12 @@ var OrderCheckListItem=(function(_super){
 		this.orderdata=data;
 		this.orderid.text=this.orderdata.id;
 		this.ordertime.text=this.orderdata.createdAt;
+		this.customeName.text=this.orderdata.customerName !=null ?this.orderdata.customerName:"";
 		var status=parseInt(this.orderdata.status);
 		this.retrybtn.visible=false;
 		this.deletebtn.visible=false;
 		this.deleteorder.visible=false;
+		this.sellPriceSet.visible=false;
 		Laya.timer.clearAll(this);
 		if(status==0){
 			this.orderstatus.text="未支付";
@@ -79538,6 +82093,7 @@ var OrderCheckListItem=(function(_super){
 			ordertime=new Date(Date.parse(UtilTool.convertDateStr(orderinfo.pay_timeStr)));
 			var passtime=(new Date()).getTime()-ordertime.getTime()+8 *3600 *1000;
 			this.deleteorder.visible=passtime > 3600 *24 *5 *1000;
+			this.sellPriceSet.visible=true;
 		}
 		else if(status==10){
 			this.orderstatus.text="支付中";
@@ -79551,9 +82107,14 @@ var OrderCheckListItem=(function(_super){
 		}
 		else if(status==1){
 			this.orderstatus.text="已支付排产成功";
+			if(this.orderdata.cleared==0)
+				this.orderstatus.text+="(未销账)";
+			else
+			this.orderstatus.text+="(已销账)";
 			this.orderstatus.color="#52B232";
 			this.payagain.visible=false;
 			this.deletebtn.visible=true;
+			this.sellPriceSet.visible=true;
 		}
 		else if(status==102 || status==103){
 			this.orderstatus.text="已支付排产中";
@@ -79586,6 +82147,7 @@ var OrderCheckListItem=(function(_super){
 				this.paymoney.text=Number(detail.moneyPaid).toFixed(2);
 			else
 			this.paymoney.text=Number(detail.money_paidStr).toFixed(2);
+			this.sellPrice.text=(detail.totalSalesPrice !=null && detail.totalSalesPrice !="")?detail.totalSalesPrice:this.paymoney.text;
 			this.productnum.text=detail.orderItemList.length+"";
 			if(Userdata.instance.isHidePrice())
 				this.paymoney.text="****";
@@ -79594,6 +82156,7 @@ var OrderCheckListItem=(function(_super){
 			this.payagain.on("click",this,this.onClickPay);
 			this.retrybtn.on("click",this,this.onClickRetry);
 			this.deleteorder.on("click",this,this.onClickDeleteOrder);
+			this.sellPriceSet.on("click",this,this.onShowSettingView);
 		}
 		catch(e){
 		}
@@ -79719,6 +82282,8 @@ var OrderCheckListItem=(function(_super){
 	}
 
 	__proto.ongetAvailableDateBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		var result=JSON.parse(data);
 		if(!result.hasOwnProperty("status")){
@@ -79759,7 +82324,7 @@ var OrderCheckListItem=(function(_super){
 					}
 				}
 			}
-			EventCenter.instance.event("SHOW_CONTENT_PANEL",[ChooseDeliveryTimePanelUI,0,{orders:PaintOrderModel.instance.finalOrderData[0].orderItemList,delaypay:true,firstOrder:this.orderdata.kind==1}]);
+			EventCenter.instance.event("SHOW_CONTENT_PANEL",[ChooseDeliveryTimePanelUI,0,{orders:PaintOrderModel.instance.finalOrderData[0].orderItemList,delaypay:true,firstOrder:this.orderdata.kind==1,customerName:this.orderdata.customerName,defaultPayType:this.orderdata.customerPayment}]);
 		}
 	}
 
@@ -79778,8 +82343,41 @@ var OrderCheckListItem=(function(_super){
 		}
 	}
 
+	__proto.onShowSettingView=function(){
+		ViewManager.instance.openView("ORDER_PRICE_SETTING_PANEL",false,this.orderdata);
+	}
+
 	return OrderCheckListItem;
 })(OrderListItemUI)
+
+
+//class script.picUpload.CustomeSimpleCell extends ui.inuoView.items.CustomPicCellUI
+var CustomeSimpleCell=(function(_super){
+	function CustomeSimpleCell(){
+		this.customerVo=null;
+		CustomeSimpleCell.__super.call(this);
+		this.btmLine.visible=false;
+		this.on("mouseover",this,function(){
+			this.btmLine.visible=true;
+		});
+		this.on("mouseout",this,function(){
+			this.btmLine.visible=false;
+		});
+	}
+
+	__class(CustomeSimpleCell,'script.picUpload.CustomeSimpleCell',_super);
+	var __proto=CustomeSimpleCell.prototype;
+	__proto.setData=function(data){
+		this.customerVo=data;
+		this.customName.text=this.customerVo.customerName;
+		if(parseInt(this.customerVo.id)> 0){
+			this.customName.text+="("+Constast.PAY_TYPE_NAME[this.customerVo.defaultPayment-1]+")";
+		}
+		this.phoneNum.text=this.customerVo.mobileNumber;
+	}
+
+	return CustomeSimpleCell;
+})(CustomPicCellUI)
 
 
 //class script.order.PackageEditCell extends ui.order.PackageEditItemUI
@@ -79807,7 +82405,7 @@ var PackageEditCell=(function(_super){
 		for(var i=0;i < this.packageVo.itemlist.length;i++){
 			var numitem=new PackageNumItemUI();
 			numitem.numInput.text=this.packageVo.itemlist[i].itemCount+"";
-			if(PaintOrderModel.instance.packageList.indexOf(this.packageVo)==0 || PaintOrderModel.instance.packageList.indexOf(this.packageVo)==1){
+			if(PaintOrderModel.instance.packageList.indexOf(this.packageVo)==0){
 				numitem.numInput.editable=false;
 				numitem.addBtn.visible=false;
 				numitem.subBtn.visible=false;
@@ -79827,7 +82425,7 @@ var PackageEditCell=(function(_super){
 	}
 
 	__proto.onaddnum=function(textInput,packageItem){
-		var firstpackage=PaintOrderModel.instance.packageList[1];
+		var firstpackage=PaintOrderModel.instance.packageList[0];
 		for(var i=0;i < firstpackage.itemlist.length;i++){
 			if(firstpackage.itemlist[i].itemId==packageItem.itemId){
 				if(firstpackage.itemlist[i].itemCount > 0){
@@ -79850,7 +82448,7 @@ var PackageEditCell=(function(_super){
 		curnum--;
 		packageItem.itemCount=curnum;
 		textInput.text=curnum+"";
-		var firstpackage=PaintOrderModel.instance.packageList[1];
+		var firstpackage=PaintOrderModel.instance.packageList[0];
 		for(var i=0;i < firstpackage.itemlist.length;i++){
 			if(firstpackage.itemlist[i].itemId==packageItem.itemId){
 				firstpackage.itemlist[i].itemCount++;
@@ -79868,7 +82466,7 @@ var PackageEditCell=(function(_super){
 		if(curnum < 0)
 			curnum=0;
 		var othertotal=0;
-		var firstpackage=PaintOrderModel.instance.packageList[1];
+		var firstpackage=PaintOrderModel.instance.packageList[0];
 		for(var i=0;i < firstpackage.itemlist.length;i++){
 			if(firstpackage.itemlist[i].itemId==packageItem.itemId){
 				var maxnum=packageItem.itemCount+firstpackage.itemlist[i].itemCount;
@@ -79938,10 +82536,14 @@ var DeliverySelCell=(function(_super){
 		if(PaintOrderModel.instance.hasCommonOrderItem(this.deliveryData.manufacturer_code)){
 			var deltypelist=this.commondelType.labels.split(",");
 			for(var i=0;i < deltypelist.length;i++){
+				if(PaintOrderModel.instance.curOrderCustomer !=null && PaintOrderModel.instance.selectAddress !=null && PaintOrderModel.instance.selectAddress.defaultDeliveryType !="" && deltypelist[i].indexOf(PaintOrderModel.instance.selectAddress.defaultDeliveryType)>=0){
+					this.commondelType.selectedIndex=i;
+					PaintOrderModel.instance.curCommmonDeliveryType[this.deliveryData.manufacturer_code]=PaintOrderModel.instance.selectAddress.defaultDeliveryType;
+					break ;
+				}
 				if(deltypelist[i].indexOf("送货上门")>=0){
 					this.commondelType.selectedIndex=i;
 					PaintOrderModel.instance.curCommmonDeliveryType[this.deliveryData.manufacturer_code]="送货上门";
-					break ;
 				}
 			}
 			if(PaintOrderModel.instance.curCommmonDeliveryType[this.deliveryData.manufacturer_code]==null && deltypelist.length > 0){
@@ -80000,10 +82602,14 @@ var DeliverySelCell=(function(_super){
 			if(this.commondelType.selectedIndex < 0){
 				var deltypelist=this.commondelType.labels.split(",");
 				for(var i=0;i < deltypelist.length;i++){
+					if(PaintOrderModel.instance.curOrderCustomer !=null && PaintOrderModel.instance.selectAddress !=null && deltypelist[i].indexOf(PaintOrderModel.instance.selectAddress.defaultDeliveryType)>=0){
+						this.commondelType.selectedIndex=i;
+						PaintOrderModel.instance.curCommmonDeliveryType[this.deliveryData.manufacturer_code]=PaintOrderModel.instance.selectAddress.defaultDeliveryType;
+						break ;
+					}
 					if(deltypelist[i].indexOf("送货上门")>=0){
 						this.commondelType.selectedIndex=i;
 						PaintOrderModel.instance.curCommmonDeliveryType[this.deliveryData.manufacturer_code]="送货上门";
-						break ;
 					}
 				}
 				if(this.commondelType.selectedIndex < 0 && deltypelist.length > 0){
@@ -80214,6 +82820,8 @@ var DeliveryPackageCell=(function(_super){
 	}
 
 	__proto.onGetOrderNumberBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			if(result.data.data.expressname !=null){
@@ -80241,6 +82849,55 @@ var DeliveryPackageCell=(function(_super){
 
 	return DeliveryPackageCell;
 })(DeliveryPackageItemUI)
+
+
+//class script.usercenter.item.CustomerTransacCell extends ui.usercenter.items.CustomerTransacItemUI
+var CustomerTransacCell=(function(_super){
+	function CustomerTransacCell(){
+		this.transactionVo=null;
+		CustomerTransacCell.__super.call(this);
+		this.deleteBtn.on("click",this,this.onDeleteTransaction);
+	}
+
+	__class(CustomerTransacCell,'script.usercenter.item.CustomerTransacCell',_super);
+	var __proto=CustomerTransacCell.prototype;
+	//this.xiaozhang.on(Event.CLICK,this,onWriteOff);
+	__proto.setData=function(data){
+		this.transactionVo=data;
+		this.customerNamelbl.text=this.transactionVo.customerName;
+		this.transacNum.text=this.transactionVo.transactionSn;
+		this.transacType.text=this.transactionVo.transactionTypeName;
+		this.transactDate.text=this.transactionVo.transactionTime;
+		this.money.text=this.transactionVo.amount;
+		this.transactName.text=this.transactionVo.transactionChannel;
+		this.userNamelbl.text=this.transactionVo.userName;
+		this.commentlbl.text=this.transactionVo.comment;
+		this.deleteBtn.visible=this.transactionVo.transactionType=="2";
+	}
+
+	__proto.onWriteOff=function(){
+		ViewManager.instance.openView("WRITE_OFF_ORDER_PANEL",false,this.transactionVo);
+	}
+
+	__proto.onDeleteTransaction=function(){
+		ViewManager.instance.openView("VIEW_POPUPDIALOG",false,{msg:"确定删除该条收款记录吗？",caller:this,callback:this.confirmDelete});
+	}
+
+	__proto.confirmDelete=function(b){
+		if(b){
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/collection/delete?",this,this.deletecollectback,JSON.stringify({"id":this.transactionVo.id}),"post");
+		}
+	}
+
+	__proto.deletecollectback=function(data){
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			EventCenter.instance.event("DELETE_CUSTOMER_TRANSACTION");
+		}
+	}
+
+	return CustomerTransacCell;
+})(CustomerTransacItemUI)
 
 
 //class script.order.ChooseDelTimeOrderItem extends ui.order.SimpleOrderItemUI
@@ -80313,6 +82970,8 @@ var ChooseDelTimeOrderItem=(function(_super){
 	}
 
 	__proto.onOccupyCapacityBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(!result.hasOwnProperty("status")){
 			if(result.feedBack==1){
@@ -80348,6 +83007,8 @@ var ChooseDelTimeOrderItem=(function(_super){
 	}
 
 	__proto.ongetAvailableDateBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(!result.hasOwnProperty("status")){
 			var alldates=result;
@@ -80394,6 +83055,8 @@ var ChooseDelTimeOrderItem=(function(_super){
 	}
 
 	__proto.onOccupyUrgentCapacityBack=function(data){
+		if(this.destroyed)
+			return;
 		var result=JSON.parse(data);
 		if(!result.hasOwnProperty("status")){
 			if(result.feedBack==1){
@@ -80564,31 +83227,6 @@ var ChooseDelTimeOrderItem=(function(_super){
 })(SimpleOrderItemUI)
 
 
-//class script.workpanel.items.MaterialCategoryCell extends ui.inuoView.items.MatCategoryItemUI
-var MaterialCategoryCell=(function(_super){
-	function MaterialCategoryCell(){
-		this.matclassvo=null;
-		MaterialCategoryCell.__super.call(this);
-	}
-
-	__class(MaterialCategoryCell,'script.workpanel.items.MaterialCategoryCell',_super);
-	var __proto=MaterialCategoryCell.prototype;
-	__proto.setData=function(matName){
-		this.matclassvo=matName;
-		this.selbtn.label=this.matclassvo.matclassname;
-		this.selbtn.width=this.selbtn.text.textWidth+40;
-		this.width=this.selbtn.width;
-		this.selfIcon.visible=false;
-	}
-
-	__getset(0,__proto,'ShowSelected',null,function(value){
-		this.selbtn.selected=value;
-	});
-
-	return MaterialCategoryCell;
-})(MatCategoryItemUI)
-
-
 //class script.usercenter.item.GroupAddressCell extends ui.usercenter.GroupAddressItemUI
 var GroupAddressCell=(function(_super){
 	function GroupAddressCell(){
@@ -80634,14 +83272,40 @@ var GroupAddressCell=(function(_super){
 })(GroupAddressItemUI)
 
 
+//class script.workpanel.items.MaterialCategoryCell extends ui.inuoView.items.MatCategoryItemUI
+var MaterialCategoryCell=(function(_super){
+	function MaterialCategoryCell(){
+		this.matclassvo=null;
+		MaterialCategoryCell.__super.call(this);
+	}
+
+	__class(MaterialCategoryCell,'script.workpanel.items.MaterialCategoryCell',_super);
+	var __proto=MaterialCategoryCell.prototype;
+	__proto.setData=function(matName){
+		this.matclassvo=matName;
+		this.selbtn.label=this.matclassvo.matclassname;
+		this.selbtn.width=this.selbtn.text.textWidth+40;
+		this.width=this.selbtn.width;
+		this.selfIcon.visible=false;
+	}
+
+	__getset(0,__proto,'ShowSelected',null,function(value){
+		this.selbtn.selected=value;
+	});
+
+	return MaterialCategoryCell;
+})(MatCategoryItemUI)
+
+
 //class script.usercenter.item.CustomCell extends ui.usercenter.items.CustomeItemUI
 var CustomCell=(function(_super){
 	function CustomCell(){
 		this.customData=null;
 		CustomCell.__super.call(this);
 		this.deleteTxt.on("click",this,this.onDelete);
+		this.updateInfoTxt.on("click",this,this.onEditCustomer);
 		this.addressTxt.on("click",this,this.onSelectAddress);
-		this.updateInfoTxt.visible=false;
+		this.updateInfoTxt.visible=true;
 	}
 
 	__class(CustomCell,'script.usercenter.item.CustomCell',_super);
@@ -80651,10 +83315,17 @@ var CustomCell=(function(_super){
 		this.customName.text=this.customData.customerName;
 		this.phoneNumber.text=this.customData.mobileNumber;
 		this.selectImg.visible=false;
+		this.businessManlbl.text=this.customData.salerName;
+		this.balancelbl.text=this.customData.balanceMoney.toFixed(2);
+		this.defaultPayType.text=Constast.PAY_TYPE_NAME[this.customData.defaultPayment-1];
 	}
 
 	__proto.selected=function(id){
 		this.selectImg.visible=this.customData !=null && this.customData.id==id;
+	}
+
+	__proto.onEditCustomer=function(){
+		EventCenter.instance.event("EDIT_CUSTOMER_INFO",this.customData);
 	}
 
 	__proto.onDelete=function(){
@@ -81170,13 +83841,14 @@ var AddressGroupCell=(function(_super){
 
 	__proto.confirmDelete=function(b){
 		if(b){
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/opt-vip-addr-group?",this,this.delGroupBack,"opt=delete&id="+this.groupVo.groupId,"post");
+			var post={"id":this.groupVo.groupId};
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/express/group/delete?",this,this.delGroupBack,JSON.stringify(post),"post");
 		}
 	}
 
 	__proto.delGroupBack=function(data){
 		var result=JSON.parse(data);
-		if(result.status==0){
+		if(result.code=="0"){
 			EventCenter.instance.event("UPDATE_ADDRESS_GROUP_LIST");
 		}
 	}
@@ -81852,6 +84524,7 @@ var CitySearchItem=(function(_super){
 	function CitySearchItem(){
 		CitySearchItem.__super.call(this);
 		this.width=120;
+		this.productname.fontSize=16;
 	}
 
 	__class(CitySearchItem,'script.usercenter.item.CitySearchItem',_super);

@@ -7,7 +7,7 @@ package ui.login {
 		public var bg:Image;
 		public var productname:Label;
 
-		public static var uiView:Object =/*[STATIC SAFE]*/{"type":"View","props":{"width":252,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"bg","top":0,"skin":"commers/grayback.jpg","right":0,"left":0,"bottom":0},"compId":5},{"type":"Label","props":{"y":1,"x":41,"width":252,"var":"productname","valign":"middle","top":0,"text":"江西省","left":0,"height":28,"fontSize":28,"font":"SimHei","color":"#262B2E","align":"center"},"compId":3}],"loadList":["commers/grayback.jpg"],"loadList3D":[]};
+		public static var uiView:Object =/*[STATIC SAFE]*/{"type":"View","props":{"right":0,"left":0,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"bg","top":0,"skin":"commers/grayback.jpg","right":0,"left":0,"bottom":0},"compId":5},{"type":"Label","props":{"y":1,"var":"productname","valign":"middle","top":0,"text":"江西省","right":0,"left":0,"height":28,"fontSize":28,"font":"SimHei","color":"#262B2E","align":"center"},"compId":3}],"loadList":["commers/grayback.jpg"],"loadList3D":[]};
 		override protected function createChildren():void {
 			super.createChildren();
 			createView(uiView);

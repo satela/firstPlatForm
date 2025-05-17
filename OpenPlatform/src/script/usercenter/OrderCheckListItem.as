@@ -35,11 +35,14 @@ package script.usercenter
 			this.orderid.text = orderdata.id;
 			this.ordertime.text = orderdata.createdAt;
 
+			this.customeName.text = orderdata.customerName != null ?orderdata.customerName:"";
+			
 			var status:int = parseInt(orderdata.status);
 			this.retrybtn.visible = false;
 
 			this.deletebtn.visible = false;
 			this.deleteorder.visible = false;
+			this.sellPriceSet.visible = false;
 			Laya.timer.clearAll(this);
 
 			if(status == 0)
@@ -57,6 +60,8 @@ package script.usercenter
 			
 				
 				this.deleteorder.visible = passtime > 3600 * 24 * 5 * 1000;
+				this.sellPriceSet.visible = true;
+
 			}
 			else if(status == 10)
 			{
@@ -78,9 +83,16 @@ package script.usercenter
 			else if(status == 1)
 			{
 				this.orderstatus.text = "已支付排产成功";
+				if(orderdata.cleared==0)
+					this.orderstatus.text += "(未销账)";
+				else
+					this.orderstatus.text += "(已销账)";
+
 				this.orderstatus.color = "#52B232";
 				this.payagain.visible = false;
 				this.deletebtn.visible = true;
+				this.sellPriceSet.visible = true;
+
 
 			}
 			else if(status == 102 || status == 103)
@@ -125,6 +137,7 @@ package script.usercenter
 				else
 					this.paymoney.text = Number(detail.money_paidStr).toFixed(2);
 				
+				this.sellPrice.text = (detail.totalSalesPrice != null && detail.totalSalesPrice != "")?detail.totalSalesPrice:this.paymoney.text;
 
 				this.productnum.text = detail.orderItemList.length + "";
 				
@@ -137,6 +150,7 @@ package script.usercenter
 				this.payagain.on(Event.CLICK,this,onClickPay);
 				this.retrybtn.on(Event.CLICK,this,onClickRetry);
 				this.deleteorder.on(Event.CLICK,this,onClickDeleteOrder);
+				this.sellPriceSet.on(Event.CLICK,this,onShowSettingView);
 
 			}
 			catch(e)
@@ -337,6 +351,9 @@ package script.usercenter
 		
 		private function ongetAvailableDateBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			var result:Object = JSON.parse(data as String);
 			if(!result.hasOwnProperty("status"))
@@ -456,7 +473,7 @@ package script.usercenter
 				}
 				
 				//ViewManager.instance.openView(ViewManager.VIEW_CHOOSE_DELIVERY_TIME_PANEL,false,{orders:PaintOrderModel.instance.finalOrderData[0].orderItemList,delaypay:true});
-				EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[ChooseDeliveryTimePanelUI,0,{orders:PaintOrderModel.instance.finalOrderData[0].orderItemList,delaypay:true,firstOrder:this.orderdata.kind==1}]);
+				EventCenter.instance.event(EventCenter.SHOW_CONTENT_PANEL,[ChooseDeliveryTimePanelUI,0,{orders:PaintOrderModel.instance.finalOrderData[0].orderItemList,delaypay:true,firstOrder:this.orderdata.kind==1,customerName:this.orderdata.customerName,defaultPayType:this.orderdata.customerPayment}]);
 
 			}
 		}
@@ -466,6 +483,7 @@ package script.usercenter
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.payExceptOrder,this,payMoneyBack,"orderid=" + orderdata.or_id,"post");
 
 		}
+		
 		
 		private function payMoneyBack(data:Object):void
 		{
@@ -480,6 +498,11 @@ package script.usercenter
 			{
 				ViewManager.showAlert("订单排产失败，您可以撤回订单，重新下单");
 			}
+		}
+		
+		private function onShowSettingView():void
+		{
+			ViewManager.instance.openView(ViewManager.ORDER_PRICE_SETTING_PANEL,false,orderdata);
 		}
 	}
 }

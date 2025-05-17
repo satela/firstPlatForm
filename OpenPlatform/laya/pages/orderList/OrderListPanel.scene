@@ -2,11 +2,11 @@
     "x":0,
     "type":"View",
     "selectedBox":3,
-    "selecteID":42,
+    "selecteID":29,
     "searchKey":"View",
     "props":{"width":1624,"top":0,"sceneColor":"#ffffff","right":0,"left":0,"height":1080,"bottom":0},
     "nodeParent":-1,
-    "maxID":53,
+    "maxID":62,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -136,19 +136,20 @@
                     "x":30,
                     "type":"Box",
                     "searchKey":"Box",
-                    "props":{"y":223,"x":47},
+                    "props":{"y":223,"x":8},
                     "nodeParent":3,
                     "label":"Box",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":12,
                     "child":[
                         {
+                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"text":"订单号","fontSize":18,"font":"SimHei"},
+                            "props":{"y":0,"x":306,"text":"订单号","fontSize":18,"font":"SimHei"},
                             "nodeParent":12,
                             "label":"Label",
                             "isDirectory":false,
@@ -159,9 +160,10 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":0,"x":192,"text":"下单日期","fontSize":18,"font":"SimHei"},
+                            "props":{"y":0,"x":512,"text":"下单日期","fontSize":18,"font":"SimHei"},
                             "nodeParent":12,
                             "label":"Label",
                             "isDirectory":false,
@@ -172,9 +174,10 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":0,"x":457.5,"text":"商品数量","fontSize":18,"font":"SimHei"},
+                            "props":{"y":0,"x":674.5,"text":"商品数量","fontSize":18,"font":"SimHei"},
                             "nodeParent":12,
                             "label":"Label",
                             "isDirectory":false,
@@ -185,9 +188,10 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":0,"x":590,"text":"订单金额","fontSize":18,"font":"SimHei"},
+                            "props":{"y":0,"x":760,"text":"订单金额","fontSize":18,"font":"SimHei"},
                             "nodeParent":12,
                             "label":"Label",
                             "isDirectory":false,
@@ -198,9 +202,10 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":0,"x":821,"text":"支付状态","fontSize":18,"font":"SimHei","bold":false},
+                            "props":{"y":0,"x":1024,"text":"支付状态","fontSize":18,"font":"SimHei","bold":false},
                             "nodeParent":12,
                             "label":"Label",
                             "isDirectory":false,
@@ -211,15 +216,44 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"y":0,"x":1228,"text":"操作","fontSize":18,"font":"SimHei","bold":false},
+                            "props":{"y":0,"x":1398,"text":"操作","fontSize":18,"font":"SimHei","bold":false},
                             "nodeParent":12,
                             "label":"Label",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":18,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"y":0,"x":15,"text":"客户名称","fontSize":18,"font":"SimHei"},
+                            "nodeParent":12,
+                            "label":"Label",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":53,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"y":0,"x":867,"text":"总售价","fontSize":18,"font":"SimHei"},
+                            "nodeParent":12,
+                            "label":"Label",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":55,
                             "child":[
                                 ]
                         }]
@@ -256,7 +290,7 @@
                     "x":30,
                     "type":"List",
                     "searchKey":"List,orderList",
-                    "props":{"x":47,"width":1521,"var":"orderList","vScrollBarSkin":"uiCommonUpdate/vscroll.png","top":270,"bottom":100},
+                    "props":{"x":10,"width":1600,"var":"orderList","vScrollBarSkin":"uiCommonUpdate/vscroll.png","top":270,"bottom":100},
                     "nodeParent":3,
                     "label":"orderList",
                     "isOpen":true,
@@ -271,7 +305,7 @@
                     "x":30,
                     "type":"Button",
                     "searchKey":"Button,btnsearch",
-                    "props":{"y":165,"x":557,"width":100,"var":"btnsearch","skin":"uiCommonUpdate/green2.png","sizeGrid":"3,3,3,3","labelSize":18,"labelFont":"SimHei","labelColors":"#003dc6,#FFFFFF,#FFFFFF","label":"查询","height":30},
+                    "props":{"y":165,"x":973,"width":100,"var":"btnsearch","skin":"uiCommonUpdate/green2.png","sizeGrid":"3,3,3,3","labelSize":18,"labelFont":"SimHei","labelColors":"#003dc6,#FFFFFF,#FFFFFF","label":"查询","height":30},
                     "nodeParent":3,
                     "label":"btnsearch",
                     "isDirectory":false,
@@ -285,7 +319,7 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image",
-                    "props":{"x":47,"width":1521,"top":270,"skin":"commers/cutline.png"},
+                    "props":{"x":10,"width":1600,"top":270,"skin":"commers/cutline.png"},
                     "nodeParent":3,
                     "label":"Image",
                     "isDirectory":false,
@@ -420,11 +454,41 @@
                 },
                 {
                     "x":30,
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"y":113,"x":689,"text":"制单人","fontSize":24,"font":"SimHei"},
+                    "nodeParent":3,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":57,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"ComboBox",
+                    "searchKey":"ComboBox,orderPlaceCombo",
+                    "props":{"y":112,"x":775,"width":222,"var":"orderPlaceCombo","skin":"comp/combobox.png","sizeGrid":"6,21,6,12","labels":"小李,小吴","labelSize":20,"labelFont":"SimHei","labelColors":"#0","itemSize":16,"height":30},
+                    "nodeParent":3,
+                    "label":"orderPlaceCombo",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":56,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,showCustomList",
-                    "props":{"y":32,"x":931,"var":"showCustomList","stateNum":"1","skin":"uiCommonUpdate/xiala.png"},
+                    "props":{"y":114,"x":1583,"var":"showCustomList","stateNum":"1","skin":"uiCommonUpdate/xiala.png"},
                     "nodeParent":3,
                     "label":"showCustomList",
+                    "isOpen":true,
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
@@ -436,7 +500,7 @@
                     "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,curCustomName",
-                    "props":{"y":30,"x":665,"width":260,"var":"curCustomName","text":"品赋阳光","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":30,"fontSize":24,"font":"SimHei"},
+                    "props":{"y":112,"x":1317,"width":260,"var":"curCustomName","text":"品赋阳光","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":30,"fontSize":24,"font":"SimHei"},
                     "nodeParent":3,
                     "label":"curCustomName",
                     "isOpen":true,
@@ -449,19 +513,32 @@
                 },
                 {
                     "x":30,
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"y":112,"x":1014,"text":"业务员","fontSize":24,"font":"SimHei"},
+                    "nodeParent":3,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":58,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
                     "type":"Panel",
                     "searchKey":"Panel,customListPanel",
-                    "props":{"x":665,"width":300,"var":"customListPanel","top":61,"bottom":20},
+                    "props":{"x":1317,"width":300,"var":"customListPanel","top":142,"bottom":20},
                     "nodeParent":3,
                     "label":"customListPanel",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":42,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"top":0,"skin":"commers/commonpopbg.png","sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0,"alpha":1},
@@ -475,7 +552,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"top":0,"skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","right":0,"left":0,"bottom":0},
@@ -489,7 +565,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"List",
                             "searchKey":"List,customeList",
                             "props":{"top":30,"right":0,"name":"customeList","left":0,"bottom":40},
@@ -503,7 +578,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box,pageBox",
                             "props":{"x":63,"name":"pageBox","bottom":0},
@@ -516,7 +590,6 @@
                             "compId":46,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label,pageTxt",
                                     "props":{"x":19.500000267948963,"width":115,"text":"1/20","name":"pageTxt","height":24,"fontSize":24,"color":"#0","align":"center"},
@@ -531,7 +604,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button,prevPage",
                                     "props":{"y":13,"x":5,"stateNum":"1","skin":"uiCommonUpdate/xiala.png","rotation":90,"name":"prevPage","anchorY":0.5,"anchorX":0.5},
@@ -545,7 +617,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button,nextPage",
                                     "props":{"y":13,"x":147,"stateNum":"1","skin":"uiCommonUpdate/xiala.png","rotation":-90,"name":"nextPage","anchorY":0.5,"anchorX":0.5},
@@ -560,7 +631,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"TextInput",
                             "searchKey":"TextInput,searchCustomName",
                             "props":{"x":8,"width":146,"top":5,"skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","prompt":"输入客户信息查询","name":"searchCustomName","height":20,"fontSize":16},
@@ -574,7 +644,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,searchBtn",
                             "props":{"x":168,"width":65,"visible":true,"top":3,"stateNum":"3","skin":"uiCommonUpdate/green2.png","name":"searchBtn","labelSize":16,"labelFont":"SimHei","labelColors":"#B1B1B1,#FFFFFF,#FFFFFF","labelAlign":"center","label":"搜索","height":24},
@@ -589,13 +658,12 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/prefabScript/CustomListController.as",
                             "searchKey":"Script,CustomListController",
                             "removeAble":true,
-                            "props":{},
+                            "props":{"includeAll":1},
                             "nodeParent":42,
                             "label":"CustomListController",
                             "isDirectory":false,
@@ -604,7 +672,51 @@
                             "compId":52,
                             "child":[
                                 ]
-                        }]
+                        }],
+                    "$HIDDEN":false
+                },
+                {
+                    "x":30,
+                    "type":"ComboBox",
+                    "searchKey":"ComboBox,businessCombo",
+                    "props":{"y":111,"x":1100,"width":199,"var":"businessCombo","skin":"comp/combobox.png","sizeGrid":"6,21,6,12","labels":"小李,小吴","labelSize":20,"labelFont":"SimHei","labelColors":"#0","itemSize":20,"height":30},
+                    "nodeParent":3,
+                    "label":"businessCombo",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":59,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"y":168,"x":501.5,"text":"销账状态","fontSize":24,"font":"SimHei"},
+                    "nodeParent":3,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":60,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"RadioGroup",
+                    "searchKey":"RadioGroup,writeOffRadio",
+                    "props":{"y":168,"x":611,"width":241,"var":"writeOffRadio","skin":"uiCommonUpdate/checksel.png","scaleY":1.5,"scaleX":1.5,"labels":"未销账    ,已销账   ,全部","labelSize":12,"labelPadding":"4","labelFont":"SimHei","labelColors":"#0,#0,#0","height":18},
+                    "nodeParent":3,
+                    "label":"writeOffRadio",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":61,
+                    "child":[
+                        ]
                 }]
         },
         {

@@ -26,6 +26,7 @@ package script.usercenter
 
 		private var curPage:int = 1;
 		private var totalPage:int = 1;
+		private var pageSize:int = 30;
 		
 		private var province:Object;
 		
@@ -77,8 +78,8 @@ package script.usercenter
 			
 			EventCenter.instance.on(EventCenter.INSERT_ADDRESS_TO_GROUP,this,refreshList);
 			EventCenter.instance.on(EventCenter.DELETE_ADDRESS_FROM_GROUP,this,deleteAddress);
-
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page=" + curPage + "&hidden=0&id=" + grpVo.groupId + "&addr="  + "&keyword=" + uiSkin.searchInput.text,"post");
+			updateList();
+			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page=" + curPage + "&hidden=0&id=" + grpVo.groupId + "&addr="  + "&keyword=" + uiSkin.searchInput.text,"post");
 
 			//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.listGroupsAddress,this,getMyAddressBack,"id=104,105","post");
 
@@ -146,25 +147,33 @@ package script.usercenter
 					if(uiSkin.addressList.array[i].selected)
 						deleteIds.push(uiSkin.addressList.array[i].id);
 				}
-				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.insertGroupAddress,this,adddeleteBack,"opt=remove&id=" + grpVo.groupId + "&ids=" + deleteIds.join(","),"post");
+				
+				var postdata:Object = {};
+				postdata.expressGroupId = grpVo.groupId;
+				postdata.expressIds = deleteIds;
+				
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.removeGroupAddress,this,adddeleteBack,JSON.stringify(postdata),"post");
 				
 			}
 		}
 		private function getMyAddressBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
-			if(result.status == 0)
+			if(result.code == "0")
 			{
 				var addressList = [];
-				for(var i:int=0;i < result.data.length;i++)
+				for(var i:int=0;i < result.data.expressList.length;i++)
 				{
-					addressList.push(new VipAddressVo(result.data[i]));
+					addressList.push(new VipAddressVo(result.data.expressList[i]));
 				}			
 				
 				//var tempAdd:Array = Userdata.instance.addressList;
 				//tempAdd.sort(compareAddress);
 				uiSkin.addressList.array = addressList;
-				totalPage = result.totalpage;
+				totalPage = Math.ceil(result.data.totalCount/pageSize);
 				if(totalPage < 1)
 					totalPage = 1;
 				uiSkin.pageNum.text = curPage + "/" + totalPage;
@@ -197,17 +206,24 @@ package script.usercenter
 			updateList();
 		}
 		
-		private function deleteAddress(addId:int):void
+		private function deleteAddress(addId:String):void
 		{
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.insertGroupAddress,this,adddeleteBack,"opt=remove&id=" + grpVo.groupId + "&ids=" + addId,"post");
+			var postdata:Object = {};
+			postdata.expressGroupId = grpVo.groupId;
+			postdata.expressIds = [addId];
+			
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.removeGroupAddress,this,adddeleteBack,JSON.stringify(postdata),"post");
 
 		}
 		private function adddeleteBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
-			if(result.status == 0)
+			if(result.code == "0")
 			{
-				this.grpVo.count = result.totalcount;
+				this.grpVo.count = parseInt(result.data.expressCount);
 				updateName();
 				updateList();
 				
@@ -221,7 +237,7 @@ package script.usercenter
 		}
 		private function updateList():void
 		{
-			var addr:String = "";
+//			var addr:String = "";
 //			if(uiSkin.provList.selectedIndex > 0)
 //			{
 //				addr += uiSkin.province.text;
@@ -231,8 +247,9 @@ package script.usercenter
 //					addr += " " + uiSkin.areatxt.text;
 //			}
 			
+			var paramdata:String = "expressGroupId=" + grpVo.groupId + "&mobileNumber=" + uiSkin.searchInput.text + "&pageNo=" + curPage + "&pageSize=" + pageSize;
 			
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl,this,getMyAddressBack,"opt=list&page=" + curPage + "&id=" + grpVo.groupId +  "&hidden=0&addr=" + addr + "&keyword=" + uiSkin.searchInput.text,"post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.vipAddressManageUrl + paramdata,this,getMyAddressBack,null,null);
 			
 		}
 		

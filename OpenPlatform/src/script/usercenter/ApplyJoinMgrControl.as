@@ -64,6 +64,9 @@ package script.usercenter
 		}
 		private function onGetJoinRequestBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{
@@ -82,6 +85,9 @@ package script.usercenter
 		}
 		
 		private function onGetAllOrganizeBack(data:*):void{
+			
+			if(this.destroyed)
+				return;
 			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
@@ -114,6 +120,9 @@ package script.usercenter
 		
 		private function onhandleBack(data:*):void
 		{
+			if(this.destroyed)
+				return;
+			
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

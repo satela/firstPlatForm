@@ -13,15 +13,15 @@ package script.login
 		public function CityAreaItem()
 		{
 			super();
-			if(typeof(Browser.window.orientation) != "undefined")
-			{
-				this.width = 300;
-			}
-			else
-			{
-				this.width = 252;
-
-			}
+//			if(typeof(Browser.window.orientation) != "undefined")
+//			{
+//				this.width = 300;
+//			}
+//			else
+//			{
+//				this.width = 252;
+//
+//			}
 			this.on(Event.MOUSE_OVER,this,onMouseOver);
 			this.on(Event.MOUSE_OUT,this,onMouseOut);
 			bg.visible = false;

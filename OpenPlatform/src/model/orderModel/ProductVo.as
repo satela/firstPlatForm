@@ -840,8 +840,36 @@ package model.orderModel
 			return prices;
 		}
 		
-		//获取附件价格
-		private function getAttachPrice(arr:Vector.<MaterialItemVo>,picwidth:Number,picheight:Number,ignoreOther,picinfovo:PicOrderItemVo,techlist:Array):Array
+		public function getAllAttachPrice(picwidth:Number,picheight:Number,ignoreOther:Boolean = false,picinfovo:PicOrderItemVo = null):Number
+		{
+			var allprices:Array = [];
+			var haselectTech:Array = getAllSelectedTech();
+			var prices:Number = 0;
+			
+			for(var i:int=0;i < procTreeList.length;i++)
+			{
+				if(procTreeList[i].selected)
+				{
+					var tempTree:Vector.<MaterialItemVo> = new Vector.<MaterialItemVo>();
+					tempTree.push(procTreeList[i]);
+					//allprices = allprices.concat(getAttachPrice(procTreeList[i],picwidth,picheight,ignoreOther,picinfovo,haselectTech));	
+					allprices = allprices.concat(getAttachPrice(tempTree,picwidth,picheight,ignoreOther,picinfovo,haselectTech,true));					
+					
+				}
+				
+			}
+			
+			for(i=0;i < allprices.length;i++)
+			{
+				prices +=  allprices[i];
+				
+			}
+			
+			return prices;
+		}
+		
+		//获取附件价格  justMatPrice 是否只要材料配件的价格
+		private function getAttachPrice(arr:Vector.<MaterialItemVo>,picwidth:Number,picheight:Number,ignoreOther,picinfovo:PicOrderItemVo,techlist:Array,justMatPrice:Boolean=false):Array
 		{
 			var prices:Array = [];
 			if(arr == null)
@@ -851,7 +879,7 @@ package model.orderModel
 			
 			for(var i:int=0;i < arr.length;i++)
 			{
-				if(arr[i].selected)
+				if(arr[i].selected && (!justMatPrice || arr[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT) >= 0))
 				{
 					//if( arr[i].preProc_attachmentTypeList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].preProc_attachmentTypeList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.mat_width && picheight*100 + border > this.mat_width))
 					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
@@ -1073,6 +1101,33 @@ package model.orderModel
 					procTreeList[i].resetData();
 				}
 			}
+		}
+		
+		public function getFirstTechMeasureUnit():String
+		{
+			for(var i:int=0;i < procTreeList.length;i++)
+			{
+				if(procTreeList[i].selected)
+				{
+					if(procTreeList[i].measure_unit.indexOf("平方米") >= 0)
+						return OrderConstant.MEASURE_UNIT_AREA;
+					else
+						return "米";
+				}
+			}
+			return OrderConstant.MEASURE_UNIT_AREA;
+		}
+		public function getTotalMeasureNum(picwidth:Number,picheight:Number):Number
+		{
+			for(var i:int=0;i < procTreeList.length;i++)
+			{
+				if(procTreeList[i].selected)
+				{
+					return UtilTool.getMaterialWight(picwidth,picheight,procTreeList[i].measure_unit,1);
+					
+				}
+			}
+			return 1;
 		}
 	}
 }

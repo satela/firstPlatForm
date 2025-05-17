@@ -124,7 +124,7 @@ package script.workpanel
 			curselectMaterialVo = matvo;
 			
 			
-			if(matvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0)
+			if(matvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0 || matvo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT) >=0)
 			{
 				ViewManager.instance.openView(ViewManager.VIEW_SELECT_ATTACH,false,matvo);			
 				return;
@@ -166,9 +166,9 @@ package script.workpanel
 		
 		private function onUpdateTechDes(viewname:String):void
 		{
-			if(viewname == ViewManager.VIEW_SELECT_ATTACH)
+			if(viewname == ViewManager.VIEW_SELECT_ATTACH && curselectMaterialVo != null)
 			{
-				if(curselectMaterialVo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0)
+				if(curselectMaterialVo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN) >=0 || curselectMaterialVo.attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT) >=0)
 				{
 					if(curselectMaterialVo.attachList == null || curselectMaterialVo.attachList.length == 0)
 					{

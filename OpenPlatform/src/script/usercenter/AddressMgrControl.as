@@ -27,6 +27,9 @@ package script.usercenter
 			uiSkin = this.owner as AddressMgrPanelUI;
 			uiSkin.addlist.itemRender = CompanyAddressItem;
 			
+			uiSkin.addressTab.visible = false;
+			uiSkin.groupTab.visible = false;
+			uiSkin.groupBox.visible = false;
 			uiSkin.customerBox.visible = false;
 			
 			//uiSkin.addlist.vScrollBarSkin = "";
@@ -43,6 +46,7 @@ package script.usercenter
 //				temparr.push(addvo);
 //			}
 			uiSkin.addlist.array = temparr;
+			uiSkin.defaultDelivery.visible = false;
 			
 			uiSkin.btnaddAddress.on(Event.CLICK,this,onClickAdd);
 			
@@ -79,6 +83,8 @@ package script.usercenter
 		}
 		private function getMyAddressBack(data:Object):void
 		{
+			if(this.destroyed)
+				return;
 			var result:Object = JSON.parse(data as String);
 			if(result.code == "0")
 			{

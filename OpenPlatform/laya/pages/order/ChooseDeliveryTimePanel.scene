@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":7,
-    "selecteID":44,
+    "selectedBox":4,
+    "selecteID":7,
     "searchKey":"View",
     "props":{"width":1624,"top":0,"sceneColor":"#000000","right":0,"left":0,"height":1080,"bottom":0},
     "nodeParent":-1,
-    "maxID":126,
+    "maxID":127,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -297,19 +297,32 @@
                 },
                 {
                     "x":30,
+                    "type":"Label",
+                    "searchKey":"Label,curCustomer",
+                    "props":{"y":47.5,"x":1190,"width":396,"var":"curCustomer","text":"当前客户：小龙科技八个字呢（预充值）","height":24,"fontSize":24,"font":"SimHei","align":"left"},
+                    "nodeParent":4,
+                    "label":"curCustomer",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":126,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
                     "type":"Image",
                     "searchKey":"Image",
-                    "props":{"top":0,"sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0},
+                    "props":{"top":1,"sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0},
                     "nodeParent":4,
                     "label":"Image",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":7,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":139,"x":47.296875,"text":"交付策略","fontSize":18,"font":"SimHei","color":"#0","bold":true},
@@ -323,7 +336,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":106,"x":182,"text":"（选择好交付时间后，请在倒计时内付款，否则需重新选择交付时间）","fontSize":16,"font":"SimHei","color":"#ef210f","bold":true},
@@ -338,7 +350,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"y":318,"right":23,"left":23,"height":59},
@@ -351,7 +362,6 @@
                             "compId":17,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "searchKey":"Image",
                                     "props":{"y":0,"skin":"uiCommonUpdate/e4e4e4.png","right":0,"left":0,"height":59},
@@ -367,7 +377,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"y":30,"x":20,"text":"序号","fontSize":18,"font":"SimHei","color":"#0"},
@@ -381,7 +390,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"y":30,"x":463,"text":"材料和工艺","fontSize":18,"font":"SimHei","color":"#0"},
@@ -395,7 +403,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"y":30,"x":684,"visible":true,"text":"价格(元)","fontSize":18,"font":"SimHei","color":"#0"},
@@ -409,7 +416,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"y":30,"x":72,"text":"图片制作任务","fontSize":18,"font":"SimHei","color":"#0"},
@@ -423,7 +429,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"HBox",
                                     "searchKey":"HBox,deliverdateBoc",
                                     "props":{"y":30,"x":779,"var":"deliverdateBoc"},
@@ -504,7 +509,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"List",
                             "searchKey":"List,orderlist",
                             "props":{"var":"orderlist","vScrollBarSkin":"uiCommonUpdate/vscroll.png","top":380,"right":23,"left":23,"bottom":120},
@@ -519,7 +523,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"RadioGroup",
                             "searchKey":"RadioGroup,timepreferRdo",
                             "props":{"y":134,"x":182,"var":"timepreferRdo","skin":"uiCommonUpdate/bigRdio.png","labels":"交期优先 , 2天内交付, 3天内交付, 4天内交付, 5天内交付","labelSize":18,"labelPadding":"5","labelFont":"SimHei","labelColors":"#000000,#000000,#FF0000","labelAlign":"center"},
@@ -533,7 +536,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,title",
                             "props":{"y":54,"x":45.296875,"var":"title","text":"喷印下单","fontSize":36,"font":"SimHei","bold":true},
@@ -548,7 +550,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,setdefaultbtn",
                             "props":{"y":134,"x":800,"width":120,"var":"setdefaultbtn","stateNum":"1","skin":"uiCommonUpdate/smRadBtn.png","labelSize":16,"labelFont":"SimHei","labelColors":"#00000,#000000,#000000","label":"设为默认策略","height":30},
@@ -562,7 +563,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,countdown",
                             "props":{"y":106,"x":696,"width":250,"var":"countdown","text":"（12秒之后可重新选择交付策略）","fontSize":16,"font":"SimHei","color":"#e3371f","bold":true,"align":"left"},
@@ -576,7 +576,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":208,"x":47.296875,"width":110,"text":"配送方式选择","height":18,"fontSize":18,"font":"SimHei","color":"#0","bold":true},
@@ -590,7 +589,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"HBox",
                             "searchKey":"HBox,manufatureList",
                             "props":{"y":180,"x":182,"width":600,"var":"manufatureList","space":10,"height":42},
@@ -604,7 +602,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"List",
                             "searchKey":"List,deliveryTypelist",
                             "props":{"y":251,"x":182,"width":1000,"var":"deliveryTypelist","height":48},
@@ -624,17 +621,16 @@
                     "x":30,
                     "type":"Box",
                     "searchKey":"Box",
-                    "props":{"y":0,"x":0,"right":0,"left":0,"height":120,"bottom":0},
+                    "props":{"right":0,"left":0,"height":120,"bottom":-1},
                     "nodeParent":4,
                     "label":"Box",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":101,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"top":0,"skin":"uiCommonUpdate/btmBg.png","sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0},
@@ -650,7 +646,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,productNum",
                             "props":{"y":26,"x":194,"var":"productNum","text":"12","fontSize":24,"font":"SimHei","color":"#f9f6f6","bold":true},
@@ -664,7 +659,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":72,"x":53,"text":"应付总额（元）","fontSize":24,"font":"SimHei","color":"#f9f6f6"},
@@ -679,7 +673,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,totalprice",
                             "props":{"y":66,"x":222,"width":100,"var":"totalprice","text":"5","fontSize":36,"font":"SimHei","color":"#f9f6f6","bold":true,"align":"center"},
@@ -693,7 +686,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":30,"x":541,"text":"折后（元）","fontSize":18,"font":"SimHei","color":"#f9f6f6"},
@@ -708,7 +700,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,disocuntprice",
                             "props":{"y":26,"x":659,"var":"disocuntprice","text":"12","fontSize":24,"font":"SimHei","color":"#f9f6f6","bold":true},
@@ -722,7 +713,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,rawprice",
                             "props":{"y":26,"x":391,"var":"rawprice","text":"47.25","fontSize":24,"font":"SimHei","color":"#f9f6f6","bold":true},
@@ -736,7 +726,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":30,"x":270,"text":"总费用（元）","fontSize":18,"font":"SimHei","color":"#f9f6f6"},
@@ -751,7 +740,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":30,"x":52,"text":"制作数量（件）","fontSize":18,"font":"SimHei","color":"#f9f6f6"},
@@ -766,7 +754,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":87,"text":"结算前请务必要核对确认 材料 尺寸 工艺 数量等信息","right":30,"fontSize":18,"font":"SimHei","color":"#f9f6f6","bold":true},
@@ -780,7 +767,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Box",
                             "searchKey":"Box",
                             "props":{"y":18,"right":78},
@@ -793,7 +779,6 @@
                             "compId":115,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Text",
                                     "selectedBox":3,
                                     "searchKey":"Text,savebtn",
@@ -834,7 +819,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "searchKey":"Button,paybtn",
                                     "props":{"y":0,"x":113,"width":181,"var":"paybtn","skin":"uiCommonUpdate/greenBtn.png","sizeGrid":"3,3,3,3","labelSize":24,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,","label":"去支付","height":44},
@@ -849,7 +833,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"y":30,"x":792,"text":"运费总额（元）","fontSize":18,"font":"SimHei","color":"#f9f6f6"},
@@ -864,7 +847,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,delmoney",
                             "props":{"y":26,"x":927,"var":"delmoney","text":"12","fontSize":24,"font":"SimHei","color":"#f9f6f6","bold":true},
@@ -878,7 +860,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,firstDiscount",
                             "props":{"y":66,"x":325,"var":"firstDiscount","text":"（首单优惠）","fontSize":36,"font":"SimHei","color":"#fb0505","bold":true},
@@ -901,7 +882,7 @@
             "source":"src/script/order/ChooseDeliveryTimeControl.as",
             "searchKey":"Script,ChooseDeliveryTimeControl",
             "removeAble":true,
-            "props":{},
+            "props":{"y":4,"x":0},
             "nodeParent":2,
             "label":"ChooseDeliveryTimeControl",
             "isDirectory":false,

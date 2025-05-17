@@ -16,6 +16,9 @@ package ui.usercenter {
 		public var delBtn:Button;
 		public var input_address:TextInput;
 		public var delBtn:Button;
+		public var deliveryBox:Box;
+		public var defaulDeliveryType:ComboBox;
+		public var getDeliveryList:Button;
 		public var provbox:Image;
 		public var provList:List;
 		public var citybox:Image;
