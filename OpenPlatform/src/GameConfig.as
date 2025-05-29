@@ -88,6 +88,7 @@ package {
 	import script.usercenter.OrderDetailControl;
 	import script.usercenter.PublicChargeRecordController;
 	import script.usercenter.OrderPriceSettingController;
+	import script.usercenter.OrderPriceShareController;
 	import script.usercenter.TransactionControl;
 	import script.usercenter.UserMainControl;
 	/**
@@ -100,7 +101,7 @@ package {
 		public static var screenMode:String = "none";
 		public static var alignV:String = "top";
 		public static var alignH:String = "left";
-		public static var startScene:* = "login/RegisterPhonePanel.scene";
+		public static var startScene:* = "usercenter/NewAddressPanel.scene";
 		public static var sceneRoot:String = "";
 		public static var debug:Boolean = false;
 		public static var stat:Boolean = false;
@@ -195,6 +196,7 @@ package {
 			reg("script.usercenter.OrderDetailControl",OrderDetailControl);
 			reg("script.usercenter.PublicChargeRecordController",PublicChargeRecordController);
 			reg("script.usercenter.OrderPriceSettingController",OrderPriceSettingController);
+			reg("script.usercenter.OrderPriceShareController",OrderPriceShareController);
 			reg("script.usercenter.TransactionControl",TransactionControl);
 			reg("script.usercenter.UserMainControl",UserMainControl);
 		}

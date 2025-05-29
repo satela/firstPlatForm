@@ -114,6 +114,8 @@ package script.usercenter
 			uiSkin.searchInput.maxChars = 20;
 			uiSkin.searchbtn.on(Event.CLICK,this,onSearchAddress);
 			uiSkin.okbtn.on(Event.CLICK,this,onAddAddress);
+			
+			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer +"parentId=0" ,this,initAddr,null,null);
 			
 			uiSkin.dragImg.on(Event.MOUSE_DOWN,this,startDragPanel);

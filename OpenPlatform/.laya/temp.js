@@ -206,8 +206,8 @@ var Laya=window.Laya=(function(window,document){
 (function(window,document,Laya){
 	var __un=Laya.un,__uns=Laya.uns,__static=Laya.static,__class=Laya.class,__getset=Laya.getset,__newvec=Laya.__newvec;
 Laya.interface('laya.ui.IItem');
-Laya.interface('laya.ui.IRender');
 Laya.interface('laya.ui.ISelect');
+Laya.interface('laya.ui.IRender');
 Laya.interface('laya.runtime.IMarket');
 Laya.interface('laya.filters.IFilter');
 Laya.interface('laya.html.utils.ILayout');
@@ -1598,6 +1598,7 @@ var Userdata=(function(){
 		//公司审核状态-1 没有提交审核 0 审核中 1 审核通过 2 审核拒绝
 		this.defaultManufactureSelected=true;
 		this.orderBasePrice=2;
+		this.paymentQrCode="";
 	}
 
 	__class(Userdata,'model.Userdata');
@@ -1614,6 +1615,7 @@ var Userdata=(function(){
 		this.token="";
 		this.inOrdering=false;
 		this.privilege=[];
+		this.paymentQrCode="";
 	}
 
 	__proto.initMyAddress=function(adddata){
@@ -1732,6 +1734,7 @@ var Userdata=(function(){
 		return this.addressList;
 	});
 
+	//二维码收款图片
 	__getset(1,Userdata,'instance',function(){
 		if(Userdata._instance==null)
 			Userdata._instance=new Userdata();
@@ -1884,7 +1887,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected){
-				if(arr[i].attachmentList.indexOf("SPpj")<0 || ignoreWidth || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth+border > this.materialWidth && picheight+border> this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")<0 || ignoreWidth || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var peijian="";
 					if(arr[i].selectAttachVoList !=null){
 						for(var j=0;j < arr[i].selectAttachVoList.length;j++){
@@ -2012,7 +2015,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected){
-				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var totalprice=0;
 					var gross=0;
 					var attachvo;
@@ -2026,9 +2029,9 @@ var ProductVo=(function(){
 						arr[i].preProc_Price=priceInfo[2];
 						if(PaintOrderModel.instance.orderType=="Penyin"){
 							if(OrderConstant.yiXingCutProcess(arr[i].procCode)){
-								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 								if(priceInfo[3] !=null && priceInfo[3] !="")
-									gross=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+									gross=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 							}
 							else if(arr[i].procCode=="SPTE10160"){
 								totalprice=UtilTool.getAvgCutPrice(picinfovo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
@@ -2070,7 +2073,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected){
-				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var totalprice=0;
 					var attachvo;
 					if(arr[i].selectAttachVoList !=null && arr[i].selectAttachVoList.length > 0)
@@ -2083,9 +2086,9 @@ var ProductVo=(function(){
 						arr[i].preProc_Price=priceInfo[2];
 						if(PaintOrderModel.instance.orderType=="Penyin" && manufacturerProdPrice !=null && !manufacturerProdPrice.has_discount){
 							if(OrderConstant.yiXingCutProcess(arr[i].procCode)){
-								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 								if(priceInfo[3] !=null && priceInfo[3] !="")
-									totalprice+=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+									totalprice+=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 							}
 							else if(arr[i].procCode=="SPTE10160"){
 								totalprice=UtilTool.getAvgCutPrice(picinfovo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
@@ -2134,7 +2137,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected){
-				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var totalprice=0;
 					var gross=0;
 					var attachvo;
@@ -2148,9 +2151,9 @@ var ProductVo=(function(){
 						arr[i].preProc_Price=priceInfo[2];
 						if(PaintOrderModel.instance.orderType=="Penyin"){
 							if(OrderConstant.yiXingCutProcess(arr[i].procCode)){
-								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 								if(priceInfo[3] !=null && priceInfo[3] !="")
-									gross=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+									gross=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 							}
 							else if(arr[i].procCode=="SPTE10160"){
 								totalprice=UtilTool.getAvgCutPrice(picinfovo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
@@ -2193,7 +2196,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected){
-				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var procname=arr[i].procName+UtilTool.getAttachDesc(arr[i]);
 					if(arr[i].selectAttachVoList !=null && arr[i].selectAttachVoList.length > 0)
 						procname+="("+arr[i].selectAttachVoList[0].accessory_name+")";
@@ -2206,7 +2209,15 @@ var ProductVo=(function(){
 						prolist.push({procCode:arr[i].procCode,procDescription:procname,procAttachPath:HttpRequestUtil.originPicPicUrl+picinfo.partWhiteFid+"."+picinfo.partWhitePicClass});
 					}
 					else if(arr[i].attachmentList.indexOf("SPpj")>=0){
-						var procname=arr[i].procName+"("+["V","H"][orderitemvo.cuttype]+"-"+orderitemvo.cutnum+"-"+orderitemvo.eachCutLength.join(";")+")";
+						var procname;
+						if(orderitemvo.cuttype==0){
+							procname=arr[i].procName+"("+["V","H"][orderitemvo.cuttype]+"-"+orderitemvo.vCutnum+"-"+orderitemvo.vEachCutLength.join(";")+")";
+						}
+						else if(orderitemvo.cuttype==1){
+							procname=arr[i].procName+"("+["V","H"][orderitemvo.cuttype]+"-"+orderitemvo.hCutnum+"-"+orderitemvo.hEachCutLength.reverse().join(";")+")";
+						}
+						else
+						procname=arr[i].procName+"(V-"+orderitemvo.vCutnum+"-"+orderitemvo.vEachCutLength.join(";")+",H-"+orderitemvo.hCutnum+"-"+orderitemvo.hEachCutLength.join(";")+")";
 						prolist.push({procCode:arr[i].procCode,procDescription:procname,procAttachPath:arr[i].attchMentFileId});
 					}
 					else if(arr[i].attachmentList.indexOf("SPdfcq")>=0){
@@ -2260,7 +2271,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected){
-				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var attachvo;
 					if(arr[i].selectAttachVoList !=null && arr[i].selectAttachVoList.length > 0){
 						attachvo=arr[i].selectAttachVoList[0];
@@ -2332,7 +2343,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected && (!justMatPrice || arr[i].attachmentList.indexOf("SPMat")>=0)){
-				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var totalprice=0;
 					var attachvo;
 					if(arr[i].selectAttachVoList !=null && arr[i].selectAttachVoList.length > 0)
@@ -2399,7 +2410,7 @@ var ProductVo=(function(){
 		var border=UtilTool.getBorderDistance(this.getAllSelectedTech());
 		for(var i=0;i < arr.length;i++){
 			if(arr[i].selected){
-				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && picwidth*100+border > this.materialWidth && picheight*100+border > this.materialWidth)){
+				if(arr[i].attachmentList.indexOf("SPpj")< 0 || (arr[i].attachmentList.indexOf("SPpj")>=0 && this.needCutOff(picwidth*100+border,picheight*100+border))){
 					var totalprice=0;
 					var gross=0;
 					var attachvo;
@@ -2413,9 +2424,9 @@ var ProductVo=(function(){
 						arr[i].preProc_Price=priceInfo[2];
 						if(PaintOrderModel.instance.orderType=="Penyin"){
 							if(OrderConstant.yiXingCutProcess(arr[i].procCode)){
-								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+								totalprice=UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 								if(priceInfo[3] !=null && priceInfo[3] !="")
-									gross=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+									gross=UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 							}
 							else if(arr[i].procCode=="SPTE10160"){
 								totalprice=UtilTool.getAvgCutPrice(picinfovo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
@@ -2498,6 +2509,16 @@ var ProductVo=(function(){
 			}
 		}
 		return 1;
+	}
+
+	__proto.needCutOff=function(picWidth,picHeight){
+		var shortSide=Math.min(picWidth,picHeight);
+		var longSide=Math.max(picWidth,picHeight);
+		if(longSide > this.materialLength)
+			return true;
+		if(shortSide > this.materialWidth)
+			return true;
+		return false;
 	}
 
 	return ProductVo;
@@ -2598,6 +2619,7 @@ var GameConfig=(function(){
 		reg("script.usercenter.OrderDetailControl",OrderDetailControl);
 		reg("script.usercenter.PublicChargeRecordController",PublicChargeRecordController);
 		reg("script.usercenter.OrderPriceSettingController",OrderPriceSettingController);
+		reg("script.usercenter.OrderPriceShareController",OrderPriceShareController);
 		reg("script.usercenter.TransactionControl",TransactionControl);
 		reg("script.usercenter.UserMainControl",UserMainControl);
 	}
@@ -2608,7 +2630,7 @@ var GameConfig=(function(){
 	GameConfig.screenMode="none";
 	GameConfig.alignV="top";
 	GameConfig.alignH="left";
-	GameConfig.startScene="login/RegisterPhonePanel.scene";
+	GameConfig.startScene="usercenter/NewAddressPanel.scene";
 	GameConfig.sceneRoot="";
 	GameConfig.debug=false;
 	GameConfig.stat=false;
@@ -2886,7 +2908,7 @@ var ViewManager=(function(){
 	function ViewManager(){
 		this.viewContainer=null;
 		this.openViewList=null;
-		//订单销账界面
+		//价格分享界面
 		this.viewDict=null;
 		this.curZorder=0;
 		this.viewContainer=new Sprite();
@@ -2898,11 +2920,13 @@ var ViewManager=(function(){
 			this.viewDict["VIEW_lOGPANEL"]=LogPhonePanelUI;
 			this.viewDict["VIEW_REGPANEL"]=RegisterPhonePanelUI;
 			this.viewDict["VIEW_POPUPDIALOG"]=PopUpPhoneDialogUI;
+			this.viewDict["VIEW_SELL_PRICE_SHARE_PANEL"]=SellPriceSharePhonePanelUI;
 		}
 		else{
 			this.viewDict["VIEW_lOGPANEL"]=LogPanelUI;
 			this.viewDict["VIEW_REGPANEL"]=RegisterPanelUI;
 			this.viewDict["VIEW_POPUPDIALOG"]=PopUpDialogUI;
+			this.viewDict["VIEW_SELL_PRICE_SHARE_PANEL"]=SellPriceSharePanelUI;
 		}
 		this.viewDict["VIEW_CHANGEPWD"]=ResetPwdPanelUI;
 		this.viewDict["VIEW_MYPICPANEL"]=UpLoadPanelUI;
@@ -3079,6 +3103,7 @@ var ViewManager=(function(){
 	ViewManager.PRODUCT_PROC_EFFECT_PANEL="PRODUCT_PROC_EFFECT_PANEL";
 	ViewManager.ORDER_PRICE_SETTING_PANEL="ORDER_PRICE_SETTING_PANEL";
 	ViewManager.WRITE_OFF_ORDER_PANEL="WRITE_OFF_ORDER_PANEL";
+	ViewManager.VIEW_SELL_PRICE_SHARE_PANEL="VIEW_SELL_PRICE_SHARE_PANEL";
 	return ViewManager;
 })()
 
@@ -3286,6 +3311,7 @@ var CustomVo=(function(){
 		this.salerName=null;
 		this.salerId=null;
 		this.balanceMoney=NaN;
+		this.discount=null;
 		if(data !=null){
 			for(var key in data){
 				if(this.hasOwnProperty(key))
@@ -3632,7 +3658,7 @@ var PaintOrderModel=(function(){
 		}
 		if(hascfpj){
 			for(var i=0;i < picorderitems.length;i++){
-				var cutlengths=picorderitems[i].ordervo.eachCutLength;
+				var cutlengths=picorderitems[i].ordervo.hEachCutLength;
 				if(cutlengths !=null){
 					for(var j=0;j < cutlengths.length;j++){
 						if(cutlengths[j] > 120){
@@ -4756,9 +4782,13 @@ var UtilTool=(function(){
 		return baseprice+unitprice *area;
 	}
 
-	UtilTool.getYixingPrice=function(picinfo,basePrice,unitPrice,finalwidth,finalheight){
-		var linemeter=(picinfo.relatedRoadLength /picinfo.relatedPicWidth)*finalwidth;
-		return basePrice *picinfo.relatedRoadNum+linemeter*unitPrice;
+	UtilTool.getYixingPrice=function(picinfo,basePrice,unitPrice,finalwidth,finalheight,unit){
+		if(unit=="切割米"){
+			var linemeter=(picinfo.relatedRoadLength /picinfo.relatedPicWidth)*finalwidth;
+			return basePrice *picinfo.relatedRoadNum+linemeter*unitPrice;
+		}
+		else
+		return UtilTool.getProcessPrice(finalwidth,finalheight,unit,unitPrice,basePrice);
 	}
 
 	UtilTool.getAvgCutPrice=function(orderitem,basePrice,unitPrice,finalwidth,finalheight){
@@ -5254,6 +5284,25 @@ var MatProcEffectVo=(function(){
 })()
 
 
+//超幅拼接数据
+//class model.orderModel.CutImageData
+var CutImageData=(function(){
+	function CutImageData(){
+		this.orderitemvo=null;
+		this.finalWidth=NaN;
+		this.finalHeight=NaN;
+		this.fid=null;
+		this.maxwidth=NaN;
+		this.maxlength=NaN;
+		this.border=NaN;
+		this.cutLength=[];
+	}
+
+	__class(CutImageData,'model.orderModel.CutImageData');
+	return CutImageData;
+})()
+
+
 //class model.orderModel.PicOrderItemVo
 var PicOrderItemVo=(function(){
 	function PicOrderItemVo(picvo,orderType){
@@ -5280,9 +5329,16 @@ var PicOrderItemVo=(function(){
 		this.comment="";
 		this.cuttype=0;
 		//裁切类型
-		this.cutnum=0;
-		//裁切数
-		this.eachCutLength=null;
+		this.hCutnum=0;
+		//横向裁切数
+		this.vCutnum=0;
+		//纵向裁切数
+		this.cutDirect=0;
+		//
+		this.hEachCutLength=null;
+		//横向裁切长度列表
+		this.vEachCutLength=null;
+		//纵向裁切长度列表
 		this.horiCutNum=1;
 		this.verCutNum=1;
 		//public var holeMargin:Number=1;
@@ -5448,7 +5504,7 @@ var HttpRequestUtil=(function(){
 		this.newRequest(url,caller,complete,param,"arraybuffer");
 	}
 
-	//clientCode=CL10600&addrId=360423?webCode=xxx?";//=SPSC00100&addr_id=330700";//获取配送列表
+	//获取订单详情
 	__getset(1,HttpRequestUtil,'instance',function(){
 		if(HttpRequestUtil._instance==null)
 			HttpRequestUtil._instance=new HttpRequestUtil();
@@ -5506,7 +5562,7 @@ var HttpRequestUtil=(function(){
 	HttpRequestUtil.getpublicChargeRequestList="org/getCorporateRechargeList?";
 	HttpRequestUtil.payOrderByMoney="order/payWithBal?";
 	HttpRequestUtil.getOrderRecordList="order/list?";
-	HttpRequestUtil.deleteOrderList="account/delete-unpaid-order?";
+	HttpRequestUtil.deleteOrderList="order/deleteUnpaid?";
 	HttpRequestUtil.changeCompanyName="group/update_group?";
 	HttpRequestUtil.getMyOrganize="org/dept/list?";
 	HttpRequestUtil.createOrganize="org/dept/add?";
@@ -5554,7 +5610,7 @@ var HttpRequestUtil=(function(){
 	HttpRequestUtil.addErrorLog="group/add-error-log?";
 	HttpRequestUtil.getProductCategoryDefault="account/get-product-default-category?";
 	HttpRequestUtil.updateProductCategoryDefault="account/update-product-default-category?";
-	HttpRequestUtil.leaveGroupUrl="account/leave-group?";
+	HttpRequestUtil.leaveGroupUrl="sys/exitOrg?";
 	HttpRequestUtil.getFactoryFreezeBalance="business/getToBeTopupAmount?customer_code=";
 	HttpRequestUtil.getProdListNew="business/listProduct?webCode=001&addressId=";
 	HttpRequestUtil.getProcFlowNew="business/getProcFlow?prodCode=";
@@ -5596,7 +5652,10 @@ var HttpRequestUtil=(function(){
 	HttpRequestUtil.writeOffOrders="order/clear?";
 	HttpRequestUtil.tifAiSetting="fs/file/changeImg?";
 	HttpRequestUtil.getPlatformConfig="sys/getConfigList?";
+	HttpRequestUtil.noticeServerQrcodeComplete="org/updatePaymentQrCode?";
+	HttpRequestUtil.deleteQrCodeImg="org/updatePaymentQrCode?";
 	HttpRequestUtil.getDeaultDeliveryList="business/getDeliveryType?";
+	HttpRequestUtil.getOrderDetailById="sys/shareOrder?";
 	return HttpRequestUtil;
 })()
 
@@ -5887,9 +5946,6 @@ var Main=(function(){
 	}
 
 	__proto.onConfigLoaded=function(){
-		var u=new Browser.window.URL(Browser.window.location.href);
-		var tt=u.searchParams.get('orderID');
-		console.log("id:"+tt);
 		HttpRequestUtil.httpUrl="../v2/";
 		Userdata.instance.configVersion=(new Date()).getTime().toString();
 		Laya.loader.load([{url:"config.json?"+Userdata.instance.configVersion,type:"json"}],Handler.create(this,this.onLoadedJsonConfigComp),null,"json");
@@ -5903,6 +5959,14 @@ var Main=(function(){
 		HttpRequestUtil.originPicPicUrl=json["originPicPicUrl"];
 		HttpRequestUtil.httpUrl=json["httpUrl"];
 		Userdata.instance.clientCode=json["clientCode"];
+		var u=new Browser.window.URL(Browser.window.location.href);
+		var orderId=u.searchParams.get('orderID');
+		var qrcode=u.searchParams.get('qrCode');
+		if(orderId !=null){
+			ViewManager.instance.openView("VIEW_SELL_PRICE_SHARE_PANEL",false,{"id":orderId,"qrCode":qrcode});
+			return;
+		}
+		else
 		ViewManager.instance.openView("VIEW_lOGPANEL");
 	}
 
@@ -6217,6 +6281,7 @@ var OrderConstant=(function(){
 	OrderConstant.MEASURE_UNIT_SINGLE_NUM="个";
 	OrderConstant.MEASURE_UNIT_SINGLE_SUIT="件";
 	OrderConstant.MEASURE_UNIT_SINGLE_TAO="套";
+	OrderConstant.MEASURE_UNIT_YIXING_CUT="切割米";
 	OrderConstant.ATTACH_NO="SPno";
 	OrderConstant.ATTACH_JPG="SPjpg";
 	OrderConstant.ATTACH_PNG="SPpng";
@@ -6266,6 +6331,9 @@ var OrderConstant=(function(){
 	OrderConstant.DELIVERY_TYPE_BY_SELF="工厂自提";
 	OrderConstant.DELIVERY_TYPE_BY_OTHER="专车配送";
 	OrderConstant.DELIVERY_TYPE_BY_NORMAL_DELIVERY="普通快递";
+	OrderConstant.CUT_WIDTH_ONLY=0;
+	OrderConstant.CUT_HEIGHT_ONLY=1;
+	OrderConstant.CUT_TWO_SIDE=2;
 	OrderConstant.MAX_ORDER_NUMER=100;
 	__static(OrderConstant,
 	['orderName',function(){return this.orderName={"Penyin":"喷印","Kailiao":"开料","Biaopin":"标品","Dengxiang":"灯箱"};},'OUTPUT_ICON',function(){return this.OUTPUT_ICON=["star.png","circle.png","square.png"];},'OUTPUT_COLOR',function(){return this.OUTPUT_COLOR=["#98FB98","#BBFFFF","#FFE1FF"];}
@@ -39391,6 +39459,7 @@ var PicManagerController=(function(_super){
 		this.curFileList=null;
 		this.autoFreshTime=0;
 		this.curCustomer=null;
+		this.mulitSelect=false;
 		PicManagerController.__super.call(this);
 	}
 
@@ -39411,6 +39480,7 @@ var PicManagerController=(function(_super){
 		this.updateSelectFolderNum();
 		this.uiSkin.picList.itemRender=PicInfoItem;
 		this.uiSkin.picList.selectEnable=false;
+		this.uiSkin.picList.scrollBar.scrollSize=0;
 		this.uiSkin.picList.spaceY=20;
 		this.uiSkin.picList.renderHandler=new Handler(this,this.updatePicInfoItem);
 		this.uiSkin.flder0.visible=false;
@@ -39463,6 +39533,8 @@ var PicManagerController=(function(_super){
 		EventCenter.instance.on("UPDATE_SELECT_FOLDER",this,this.updateSelectFolderNum);
 		EventCenter.instance.on("CREATE_FOLDER_SUCESS",this,this.onCreateDirBack);
 		EventCenter.instance.on("SELECT_CUSTOMER",this,this.onSelectCustomer);
+		Laya.stage.on("keydown",this,this.onKeyDownHandler);
+		Laya.stage.on("keyup",this,this.onKeyUPHandler);
 		this.uiSkin.picList.on("mousedown",this,this.onMouseDwons);
 		this.uiSkin.picList.on("mouseup",this,this.onMouseUpHandler);
 		this.uiSkin.picList.on("mouseover",this,this.onMouseDwons);
@@ -39820,15 +39892,51 @@ var PicManagerController=(function(_super){
 		}
 	}
 
+	__proto.onKeyDownHandler=function(e){
+		if(e.keyCode==16)
+			this.mulitSelect=true;
+	}
+
+	__proto.onKeyUPHandler=function(e){
+		this.mulitSelect=false;
+	}
+
 	__proto.seletPicToOrder=function(data){
 		var fvo=data[0];
 		if(UtilTool.checkFileIsImg(fvo)&& fvo.picPhysicWidth !=0){
-			var hasfic=DirectoryFileModel.instance.haselectPic.hasOwnProperty(fvo.fid)
+			var hasfic=DirectoryFileModel.instance.haselectPic.hasOwnProperty(fvo.fid);
 			if(hasfic){
 				delete DirectoryFileModel.instance.haselectPic[fvo.fid];
 			}
-			else
-			DirectoryFileModel.instance.haselectPic[fvo.fid]=fvo;
+			else{
+				DirectoryFileModel.instance.haselectPic[fvo.fid]=fvo;
+				if(this.mulitSelect){
+					var arr=this.uiSkin.picList.array;
+					var minIndex=arr.indexOf(fvo);
+					var maxIndex=arr.indexOf(fvo);
+					var picinfo;
+					for(var $each_picinfo in DirectoryFileModel.instance.haselectPic){
+						picinfo=DirectoryFileModel.instance.haselectPic[$each_picinfo];
+						if(arr.indexOf(picinfo)< minIndex){
+							minIndex=arr.indexOf(picinfo);
+						}
+						if(arr.indexOf(picinfo)> maxIndex){
+							maxIndex=arr.indexOf(picinfo);
+						}
+					}
+					if(maxIndex > minIndex){
+						for(var i=minIndex;i< maxIndex;i++){
+							var picinfoVo=arr[i];
+							hasfic=DirectoryFileModel.instance.haselectPic.hasOwnProperty(picinfoVo.fid)
+							if(!hasfic){
+								DirectoryFileModel.instance.haselectPic[picinfoVo.fid]=picinfoVo;
+								if(this.uiSkin.picList.cells[i] !=null)
+									(this.uiSkin.picList.cells [i]).sel.selected=true;
+							}
+						}
+					}
+				}
+			};
 			var num=0;
 			var picvo;
 			for(var $each_picvo in DirectoryFileModel.instance.haselectPic){
@@ -39961,9 +40069,9 @@ var PicManagerController=(function(_super){
 		if(DirectoryFileModel.instance.curSelectDir==null || DirectoryFileModel.instance.curSelectDir.directId=="0"){
 		}
 		this.file.click();
-		this.file.value;
 	}
 
+	//file.value;
 	__proto.onSureCreeate=function(){}
 	// }
 	__proto.onCreateDirBack=function(picInfo){
@@ -40295,7 +40403,6 @@ var EnterPrizeInfoControl=(function(_super){
 		this.uiSkin.businessName.maxChars=8;
 		this.uiSkin.contactPhone.restrict="0-9";
 		this.uiSkin.contactPhone.maxChars=11;
-		this.uiSkin.leaveGroupBtn.visible=false;
 		this.uiSkin.leaveGrpPanel.visible=false;
 		this.uiSkin.closeLeaveBtn.on("click",this,function(){
 			_$this.uiSkin.leaveGrpPanel.visible=false;
@@ -40303,7 +40410,7 @@ var EnterPrizeInfoControl=(function(_super){
 		this.uiSkin.leaveGroupBtn.on("click",this,this.onLeaveGroupRequest);
 		this.uiSkin.verifyCode.restrict="0-9";
 		this.uiSkin.verifyCode.maxChars=8;
-		this.uiSkin.confirmLeave.on("click",this,this.confirmLeaveGroupNow);
+		this.uiSkin.confirmLeave.on("click",this,/*no*/this.confirmLeaveGroupNow);
 		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"org/getInfo",this,this.getCompanyInfoBack,null,null);
 		EventCenter.instance.on("UPDATE_COMPANY_INFO",this,this.updateCompanyInfo);
 		EventCenter.instance.on("UPDATE_BUSINESSMAN_LIST",this,this.getBusinessmanList);
@@ -40415,32 +40522,26 @@ var EnterPrizeInfoControl=(function(_super){
 	}
 
 	__proto.onLeaveGroupRequest=function(){
-		ViewManager.instance.openView("VIEW_POPUPDIALOG",false,{caller:this,callback:this.showLeavePanel,msg:"确定退出公司系统将发送验证码到您的账号，请注意查收，是否确定退出公司"});
+		ViewManager.instance.openView("VIEW_POPUPDIALOG",false,{caller:this,callback:this.showLeavePanel,msg:"退出公司将清除相关数据，是否确定退出公司？",delayTime:6});
 	}
 
 	__proto.showLeavePanel=function(b){
 		if(b){
-			this.uiSkin.leaveGrpPanel.visible=true;
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/getMobileSmsCode?" ,this,null,"phone="+Userdata.instance.userAccount,"post");
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/exitOrg?" ,this,this.leaveGroupBack,null,"post");
 		}
 	}
 
-	__proto.confirmLeaveGroupNow=function(){
-		if(this.uiSkin.verifyCode.text==""){
-			ViewManager.showAlert("请输入验证码");
-			return;
-		};
-		var parm="code="+this.uiSkin.verifyCode.text;
-		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"account/leave-group?" ,this,this.leaveGroupBack,parm,"post");
-	}
-
+	// }
 	__proto.leaveGroupBack=function(data){
 		var result=JSON.parse(data);
-		if(result.status=="0"){
+		if(result.code=="0"){
 			ViewManager.showAlert("退出公司成功");
-			ViewManager.instance.openView("VIEW_FIRST_PAGE",true);
-			Userdata.instance.accountType=-1;
-			Userdata.instance.founderPhone=null;
+			UtilTool.setLocalVar("userToken","");
+			PaintOrderModel.instance.resetData();
+			DirectoryFileModel.instance.resetData();
+			Userdata.instance.isLogin=false;
+			Userdata.instance.resetData();
+			ViewManager.instance.openView("VIEW_lOGPANEL",true);
 		}
 	}
 
@@ -41376,6 +41477,12 @@ var OrganizeMrgControl=(function(_super){
 		this.uiSkin=null;
 		this.curMemberdata=null;
 		this.previlegeCheckBoxlst=null;
+		this.isUploading=false;
+		this.clientParam=null;
+		this.callbackparam=null;
+		//服务器回调参数
+		this.file=null;
+		this.ossFileName=null;
 		OrganizeMrgControl.__super.call(this);
 	}
 
@@ -41415,9 +41522,15 @@ var OrganizeMrgControl=(function(_super){
 		this.uiSkin.moveOkbtn.on("click",this,this.onMoveMemberSure);
 		this.uiSkin.closeDist.on("click",this,this.onCloseDistribute);
 		this.uiSkin.btncloseCreate.on("click",this,this.onCloseCreate);
+		this.uiSkin.uploadQrCodeImg.on("click",this,this.onUploadQrCode);
 		this.uiSkin.applyListBtn.on("click",this,function(){
 			ViewManager.instance.openView("APPLY_JOIN_LIST_PANEL");
 		});
+		Browser.window.uploadApp=this;
+		this.uiSkin.myQrCodeImg.skin=Userdata.instance.paymentQrCode;
+		this.uiSkin.myQrCodeImg.on("loaded",this,this.onLoadedImg);
+		this.uiSkin.deleteQrCodeImg.on("click",this,this.onDeleteQrcodeImg);
+		this.initFileOpen();
 		this.previlegeCheckBoxlst=[this.uiSkin.order_submit,this.uiSkin.order_submit_with_balances,this.uiSkin.order_price_display,this.uiSkin.order_list_self,this.uiSkin.order_list_org,this.uiSkin.asset_log_list];
 		this.uiSkin.organizeBox.visible=Userdata.instance.privilege.indexOf("admin:org:manage")>=0;
 		if(Userdata.instance.privilege.indexOf("admin:org:manage")>=0)
@@ -41426,6 +41539,133 @@ var OrganizeMrgControl=(function(_super){
 		EventCenter.instance.on("MOVE_MEMBER_DEPT",this,this.moveMember);
 		EventCenter.instance.on("DELETE_DEPT_MEMBER",this,this.refreshOrganizeMemebers);
 		EventCenter.instance.on("SET_MEMEBER_AUTHORITY",this,this.setMemberAuthority);
+	}
+
+	__proto.initFileOpen=function(){
+		var _$this=this;
+		this.file=Browser.document.createElement("input");
+		this.file.style="filter:alpha(opacity=0);opacity:0;width: 100;height:34px;left:395px;top:-248";
+		this.file.accept=".jpg,.jpeg,.png";
+		this.file.type="file";
+		this.file.style.position="absolute";
+		this.file.style.zIndex=999;
+		Browser.document.body.appendChild(this.file);
+		this.file.onchange=function (e){
+			if(_$this.file.files[0]==null)
+				return;
+			if(_$this.file.files[0] !=null && _$this.file.files[0].type=="image/jpg" || _$this.file.files[0].type=="image/jpeg" || _$this.file.files[0].type=="image/png"){
+				if(_$this.file.files[0].size > 500*1024){
+					ViewManager.showAlert("图片大小不能超过500K");
+					return;
+				}
+			}
+			else{
+				ViewManager.showAlert("请选择jpg或者png图片");
+				return;
+			}
+			if(_$this.isUploading)
+				return;
+			_$this.getSendRequest();
+		};
+		Browser.window.uploadHandle=this;
+	}
+
+	__proto.onUploadQrCode=function(){
+		this.file.click();
+	}
+
+	__proto.getSendRequest=function(){
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"fs/sts",this,this.onGetAuthor,null,null);
+	}
+
+	__proto.onGetAuthor=function(data){
+		var _$this=this;
+		if(this.destroyed)
+			return;
+		var authordata=JSON.parse(data);
+		if(authordata==null || authordata.data==null)
+			return;
+		this.clientParam={};
+		this.clientParam.accessKeyId=authordata.data.accessKeyId;
+		this.clientParam.accessKeySecret=authordata.data.accessKeySecret;
+		this.clientParam.stsToken=authordata.data.securityToken;
+		var json=Laya.loader.getRes("config.json?"+Userdata.instance.configVersion);
+		this.clientParam.endpoint="oss-cn-hangzhou.aliyuncs.com";
+		this.clientParam.bucket=json["bucket"];
+		console.log("oss:"+typeof(Browser.window.OSS));
+		if(typeof(Browser.window.OSS)=="undefined"){
+			/*no*/this.script=Browser.document.createElement("script");
+			/*no*/this.script.src="aliOss.min.js";
+			/*no*/this.script.onload=function (){
+				Browser.window.createossClient(_$this.clientParam);
+				_$this.onBeginUpload();
+			}
+			/*no*/this.script.onerror=function (e){
+				console.log("error"+e);
+			}
+			Browser.document.body.appendChild(/*no*/this.script);
+		}
+		else{
+			Browser.window.createossClient(this.clientParam);
+			this.onBeginUpload();
+		}
+	}
+
+	__proto.onBeginUpload=function(){
+		if(this.file.files[0] !=null){
+			this.uploadFileImmediate();
+		}
+	}
+
+	// }
+	__proto.uploadFileImmediate=function(){
+		if(this.file.files[0] !=null){
+			this.isUploading=true;
+			var arr=(this.file.files[0] .name).split(".");
+			this.ossFileName=UtilTool.uuid()+"."+(arr[arr.length-1]==null ?"jpg":arr[arr.length-1]);
+			console.log("filename:"+this.ossFileName);
+			Browser.window.ossUpload({file:this.file.files[0]},0,null,this.ossFileName);
+		}
+	}
+
+	//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.uploadPic,this,onCompleteUpload,{path:"0|11|",file:file.files[0]},"post",onProgressHandler);
+	__proto.onProgressHandler=function(e,pro){}
+	__proto.onCompleteUpload=function(e){
+		this.isUploading=false;
+		var params={"fileName":this.ossFileName};
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.noticeServerQrcodeComplete,this,this.onNoticeComplete,JSON.stringify(params),"post");
+	}
+
+	__proto.onDeleteQrcodeImg=function(){
+		this.isUploading=false;
+		var params={"fileName":""};
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.noticeServerQrcodeComplete,this,this.onNoticeComplete,JSON.stringify(params),"post");
+	}
+
+	__proto.onNoticeComplete=function(data){
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			Userdata.instance.paymentQrCode=result.data;
+			if(this.destroyed)
+				return;
+			this.uiSkin.myQrCodeImg.skin=Userdata.instance.paymentQrCode;
+		}
+	}
+
+	__proto.onLoadedImg=function(e){
+		var text=Laya.loader.getRes(Userdata.instance.paymentQrCode);
+		if(text==null)
+			return;
+		var imgwidth=text.width;
+		var imgheight=text.height;
+		if(imgwidth > imgheight){
+			this.uiSkin.myQrCodeImg.width=150;
+			this.uiSkin.myQrCodeImg.height=150*imgheight/imgwidth;
+		}
+		else{
+			this.uiSkin.myQrCodeImg.height=150;
+			this.uiSkin.myQrCodeImg.width=150*imgwidth/imgheight;
+		}
 	}
 
 	__proto.onGetAllOrganizeBack=function(data){
@@ -41637,6 +41877,7 @@ var PopUpWindowControl=(function(_super){
 	function PopUpWindowControl(){
 		this.uiSkin=null;
 		this.param=null;
+		this.delayConfirmTime=0;
 		PopUpWindowControl.__super.call(this);
 	}
 
@@ -41659,6 +41900,12 @@ var PopUpWindowControl=(function(_super){
 		if(this.param.noCancel){
 			this.uiSkin.cancelbtn.visible=false;
 		}
+		if(this.param.delayTime !=null){
+			this.delayConfirmTime=this.param.delayTime;
+			this.uiSkin.okbtn.label="确定("+this.delayConfirmTime+")";
+			this.uiSkin.okbtn.disabled=true;
+			Laya.timer.loop(1000,this,this.onDelayCountDown);
+		}
 		this.uiSkin.btnSp.x=(640-this.uiSkin.btnSp.getBounds().width)/2;
 		this.uiSkin.mainpanel.vScrollBarSkin="";
 		this.uiSkin.mainpanel.hScrollBarSkin="";
@@ -41667,6 +41914,18 @@ var PopUpWindowControl=(function(_super){
 		EventCenter.instance.on("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
 		this.uiSkin.okbtn.on("click",this,this.onConfirmHandler);
 		this.uiSkin.cancelbtn.on("click",this,this.onCancelHandler);
+	}
+
+	__proto.onDelayCountDown=function(){
+		this.delayConfirmTime--;
+		if(this.delayConfirmTime <=0){
+			this.uiSkin.okbtn.disabled=false;
+			this.uiSkin.okbtn.label="确定";
+			Laya.timer.clear(this,this.onDelayCountDown);
+		}
+		else{
+			this.uiSkin.okbtn.label="确定("+this.delayConfirmTime+")";
+		}
 	}
 
 	__proto.onResizeBrower=function(){
@@ -41691,6 +41950,10 @@ var PopUpWindowControl=(function(_super){
 			(this.param.callback).call(this.param.caller,false);
 		ViewManager.instance.closeView("VIEW_POPUPDIALOG");
 		EventCenter.instance.off("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
+	}
+
+	__proto.onDestroy=function(){
+		Laya.timer.clear(this,this.onDelayCountDown);
 	}
 
 	return PopUpWindowControl;
@@ -41744,6 +42007,10 @@ var CompanyEditController=(function(_super){
 		this.uiSkin.townList.spaceY=2;
 		this.uiSkin.townList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.townList.selectHandler=new Handler(this,this.selectTown);
+		this.uiSkin.provList.array=[];
+		this.uiSkin.cityList.array=[];
+		this.uiSkin.areaList.array=[];
+		this.uiSkin.townList.array=[];
 		this.uiSkin.btnSelProv.on("click",this,this.onShowProvince);
 		this.uiSkin.btnSelCity.on("click",this,this.onShowCity);
 		this.uiSkin.btnSelArea.on("click",this,this.onShowArea);
@@ -42017,6 +42284,7 @@ var OrderSelectPicController=(function(_super){
 		this.curFileList=null;
 		this.autoFreshTime=0;
 		this.curCustomer=null;
+		this.mulitSelect=false;
 		OrderSelectPicController.__super.call(this);
 	}
 
@@ -42103,6 +42371,8 @@ var OrderSelectPicController=(function(_super){
 		EventCenter.instance.on("UPDATE_SELECT_FOLDER",this,this.updateSelectFolderNum);
 		EventCenter.instance.on("CREATE_FOLDER_SUCESS",this,this.onCreateDirBack);
 		EventCenter.instance.on("SELECT_CUSTOMER",this,this.onSelectCustomer);
+		Laya.stage.on("keydown",this,this.onKeyDownHandler);
+		Laya.stage.on("keyup",this,this.onKeyUPHandler);
 		this.uiSkin.picList.on("mousedown",this,this.onMouseDwons);
 		this.uiSkin.picList.on("mouseup",this,this.onMouseUpHandler);
 		this.uiSkin.picList.on("mouseover",this,this.onMouseDwons);
@@ -42436,6 +42706,15 @@ var OrderSelectPicController=(function(_super){
 		}
 	}
 
+	__proto.onKeyDownHandler=function(e){
+		if(e.keyCode==16)
+			this.mulitSelect=true;
+	}
+
+	__proto.onKeyUPHandler=function(e){
+		this.mulitSelect=false;
+	}
+
 	__proto.seletPicToOrder=function(data){
 		var fvo=data[0];
 		if(UtilTool.checkFileIsImg(fvo)&& fvo.picPhysicWidth !=0){
@@ -42443,8 +42722,35 @@ var OrderSelectPicController=(function(_super){
 			if(hasfic){
 				delete DirectoryFileModel.instance.haselectPic[fvo.fid];
 			}
-			else
-			DirectoryFileModel.instance.haselectPic[fvo.fid]=fvo;
+			else{
+				DirectoryFileModel.instance.haselectPic[fvo.fid]=fvo;
+				if(this.mulitSelect){
+					var arr=this.uiSkin.picList.array;
+					var minIndex=arr.indexOf(fvo);
+					var maxIndex=arr.indexOf(fvo);
+					var picinfo;
+					for(var $each_picinfo in DirectoryFileModel.instance.haselectPic){
+						picinfo=DirectoryFileModel.instance.haselectPic[$each_picinfo];
+						if(arr.indexOf(picinfo)< minIndex){
+							minIndex=arr.indexOf(picinfo);
+						}
+						if(arr.indexOf(picinfo)> maxIndex){
+							maxIndex=arr.indexOf(picinfo);
+						}
+					}
+					if(maxIndex > minIndex){
+						for(var i=minIndex;i< maxIndex;i++){
+							var picinfoVo=arr[i];
+							hasfic=DirectoryFileModel.instance.haselectPic.hasOwnProperty(picinfoVo.fid)
+							if(!hasfic){
+								DirectoryFileModel.instance.haselectPic[picinfoVo.fid]=picinfoVo;
+								if(this.uiSkin.picList.cells[i] !=null)
+									(this.uiSkin.picList.cells [i]).sel.selected=true;
+							}
+						}
+					}
+				}
+			};
 			var num=0;
 			var picvo;
 			for(var $each_picvo in DirectoryFileModel.instance.haselectPic){
@@ -42791,6 +43097,7 @@ var CustomManagerController=(function(_super){
 		var requestStr={};
 		requestStr.mobileNumber=this.uiSkin.customPhone.text;
 		requestStr.customerName=this.uiSkin.customName.text;
+		requestStr.discount=this.uiSkin.sellPriceRatio.text;
 		if(this.uiSkin.businessMan.selectedIndex >=0){
 			requestStr.salerId=this.businessManlist[this.uiSkin.businessMan.selectedIndex].id.toString();
 		}
@@ -42833,6 +43140,7 @@ var CustomManagerController=(function(_super){
 		this.uiSkin.customPhone.editable=false;
 		this.uiSkin.customName.text=this.curCustomer.customerName;
 		this.uiSkin.payType.selectedIndex=this.curCustomer.defaultPayment-1;
+		this.uiSkin.sellPriceRatio.text=this.curCustomer.discount;
 		for(var i=0;i < this.businessManlist.length;i++){
 			if(this.businessManlist[i].id==this.curCustomer.salerId){
 				this.uiSkin.businessMan.selectedIndex=i;
@@ -42846,6 +43154,7 @@ var CustomManagerController=(function(_super){
 		this.uiSkin.customPhone.text="";
 		this.uiSkin.customName.text="";
 		this.uiSkin.customPhone.editable=true;
+		this.uiSkin.sellPriceRatio.text="1";
 		this.addOrEdit=0;
 	}
 
@@ -44842,7 +45151,7 @@ var InputCutNumControl=(function(_super){
 		this.hasFubai=false;
 		this.param=null;
 		this.leastCutNum=0;
-		this.cuttype=0;
+		//private var cuttype:int;
 		this.linelist=null;
 		InputCutNumControl.__super.call(this);
 	}
@@ -44868,49 +45177,19 @@ var InputCutNumControl=(function(_super){
 		this.uiSkin.closeBtn.on("click",this,this.closeScene);
 		this.uiSkin.cancelBtn.on("click",this,this.closeScene);
 		var maxcutwidth=curmat.materialWidth-2;
+		var maxcutlength=curmat.materialLength-2;
 		this.uiSkin.maxtips.text="（单份最大裁切宽度："+maxcutwidth+"cm）";
 		if(PaintOrderModel.instance.curSelectOrderItem !=null){
-			var cutdata={};
-			cutdata.finalWidth=PaintOrderModel.instance.curSelectOrderItem.finalWidth;
-			cutdata.finalHeight=PaintOrderModel.instance.curSelectOrderItem.finalHeight;
-			cutdata.fid=PaintOrderModel.instance.curSelectOrderItem.ordervo.picinfo.fid;
-			cutdata.maxwidth=maxcutwidth;
-			cutdata.border=UtilTool.getBorderDistance(PaintOrderModel.instance.curSelectMat.getAllSelectedTech());
-			cutdata.orderitemvo=PaintOrderModel.instance.curSelectOrderItem.ordervo;
-			cutdata.orderitemvo.cuttype=0;
-			cutdata.orderitemvo.cutnum=Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalWidth+cutdata.border)/maxcutwidth);
-			if(cutdata.orderitemvo.cutnum < 2)
-				cutdata.orderitemvo.cutnum=2;
-			var cutlen=(PaintOrderModel.instance.curSelectOrderItem.finalWidth+cutdata.border)/cutdata.orderitemvo.cutnum;
-			cutlen=parseFloat(cutlen.toFixed(2));
-			cutdata.orderitemvo.eachCutLength=[];
-			for(var j=0;j < cutdata.orderitemvo.cutnum;j++)
-			cutdata.orderitemvo.eachCutLength.push(cutlen);
+			var cutdata=this.getCutData(PaintOrderModel.instance.curSelectOrderItem,curmat);
 			arr.push(cutdata);
 		}
 		else{
 			var batchlist=PaintOrderModel.instance.batchChangeMatItems;
 			var border=UtilTool.getBorderDistance(PaintOrderModel.instance.curSelectMat.getAllSelectedTech());
 			for(var i=0;i < batchlist.length;i++){
-				if(batchlist[i].finalWidth+border > curmat.materialWidth && batchlist[i].finalHeight+border > curmat.materialWidth){
-					var cutdata={};
-					cutdata.finalWidth=batchlist[i].finalWidth;
-					cutdata.finalHeight=batchlist[i].finalHeight;
-					cutdata.fid=batchlist[i].ordervo.picinfo.fid;
-					cutdata.maxwidth=maxcutwidth;
-					cutdata.border=UtilTool.getBorderDistance(PaintOrderModel.instance.curSelectMat.getAllSelectedTech());
-					cutdata.orderitemvo=batchlist[i].ordervo;
-					cutdata.orderitemvo.cuttype=0;
-					cutdata.orderitemvo.cutnum=Math.ceil((batchlist[i].finalWidth+cutdata.border)/maxcutwidth);
-					if(cutdata.orderitemvo.cutnum < 2)
-						cutdata.orderitemvo.cutnum=2;
-					var cutlen=(batchlist[i].finalWidth+cutdata.border)/cutdata.orderitemvo.cutnum;
-					cutlen=parseFloat(cutlen.toFixed(2));
-					cutdata.orderitemvo.eachCutLength=[];
-					for(var j=0;j < cutdata.orderitemvo.cutnum;j++)
-					cutdata.orderitemvo.eachCutLength.push(cutlen);
+				cutdata=this.getCutData(batchlist[i],curmat);
+				if(cutdata !=null)
 					arr.push(cutdata);
-				}
 			}
 		}
 		this.uiSkin.productlist.array=arr;
@@ -44920,6 +45199,111 @@ var InputCutNumControl=(function(_super){
 	}
 
 	//uiSkin.inputnum.on(Event.INPUT,this,onCutNumChange);
+	__proto.getCutData=function(picorderItem,productVo){
+		var cutdata=new CutImageData();
+		cutdata.finalWidth=picorderItem.finalWidth;
+		cutdata.finalHeight=picorderItem.finalHeight;
+		cutdata.fid=picorderItem.ordervo.picinfo.fid;
+		cutdata.maxwidth=productVo.materialWidth-2;
+		cutdata.maxlength=productVo.materialLength-2;
+		cutdata.border=UtilTool.getBorderDistance(productVo.getAllSelectedTech());
+		cutdata.orderitemvo=picorderItem.ordervo;
+		var shortSide=Math.min(picorderItem.finalWidth,picorderItem.finalHeight)+cutdata.border;
+		var longSide=Math.max(picorderItem.finalWidth,picorderItem.finalHeight)+cutdata.border;
+		if(shortSide > productVo.materialWidth && longSide > productVo.materialWidth && shortSide <=productVo.materialLength && longSide <=productVo.materialLength){
+			cutdata.orderitemvo.cutDirect=2;
+			cutdata.cutLength=[cutdata.maxwidth];
+			cutdata.orderitemvo.cuttype=0;
+		}
+		else if(shortSide > productVo.materialWidth && longSide > productVo.materialWidth && shortSide <=productVo.materialLength && longSide > productVo.materialLength){
+			if(picorderItem.finalWidth >=picorderItem.finalHeight){
+				cutdata.orderitemvo.cutDirect=0;
+				cutdata.orderitemvo.cuttype=0;
+			}
+			else{
+				cutdata.orderitemvo.cutDirect=1;
+				cutdata.orderitemvo.cuttype=1;
+			}
+			cutdata.cutLength=[cutdata.maxwidth];
+		}
+		else if(shortSide <=productVo.materialWidth && longSide > productVo.materialLength){
+			if(picorderItem.finalWidth >=picorderItem.finalHeight){
+				cutdata.orderitemvo.cutDirect=0;
+				cutdata.orderitemvo.cuttype=0;
+			}
+			else{
+				cutdata.orderitemvo.cutDirect=1;
+				cutdata.orderitemvo.cuttype=1;
+			}
+			cutdata.cutLength=[cutdata.maxwidth,cutdata.maxlength];
+		}
+		else if(shortSide > productVo.materialLength && longSide > productVo.materialLength){
+			cutdata.orderitemvo.cutDirect=2;
+			cutdata.cutLength=[cutdata.maxwidth,cutdata.maxlength];
+			cutdata.orderitemvo.cuttype=2;
+		}
+		else return null;
+		if(cutdata.orderitemvo.cutDirect==0 || cutdata.orderitemvo.cutDirect==2){
+			cutdata.orderitemvo.vCutnum=Math.ceil((picorderItem.finalWidth+cutdata.border)/cutdata.maxwidth);
+			if(cutdata.orderitemvo.vCutnum < 2)
+				cutdata.orderitemvo.vCutnum=2;
+			cutdata.orderitemvo.vEachCutLength=[];
+			if(cutdata.orderitemvo.cuttype==2){
+				var cutlen=cutdata.maxwidth;
+				for(var j=0;j < cutdata.orderitemvo.vCutnum;j++){
+					if(j < cutdata.orderitemvo.vCutnum-1)
+						cutdata.orderitemvo.vEachCutLength.push(cutlen);
+					else
+					cutdata.orderitemvo.vEachCutLength.push(picorderItem.finalWidth+cutdata.border-cutlen *(cutdata.orderitemvo.vCutnum-1));
+				}
+			}
+			else{
+				cutlen=(picorderItem.finalWidth+cutdata.border)/cutdata.orderitemvo.vCutnum;
+				cutlen=parseFloat(cutlen.toFixed(2));
+				for(var j=0;j < cutdata.orderitemvo.vCutnum;j++){
+					cutdata.orderitemvo.vEachCutLength.push(cutlen);
+				}
+			}
+		}
+		else if(cutdata.orderitemvo.cutDirect==1 || cutdata.orderitemvo.cutDirect==2){
+			cutdata.orderitemvo.hCutnum=Math.ceil((picorderItem.finalHeight+cutdata.border)/cutdata.maxwidth);
+			if(cutdata.orderitemvo.hCutnum < 2)
+				cutdata.orderitemvo.hCutnum=2;
+			cutdata.orderitemvo.hEachCutLength=[];
+			if(cutdata.orderitemvo.cuttype==2){
+				var cutlen=cutdata.maxwidth;
+				for(var j=0;j < cutdata.orderitemvo.hCutnum;j++){
+					if(j < cutdata.orderitemvo.hCutnum-1)
+						cutdata.orderitemvo.hEachCutLength.push(cutlen);
+					else
+					cutdata.orderitemvo.hEachCutLength.push(picorderItem.finalHeight+cutdata.border-cutlen *(cutdata.orderitemvo.hCutnum-1));
+				}
+			}
+			else{
+				var cutlen=(picorderItem.finalHeight+cutdata.border)/cutdata.orderitemvo.hCutnum;
+				cutlen=parseFloat(cutlen.toFixed(2));
+				for(var j=0;j < cutdata.orderitemvo.hCutnum;j++){
+					if(j < cutdata.orderitemvo.hCutnum-1)
+						cutdata.orderitemvo.hEachCutLength.push(cutlen);
+				}
+			}
+		}
+		if(cutdata.orderitemvo.cuttype==2){
+			cutdata.orderitemvo.hCutnum=Math.ceil((picorderItem.finalHeight+cutdata.border)/cutdata.maxlength);
+			if(cutdata.orderitemvo.hCutnum < 2)
+				cutdata.orderitemvo.hCutnum=2;
+			var cutlen=cutdata.maxlength;
+			cutdata.orderitemvo.hEachCutLength=[];
+			for(var j=0;j < cutdata.orderitemvo.hCutnum;j++){
+				if(j < cutdata.orderitemvo.hCutnum-1)
+					cutdata.orderitemvo.hEachCutLength.push(cutlen);
+				else
+				cutdata.orderitemvo.hEachCutLength.push(picorderItem.finalHeight+cutdata.border-cutlen *(cutdata.orderitemvo.hCutnum-1));
+			}
+		}
+		return cutdata;
+	}
+
 	__proto.onResizeBrower=function(){
 		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
 	}
@@ -44941,27 +45325,41 @@ var InputCutNumControl=(function(_super){
 		var hasUnSameLength=false;
 		for(var i=0;i < arr.length;i++){
 			if(arr[i] !=null){
-				var allcut=arr[i].orderitemvo.eachCutLength;
-				for(var j=0;j < allcut.length;j++){
-					if(allcut[j] <=0 || allcut[j] > arr[i].maxwidth){
-						ViewManager.showAlert("请检查每份切割长度是否有效（切割不能为空或0，也不能大于最大长度"+arr[i].maxwidth+"cm)。");
-						return;
-					}
-					if(hasUnSameLength==false){
-						for(var m=j+1;m < allcut.length;m++){
-							if(Math.abs(allcut[m]-allcut[j])> 0.02)
-								hasUnSameLength=true;
-						}
-					}
+				var horcutArr;
+				var vertCutArr;
+				if(arr[i].orderitemvo.cuttype==0 || arr[i].orderitemvo.cuttype==2){
+					horcutArr=arr[i].orderitemvo.vEachCutLength;
+				}
+				else{
+					horcutArr=[(arr [i]).finalWidth];
+				}
+				if(arr[i].orderitemvo.cuttype==1 || arr[i].orderitemvo.cuttype==2){
+					vertCutArr=arr[i].orderitemvo.hEachCutLength;
+				}
+				else{
+					vertCutArr=[(arr [i]).finalHeight];
+				}
+				if(!this.checkValidCutNum(horcutArr,vertCutArr)){
+					return;
 				}
 			}
 		}
-		if(hasUnSameLength){
-			ViewManager.instance.openView("VIEW_POPUPDIALOG",false,{msg:"您选择了非等分裁切下单，由此产生的少量色差或长度拼接问题，生产方不负责承担损失，请谨慎选择。",caller:this,callback:this.onFirmCut});
-			return;
-		}
 		EventCenter.instance.off("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
 		ViewManager.instance.closeView("INPUT_CUT_NUM");
+	}
+
+	__proto.checkValidCutNum=function(horiCut,vertCut){
+		var hasUnSameLength=false;
+		var curmat=PaintOrderModel.instance.curSelectMat;
+		for(var j=0;j < horiCut.length;j++){
+			for(var i=0;i < vertCut.length;i++){
+				if(Math.min(horiCut[j],vertCut[i])> (curmat.materialWidth-2)|| Math.max(horiCut[j],vertCut[i])> (curmat.materialLength-2)){
+					ViewManager.showAlert("请检查切割后每块板子的大小，短边不能大于"+(curmat.materialWidth-2)+"cm，"+"长边不能大于"+(curmat.materialLength-2)+"cm");
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	__proto.onFirmCut=function(b){
@@ -44972,7 +45370,7 @@ var InputCutNumControl=(function(_super){
 	}
 
 	__proto.closeScene=function(){
-		ViewManager.instance.closeView("INPUT_CUT_NUM");
+		this.closeView();
 	}
 
 	return InputCutNumControl;
@@ -48140,6 +48538,108 @@ var RelatedChooseController=(function(_super){
 })(Script)
 
 
+//class script.usercenter.OrderPriceShareController extends laya.components.Script
+var OrderPriceShareController=(function(_super){
+	function OrderPriceShareController(){
+		this.uiSkin=null;
+		this.param=null;
+		OrderPriceShareController.__super.call(this);
+	}
+
+	__class(OrderPriceShareController,'script.usercenter.OrderPriceShareController',_super);
+	var __proto=OrderPriceShareController.prototype;
+	__proto.onStart=function(){
+		this.uiSkin=this.owner;
+		this.uiSkin.orderoanel.vScrollBarSkin="";
+		this.uiSkin.mainpanel.hScrollBarSkin="";
+		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
+		this.uiSkin.orderSn.text=this.param.id;
+		this.uiSkin.qrCodeImg.skin=this.param.qrCode;
+		this.uiSkin.qrCodeImg.on("loaded",this,this.onLoadedImg);
+		if(typeof(Browser.window.orientation)!="undefined"){
+			this.uiSkin.orderbox.itemRender=OrderPriceSharePhoneItem;
+		}
+		else
+		this.uiSkin.orderbox.itemRender=OrderPriceShareItem;
+		this.uiSkin.orderbox.repeatX=1;
+		this.uiSkin.orderbox.spaceY=2;
+		this.uiSkin.orderbox.renderHandler=new Handler(this,this.updateOrderList);
+		this.uiSkin.orderbox.selectEnable=false;
+		this.uiSkin.layoutCost.editable=false;
+		this.uiSkin.designCost.editable=false;
+		this.uiSkin.deliveryCost.editable=false;
+		this.uiSkin.otherCost.editable=false;
+		this.uiSkin.orderbox.size(this.uiSkin.orderbox.width,this.uiSkin.orderbox.getBounds().height);
+		this.uiSkin.orderbox.array=[];
+		EventCenter.instance.on("BROWER_WINDOW_RESIZE",this,this.onResizeBrower);
+		var params={"token":"0da2c261-c89d-4a25-ae27-560027cb77cc","orderId":this.param.id};
+		HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+HttpRequestUtil.getOrderDetailById,this,this.oGetOrderBack,JSON.stringify(params),"post");
+	}
+
+	// updateSellPrice();
+	__proto.oGetOrderBack=function(data){
+		var result=JSON.parse(data);
+		if(result.code=="0"){
+			this.orderdata=JSON.parse(result.data.detail);
+			var allproduct=this.orderdata.orderItemList;
+			this.uiSkin.deliveryCost.text=this.orderdata.shippingFee;
+			if(this.orderdata.moneyPaid !=null)
+				this.uiSkin.moneyPaidlbl.text=Number(this.orderdata.moneyPaid).toFixed(2);
+			else
+			this.uiSkin.moneyPaidlbl.text=Number(this.orderdata.money_paidStr).toFixed(2);
+			allproduct.sort(this.sortProduct);
+			this.uiSkin.customeNameTxt.text=result.data.customerName;
+			var productArr=[];
+			for(var i=0;i < allproduct.length;i++){
+				allproduct[i].orderId=this.param.id;
+			}
+			this.uiSkin.orderbox.array=allproduct;
+			this.uiSkin.layoutCost.text=(this.orderdata.installationFee !=null && this.orderdata.installationFee !="")?this.orderdata.installationFee:"0";
+			this.uiSkin.designCost.text=(this.orderdata.designFee !=null && this.orderdata.designFee !="")?this.orderdata.designFee:"0";
+			this.uiSkin.deliveryCost.text=(this.orderdata.deliveryFee !=null && this.orderdata.designFee !="")?this.orderdata.deliveryFee:"0";
+			this.uiSkin.otherCost.text=(this.orderdata.otherFee !=null && this.orderdata.otherFee !="")?this.orderdata.otherFee:"0";
+			this.uiSkin.sellPrice.text=(this.orderdata.totalSalesPrice !=null && this.orderdata.totalSalesPrice !="")?this.orderdata.totalSalesPrice:"0";
+		}
+	}
+
+	__proto.updateOrderList=function(cell){
+		cell.setData(cell.dataSource);
+	}
+
+	__proto.onLoadedImg=function(e){
+		var text=Laya.loader.getRes(this.param.qrCode);
+		var imgwidth=text.width;
+		var imgheight=text.height;
+		if(imgwidth > imgheight){
+			this.uiSkin.qrCodeImg.width=250;
+			this.uiSkin.qrCodeImg.height=250*imgheight/imgwidth;
+		}
+		else{
+			this.uiSkin.qrCodeImg.height=250;
+			this.uiSkin.qrCodeImg.width=250*imgwidth/imgheight;
+		}
+	}
+
+	__proto.onResizeBrower=function(){
+		this.uiSkin.height=Browser.clientHeight *1920/Browser.clientWidth;
+	}
+
+	__proto.sortProduct=function(a,b){
+		if(parseInt(a.itemSeq)> parseInt(b.itemSeq))
+			return 1;
+		else
+		return-1;
+	}
+
+	__proto.refrshVbox=function(){
+		this.uiSkin.orderbox.refresh();
+		this.uiSkin.orderbox.size(this.uiSkin.orderbox.width,this.uiSkin.orderbox.getBounds().height);
+	}
+
+	return OrderPriceShareController;
+})(Script)
+
+
 //class script.workpanel.PaintOrderSettingController extends laya.components.Script
 var PaintOrderSettingController=(function(_super){
 	function PaintOrderSettingController(){
@@ -48197,6 +48697,7 @@ var PaintOrderSettingController=(function(_super){
 		EventCenter.instance.on("PAY_ORDER_SUCESS",this,this.onPaySucess);
 		EventCenter.instance.on("CANCEL_PAY_ORDER",this,this.onCancelPay);
 		EventCenter.instance.on("FIRST_PAGE_SHRINK",this,this.updateLblPos);
+		EventCenter.instance.on("BATCH_CHANGE_PRODUCT_NUM",this,this.changeProductNum);
 		this.resetOrderInfo();
 		this.updateLblPos(Userdata.instance.shrinkState);
 		if(PaintOrderModel.instance.selectAddress.customerId !="0"){
@@ -49057,6 +49558,7 @@ var AddressEditControl=(function(_super){
 		this.uiSkin.provList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.provList.selectEnable=true;
 		this.uiSkin.provList.selectHandler=new Handler(this,this.selectProvince);
+		this.uiSkin.provList.array=[];
 		this.uiSkin.cityList.itemRender=CityAreaItem;
 		this.uiSkin.cityList.vScrollBarSkin="";
 		this.uiSkin.cityList.repeatX=1;
@@ -49078,6 +49580,9 @@ var AddressEditControl=(function(_super){
 		this.uiSkin.townList.spaceY=2;
 		this.uiSkin.townList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.townList.selectHandler=new Handler(this,this.selectTown);
+		this.uiSkin.cityList.array=[];
+		this.uiSkin.areaList.array=[];
+		this.uiSkin.townList.array=[];
 		this.uiSkin.btnSelProv.on("click",this,this.onShowProvince);
 		this.uiSkin.btnSelCity.on("click",this,this.onShowCity);
 		this.uiSkin.btnSelArea.on("click",this,this.onShowArea);
@@ -49546,6 +50051,7 @@ var FirstPageController=(function(_super){
 			Userdata.instance.isVipCompany=result.data.vip=="1";
 			Userdata.instance.checkJumpUrl();
 			Userdata.instance.dirId=result.data.dirId;
+			Userdata.instance.paymentQrCode=result.data.paymentQrCode;
 			Userdata.instance.company=result.data.name;
 			Userdata.instance.companyShort=result.data.shortName;
 			Userdata.instance.founderPhone=result.data.founderMobileNumber;
@@ -49927,6 +50433,11 @@ var MatAndProcFlowController=(function(_super){
 		this.uiSkin.confirmBtn.on("click",this,this.onConfirmMatProcess);
 		this.uiSkin.closeBtn.on("click",this,this.closeView);
 		this.uiSkin.effectBtn.on("click",this,this.showEffectPanel);
+		this.uiSkin.subBtn.on("click",this,this.onSubItemNum);
+		this.uiSkin.addBtn.on("click",this,this.onAddItemNum);
+		this.uiSkin.batchNumInput.on("input",this,this.onNumChange);
+		this.uiSkin.batchNumInput.text="1";
+		this.uiSkin.batchNumInput.restrict="0-9";
 		EventCenter.instance.on("SHOW_SELECT_TECH",this,this.initTechView);
 		EventCenter.instance.on("CANCEL_CHOOSE_ATTACH",this,this.onCancaleChooseAttach);
 		EventCenter.instance.on("SHOW_MATERIAL_LIST_PANEL",this,this.showMaterialPanel);
@@ -50241,6 +50752,25 @@ var MatAndProcFlowController=(function(_super){
 			return;
 		}
 		ViewManager.instance.openView("EFFECT_PREVIEW_PANEL",false,matProc);
+	}
+
+	__proto.onSubItemNum=function(){
+		var num=parseInt(this.uiSkin.batchNumInput.text);
+		if(num > 1)
+			num--;
+		this.uiSkin.batchNumInput.text=num.toString();
+		this.onNumChange();
+	}
+
+	__proto.onAddItemNum=function(){
+		var num=parseInt(this.uiSkin.batchNumInput.text);
+		num++;
+		this.uiSkin.batchNumInput.text=num.toString();
+		this.onNumChange();
+	}
+
+	__proto.onNumChange=function(){
+		EventCenter.instance.event("BATCH_CHANGE_PRODUCT_NUM",this.uiSkin.batchNumInput.text);
 	}
 
 	__proto.closeView=function(){
@@ -53406,6 +53936,7 @@ var OrderPriceSettingController=(function(_super){
 	function OrderPriceSettingController(){
 		this.uiSkin=null;
 		this.param=null;
+		this.share=false;
 		OrderPriceSettingController.__super.call(this);
 	}
 
@@ -53445,7 +53976,7 @@ var OrderPriceSettingController=(function(_super){
 		this.uiSkin.designCost.on("input",this,this.updateSellPrice);
 		this.uiSkin.deliveryCost.on("input",this,this.updateSellPrice);
 		this.uiSkin.otherCost.on("input",this,this.updateSellPrice);
-		this.uiSkin.okbtn.on("click",this,this.onSettingConfirm);
+		this.uiSkin.okbtn.on("click",this,this.onSaveChanges);
 		this.uiSkin.shareBtn.on("click",this,this.onShare);
 		this.uiSkin.layoutCost.text=(this.orderdata.installationFee !=null && this.orderdata.installationFee !="")?this.orderdata.installationFee:"0";
 		this.uiSkin.designCost.text=(this.orderdata.designFee !=null && this.orderdata.designFee !="")?this.orderdata.designFee:"0";
@@ -53458,7 +53989,8 @@ var OrderPriceSettingController=(function(_super){
 	}
 
 	__proto.onShare=function(){
-		Browser.window.open("about:self","_blank").location.href=Browser.window.location+"?"+"orderID="+this.param.id;
+		this.share=true;
+		this.onSettingConfirm();
 	}
 
 	__proto.updateOrderList=function(cell){
@@ -53495,6 +54027,10 @@ var OrderPriceSettingController=(function(_super){
 		this.uiSkin.sellPrice.text=(productPrice+layoutPrice+deliveryPrice+designPrice+otherPrice).toFixed(2);
 	}
 
+	__proto.onSaveChanges=function(){
+		this.onSettingConfirm();
+	}
+
 	__proto.onSettingConfirm=function(){
 		if(this.uiSkin.layoutCost.text=="" || this.uiSkin.designCost.text=="" || this.uiSkin.deliveryCost.text=="" || this.uiSkin.otherCost.text==""){
 			ViewManager.showAlert("价格不能为空，请输入正确的价格费用。");
@@ -53513,6 +54049,11 @@ var OrderPriceSettingController=(function(_super){
 		var result=JSON.parse(data);
 		if(result.code=="0"){
 			EventCenter.instance.event("DELETE_ORDER_BACK");
+			if(this.share){
+				this.share=false;
+				Browser.window.open("about:self","_blank").location.href=Browser.window.location+"?"+"orderID="+this.param.id+"&qrCode="+Userdata.instance.paymentQrCode;
+			}
+			else
 			this.onCloseView();
 		}
 	}
@@ -53643,6 +54184,7 @@ var RegisterCntrol=(function(_super){
 		this.uiSkin.provList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.provList.selectEnable=true;
 		this.uiSkin.provList.selectHandler=new Handler(this,this.selectProvince);
+		this.uiSkin.provList.array=[];
 		this.uiSkin.cityList.itemRender=CityAreaItem;
 		this.uiSkin.cityList.vScrollBarSkin="";
 		this.uiSkin.cityList.repeatX=1;
@@ -53650,6 +54192,7 @@ var RegisterCntrol=(function(_super){
 		this.uiSkin.cityList.selectEnable=true;
 		this.uiSkin.cityList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.cityList.selectHandler=new Handler(this,this.selectCity);
+		this.uiSkin.cityList.array=[];
 		this.uiSkin.areaList.itemRender=CityAreaItem;
 		this.uiSkin.areaList.vScrollBarSkin="";
 		this.uiSkin.areaList.selectEnable=true;
@@ -53657,6 +54200,7 @@ var RegisterCntrol=(function(_super){
 		this.uiSkin.areaList.spaceY=2;
 		this.uiSkin.areaList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.areaList.selectHandler=new Handler(this,this.selectArea);
+		this.uiSkin.areaList.array=[];
 		this.uiSkin.townList.itemRender=CityAreaItem;
 		this.uiSkin.townList.vScrollBarSkin="";
 		this.uiSkin.townList.selectEnable=true;
@@ -53664,6 +54208,7 @@ var RegisterCntrol=(function(_super){
 		this.uiSkin.townList.spaceY=2;
 		this.uiSkin.townList.renderHandler=new Handler(this,this.updateCityList);
 		this.uiSkin.townList.selectHandler=new Handler(this,this.selectTown);
+		this.uiSkin.townList.array=[];
 		this.uiSkin.btnSelProv.on("click",this,this.onShowProvince);
 		this.uiSkin.btnSelCity.on("click",this,this.onShowCity);
 		this.uiSkin.btnSelArea.on("click",this,this.onShowArea);
@@ -53838,11 +54383,6 @@ var RegisterCntrol=(function(_super){
 			return;
 		var result=JSON.parse(data);
 		if(result.code==0){
-			this.uiSkin.step1Panel.visible=false;
-			this.uiSkin.step2Panel.visible=true;
-			this.uiSkin.input_companyname.focus=true;
-			this.curStep=1;
-			this.updateStep();
 			var param={};
 			param.mobileNumber=this.uiSkin.input_phone.text;
 			param.auth=this.uiSkin.input_pwd.text;
@@ -53878,6 +54418,11 @@ var RegisterCntrol=(function(_super){
 			Userdata.instance.loginTime=(new Date()).getTime();
 			UtilTool.setLocalVar("loginTime",Userdata.instance.loginTime);
 			this.uiSkin.contactPhone.text=Userdata.instance.userAccount;
+			this.uiSkin.step1Panel.visible=false;
+			this.uiSkin.step2Panel.visible=true;
+			this.uiSkin.input_companyname.focus=true;
+			this.curStep=1;
+			this.updateStep();
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0",this,this.initView,null,null);
 		}
 		else{
@@ -53948,6 +54493,8 @@ var RegisterCntrol=(function(_super){
 		this.uiSkin.areabox.visible=false;
 		this.uiSkin.townbox.visible=false;
 		this.uiSkin.mainpanel.vScrollBar.target=null;
+		if(this.uiSkin.provList.array.length==0)
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"sys/areaInfo?"+"parentId=0",this,this.initView,null,null);
 		e.stopPropagation();
 	}
 
@@ -53986,6 +54533,8 @@ var RegisterCntrol=(function(_super){
 		if(this.destroyed)
 			return;
 		var result=JSON.parse(data);
+		if(result.data==null)
+			return;
 		this.uiSkin.provList.array=result.data;
 		var selpro=0;
 		if(this.hasInit==false){
@@ -54015,6 +54564,8 @@ var RegisterCntrol=(function(_super){
 			if(_$this.uiSkin==null || _$this.uiSkin.citytxt==null || _$this.uiSkin.destroyed)
 				return;
 			var result=JSON.parse(data);
+			if(result.data==null)
+				return;
 			_$this.uiSkin.cityList.array=result.data;
 			_$this.uiSkin.cityList.refresh();
 			var selpro=0;
@@ -54045,6 +54596,8 @@ var RegisterCntrol=(function(_super){
 			if(_$this.uiSkin==null || _$this.uiSkin.areatxt==null || _$this.uiSkin.destroyed)
 				return;
 			var result=JSON.parse(data);
+			if(result.data==null)
+				return;
 			_$this.uiSkin.areaList.array=result.data;
 			_$this.uiSkin.areaList.refresh();
 			var selpro=0;
@@ -54078,6 +54631,8 @@ var RegisterCntrol=(function(_super){
 			if(_$this.uiSkin==null || _$this.uiSkin.towntxt==null || _$this.uiSkin.destroyed)
 				return;
 			var result=JSON.parse(data);
+			if(result.data==null)
+				return;
 			_$this.uiSkin.btnSelTown.visible=result.data.length > 0;
 			if(result.data.length==0){
 				_$this.companyareaId=_$this.areaid;
@@ -55248,8 +55803,7 @@ var PackageVipController=(function(_super){
 
 	__proto.onaddPackage=function(arr){
 		for(var i=0;i < arr.length;i++){
-			if(!PaintOrderModel.instance.hasExistAddress(arr[i].id))
-				PaintOrderModel.instance.addPackage(arr[i],this.orderDatas);
+			PaintOrderModel.instance.addPackage(arr[i],this.orderDatas);
 		}
 		this.uiSkin.packagelist.array=PaintOrderModel.instance.packageList;
 		this.uiSkin.curPackgaeNum.text=PaintOrderModel.instance.packageList.length+"";
@@ -62799,6 +63353,8 @@ var ScrollBar=(function(_super){
 		this._clickOnly=true;
 		/**@private */
 		this._offsets=null;
+		/**滚动鼠标滑动幅度 */
+		this.scrollApmlitude=0.2;
 		this.isLockedFun=null;
 		this.triggerDownDragLimit=null;
 		this.triggerUpDragLimit=null;
@@ -62955,7 +63511,7 @@ var ScrollBar=(function(_super){
 
 	/**@private */
 	__proto.onTargetMouseWheel=function(e){
-		this.value-=e.delta *this._scrollSize;
+		this.value-=e.delta *this._scrollSize *this.scrollApmlitude;
 		this.target=this._target;
 	}
 
@@ -68511,6 +69067,35 @@ var ApplyJoinItemUI=(function(_super){
 })(View)
 
 
+//class ui.usercenter.SellPriceSharePhonePanelUI extends laya.ui.View
+var SellPriceSharePhonePanelUI=(function(_super){
+	function SellPriceSharePhonePanelUI(){
+		this.mainpanel=null;
+		this.orderSn=null;
+		this.customeNameTxt=null;
+		this.orderoanel=null;
+		this.orderbox=null;
+		this.layoutCost=null;
+		this.designCost=null;
+		this.deliveryCost=null;
+		this.otherCost=null;
+		this.sellPrice=null;
+		this.moneyPaidlbl=null;
+		this.qrCodeImg=null;
+		SellPriceSharePhonePanelUI.__super.call(this);
+	}
+
+	__class(SellPriceSharePhonePanelUI,'ui.usercenter.SellPriceSharePhonePanelUI',_super);
+	var __proto=SellPriceSharePhonePanelUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.loadScene("usercenter/SellPriceSharePhonePanel");
+	}
+
+	return SellPriceSharePhonePanelUI;
+})(View)
+
+
 //class ui.login.CityAreaItemUI extends laya.ui.View
 var CityAreaItemUI=(function(_super){
 	function CityAreaItemUI(){
@@ -69090,67 +69675,6 @@ var InvoiceHistoryItemUI=(function(_super){
 })(View)
 
 
-//class script.order.item.PackageOrderCell extends ui.order.PackageOrderItemUI
-var PackageOrderCell=(function(_super){
-	function PackageOrderCell(){
-		this.orderData=null;
-		PackageOrderCell.__super.call(this);
-		this.averageBtn.on("click",this,this.onAverageNum);
-	}
-
-	__class(PackageOrderCell,'script.order.item.PackageOrderCell',_super);
-	var __proto=PackageOrderCell.prototype;
-	__proto.setOrderData=function(data){
-		this.orderData=data;
-		this.fileimg.skin=data.conponent.previewImagePath;
-		var size=data.conponent.LWH.split("/");
-		var picwidth=parseFloat(size[0]);
-		var picheight=parseFloat(size[1]);
-		this.seqNum.text=data.itemSeq+"";
-		if(picwidth > picheight){
-			this.fileimg.width=108;
-			this.fileimg.height=108/picwidth *picheight;
-		}
-		else{
-			this.fileimg.height=108;
-			this.fileimg.width=108/picheight *picwidth;
-		}
-		this.filenametxt.text=data.conponent.filename;
-		this.mattext.text=data.conponent.prodName;
-		this.numtxt.text=data.itemNumber+"";
-	}
-
-	__proto.onAverageNum=function(){
-		var total=this.orderData.itemNumber;
-		if(PaintOrderModel.instance.packageList.length==1)
-			return;
-		var average=Math.floor(total/(PaintOrderModel.instance.packageList.length));
-		if(average==0)
-			average=1;
-		var left=total-average*(PaintOrderModel.instance.packageList.length);
-		if(left < 0)
-			left=0;
-		var fisrtNum=average+left;
-		var hasDistrictNum=0;
-		for(var i=0;i < PaintOrderModel.instance.packageList.length;i++){
-			if(hasDistrictNum < total){
-				var packvo=PaintOrderModel.instance.packageList[i];
-				for(var j=0;j < packvo.itemlist.length;j++){
-					if(packvo.itemlist[j].itemId==this.orderData.orderItemSn){
-						packvo.itemlist[j].itemCount=i==0?fisrtNum:average;
-						hasDistrictNum+=packvo.itemlist[j].itemCount;
-						break ;
-					}
-				}
-			}
-		}
-		EventCenter.instance.event("UPDATE_PACKAGE_ORDER_ITEM_COUNT");
-	}
-
-	return PackageOrderCell;
-})(PackageOrderItemUI)
-
-
 //class ui.order.OrderItemUI extends laya.ui.View
 var OrderItemUI=(function(_super){
 	function OrderItemUI(){
@@ -69234,6 +69758,67 @@ var LogPanelUI=(function(_super){
 
 	return LogPanelUI;
 })(View)
+
+
+//class script.order.item.PackageOrderCell extends ui.order.PackageOrderItemUI
+var PackageOrderCell=(function(_super){
+	function PackageOrderCell(){
+		this.orderData=null;
+		PackageOrderCell.__super.call(this);
+		this.averageBtn.on("click",this,this.onAverageNum);
+	}
+
+	__class(PackageOrderCell,'script.order.item.PackageOrderCell',_super);
+	var __proto=PackageOrderCell.prototype;
+	__proto.setOrderData=function(data){
+		this.orderData=data;
+		this.fileimg.skin=data.conponent.previewImagePath;
+		var size=data.conponent.LWH.split("/");
+		var picwidth=parseFloat(size[0]);
+		var picheight=parseFloat(size[1]);
+		this.seqNum.text=data.itemSeq+"";
+		if(picwidth > picheight){
+			this.fileimg.width=108;
+			this.fileimg.height=108/picwidth *picheight;
+		}
+		else{
+			this.fileimg.height=108;
+			this.fileimg.width=108/picheight *picwidth;
+		}
+		this.filenametxt.text=data.conponent.filename;
+		this.mattext.text=data.conponent.prodName;
+		this.numtxt.text=data.itemNumber+"";
+	}
+
+	__proto.onAverageNum=function(){
+		var total=this.orderData.itemNumber;
+		if(PaintOrderModel.instance.packageList.length==1)
+			return;
+		var average=Math.floor(total/(PaintOrderModel.instance.packageList.length));
+		if(average==0)
+			average=1;
+		var left=total-average*(PaintOrderModel.instance.packageList.length);
+		if(left < 0)
+			left=0;
+		var fisrtNum=average+left;
+		var hasDistrictNum=0;
+		for(var i=0;i < PaintOrderModel.instance.packageList.length;i++){
+			if(hasDistrictNum < total){
+				var packvo=PaintOrderModel.instance.packageList[i];
+				for(var j=0;j < packvo.itemlist.length;j++){
+					if(packvo.itemlist[j].itemId==this.orderData.orderItemSn){
+						packvo.itemlist[j].itemCount=i==0?fisrtNum:average;
+						hasDistrictNum+=packvo.itemlist[j].itemCount;
+						break ;
+					}
+				}
+			}
+		}
+		EventCenter.instance.event("UPDATE_PACKAGE_ORDER_ITEM_COUNT");
+	}
+
+	return PackageOrderCell;
+})(PackageOrderItemUI)
 
 
 //class ui.common.TipPicturePanelUI extends laya.ui.View
@@ -69685,6 +70270,38 @@ var BusinessManItemUI=(function(_super){
 })(View)
 
 
+//class ui.usercenter.OrderPriceSellItemUI extends laya.ui.View
+var OrderPriceSellItemUI=(function(_super){
+	function OrderPriceSellItemUI(){
+		this.pronum=null;
+		this.widthtxt=null;
+		this.heighttxt=null;
+		this.filename=null;
+		this.tech=null;
+		this.matname=null;
+		this.itemseq=null;
+		this.picimg=null;
+		this.deliverydate=null;
+		this.isurgent=null;
+		this.bgimg=null;
+		this.unitPriceInput=null;
+		this.measureUnit=null;
+		this.totalPriceInput=null;
+		OrderPriceSellItemUI.__super.call(this);
+	}
+
+	__class(OrderPriceSellItemUI,'ui.usercenter.OrderPriceSellItemUI',_super);
+	var __proto=OrderPriceSellItemUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.createView(OrderPriceSellItemUI.uiView);
+	}
+
+	OrderPriceSellItemUI.uiView={"type":"View","props":{"width":1500,"height":175},"compId":2,"child":[{"type":"Box","props":{"y":68,"x":257},"compId":66,"child":[{"type":"Label","props":{"y":-2,"x":7,"width":58,"text":"宽(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"center"},"compId":68},{"type":"Label","props":{"y":75,"x":98,"width":38,"var":"pronum","text":"10","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":false,"align":"left"},"compId":69},{"type":"Label","props":{"y":34,"x":7,"width":58,"text":"高(cm)","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":70},{"type":"Label","props":{"y":1,"x":78,"width":50,"var":"widthtxt","text":"10000","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":71},{"type":"Label","props":{"y":34,"x":78,"width":58,"var":"heighttxt","text":"100","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":72},{"type":"Label","props":{"y":75,"x":3,"width":81,"text":"制作数量","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":73}]},{"type":"Label","props":{"y":22,"x":257,"wordWrap":true,"width":190,"var":"filename","valign":"middle","text":"PP纸无背胶.jpg","overflow":"hidden","height":18,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":64},{"type":"Label","props":{"y":62,"x":458,"wordWrap":true,"width":169,"var":"tech","valign":"top","text":"户外材料--白胶车贴","rotation":0,"overflow":"hidden","height":95,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":63},{"type":"Label","props":{"y":20,"x":458,"wordWrap":true,"width":202,"var":"matname","valign":"middle","text":"户内PP纸无背胶","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"left"},"compId":67},{"type":"Label","props":{"y":22,"x":25,"width":29,"var":"itemseq","text":"1","height":21,"fontSize":28,"font":"SimHei","color":"#0","align":"left"},"compId":62},{"type":"Image","props":{"y":87,"x":154,"width":155,"var":"picimg","skin":"comp/image.png","height":155,"anchorY":0.5,"anchorX":0.5},"compId":61},{"type":"Label","props":{"y":79,"x":1242,"var":"deliverydate","text":"2012-12-25 21:15:52","height":16,"fontSize":18,"font":"SimHei","color":"#0","bold":true,"align":"center"},"compId":59},{"type":"Label","props":{"y":7,"x":8,"var":"isurgent","valign":"middle","text":"加急","fontSize":18,"font":"SimHei","color":"#f3300b","align":"center"},"compId":58},{"type":"Image","props":{"var":"bgimg","skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":3},{"type":"Label","props":{"y":79,"x":776,"width":100,"visible":true,"var":"unitPriceInput","text":"15.6","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":77},{"type":"Label","props":{"y":108,"x":800,"width":66,"var":"measureUnit","text":"平方米","rotation":0,"height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"left"},"compId":78},{"type":"Label","props":{"y":79,"x":1000,"width":100,"visible":true,"var":"totalPriceInput","text":"15.6","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":79}],"loadList":["PP纸无背胶.jpg","comp/image.png","commers/cutline.png"],"loadList3D":[]};
+	return OrderPriceSellItemUI;
+})(View)
+
+
 //class ui.prodCustom.ConditionButtonUI extends laya.ui.View
 var ConditionButtonUI=(function(_super){
 	function ConditionButtonUI(){
@@ -69903,7 +70520,7 @@ var OrderPriceSettingItemUI=(function(_super){
 		this.createView(OrderPriceSettingItemUI.uiView);
 	}
 
-	OrderPriceSettingItemUI.uiView={"type":"View","props":{"width":1745,"height":175},"compId":2,"child":[{"type":"Box","props":{"y":68,"x":257},"compId":66,"child":[{"type":"Label","props":{"y":-2,"x":7,"width":58,"text":"宽(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"center"},"compId":68},{"type":"Label","props":{"y":75,"x":98,"width":38,"var":"pronum","text":"10","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":false,"align":"left"},"compId":69},{"type":"Label","props":{"y":34,"x":7,"width":58,"text":"高(cm)","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":70},{"type":"Label","props":{"y":1,"x":78,"width":50,"var":"widthtxt","text":"10000","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":71},{"type":"Label","props":{"y":34,"x":78,"width":58,"var":"heighttxt","text":"100","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":72},{"type":"Label","props":{"y":75,"x":3,"width":81,"text":"制作数量","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":73}]},{"type":"Label","props":{"y":79,"x":819,"width":100,"var":"money","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":65},{"type":"Label","props":{"y":22,"x":257,"wordWrap":true,"width":190,"var":"filename","valign":"middle","text":"PP纸无背胶.jpg","overflow":"hidden","height":18,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":64},{"type":"Label","props":{"y":62,"x":458,"wordWrap":true,"width":169,"var":"tech","valign":"top","text":"户外材料--白胶车贴","rotation":0,"overflow":"hidden","height":95,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":63},{"type":"Label","props":{"y":20,"x":458,"wordWrap":true,"width":202,"var":"matname","valign":"middle","text":"户内PP纸无背胶","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"left"},"compId":67},{"type":"Label","props":{"y":22,"x":25,"width":29,"var":"itemseq","text":"1","height":21,"fontSize":28,"font":"SimHei","color":"#0","align":"left"},"compId":62},{"type":"Image","props":{"y":87,"x":154,"width":155,"var":"picimg","skin":"comp/image.png","height":155,"anchorY":0.5,"anchorX":0.5},"compId":61},{"type":"Label","props":{"y":79,"x":1242,"var":"deliverydate","text":"2012-12-25 21:15:52","height":16,"fontSize":18,"font":"SimHei","color":"#0","bold":true,"align":"center"},"compId":59},{"type":"Label","props":{"y":7,"x":8,"var":"isurgent","valign":"middle","text":"加急","fontSize":18,"font":"SimHei","color":"#f3300b","align":"center"},"compId":58},{"type":"Image","props":{"var":"bgimg","skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":3},{"type":"TextInput","props":{"y":77,"x":972,"width":94,"var":"unitPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},"compId":75},{"type":"TextInput","props":{"y":77,"x":1134,"width":94,"var":"totalPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},"compId":76},{"type":"Label","props":{"y":79,"x":693,"width":100,"var":"unitPriceTxt","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":77},{"type":"Label","props":{"y":108,"x":971,"width":66,"var":"measureUnit","text":"平方米","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"left"},"compId":78}],"loadList":["PP纸无背胶.jpg","comp/image.png","commers/cutline.png","commers/inputbg.png"],"loadList3D":[]};
+	OrderPriceSettingItemUI.uiView={"type":"View","props":{"width":1745,"height":175},"compId":2,"child":[{"type":"Box","props":{"y":68,"x":257},"compId":66,"child":[{"type":"Label","props":{"y":-2,"x":7,"width":58,"text":"宽(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"center"},"compId":68},{"type":"Label","props":{"y":75,"x":98,"width":38,"var":"pronum","text":"10","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":false,"align":"left"},"compId":69},{"type":"Label","props":{"y":34,"x":7,"width":58,"text":"高(cm)","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":70},{"type":"Label","props":{"y":1,"x":78,"width":50,"var":"widthtxt","text":"10000","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":71},{"type":"Label","props":{"y":34,"x":78,"width":58,"var":"heighttxt","text":"100","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":72},{"type":"Label","props":{"y":75,"x":3,"width":81,"text":"制作数量","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":73}]},{"type":"Label","props":{"y":79,"x":819,"width":100,"visible":false,"var":"money","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":65},{"type":"Label","props":{"y":22,"x":257,"wordWrap":true,"width":190,"var":"filename","valign":"middle","text":"PP纸无背胶.jpg","overflow":"hidden","height":18,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":64},{"type":"Label","props":{"y":62,"x":458,"wordWrap":true,"width":169,"var":"tech","valign":"top","text":"户外材料--白胶车贴","rotation":0,"overflow":"hidden","height":95,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":63},{"type":"Label","props":{"y":20,"x":458,"wordWrap":true,"width":202,"var":"matname","valign":"middle","text":"户内PP纸无背胶","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"left"},"compId":67},{"type":"Label","props":{"y":22,"x":25,"width":29,"var":"itemseq","text":"1","height":21,"fontSize":28,"font":"SimHei","color":"#0","align":"left"},"compId":62},{"type":"Image","props":{"y":87,"x":154,"width":155,"var":"picimg","skin":"comp/image.png","height":155,"anchorY":0.5,"anchorX":0.5},"compId":61},{"type":"Label","props":{"y":79,"x":1242,"var":"deliverydate","text":"2012-12-25 21:15:52","height":16,"fontSize":18,"font":"SimHei","color":"#0","bold":true,"align":"center"},"compId":59},{"type":"Label","props":{"y":7,"x":8,"var":"isurgent","valign":"middle","text":"加急","fontSize":18,"font":"SimHei","color":"#f3300b","align":"center"},"compId":58},{"type":"Image","props":{"var":"bgimg","skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":3},{"type":"TextInput","props":{"y":77,"x":801,"width":94,"var":"unitPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},"compId":75},{"type":"TextInput","props":{"y":77,"x":1000,"width":94,"var":"totalPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},"compId":76},{"type":"Label","props":{"y":79,"x":693,"width":100,"visible":false,"var":"unitPriceTxt","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":77},{"type":"Label","props":{"y":108,"x":800,"width":66,"var":"measureUnit","text":"平方米","rotation":0,"height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"left"},"compId":78}],"loadList":["PP纸无背胶.jpg","comp/image.png","commers/cutline.png","commers/inputbg.png"],"loadList3D":[]};
 	return OrderPriceSettingItemUI;
 })(View)
 
@@ -70665,6 +71282,38 @@ var CustomerTransacItemUI=(function(_super){
 })(View)
 
 
+//class ui.usercenter.OrderPriceSellPhoneItemUI extends laya.ui.View
+var OrderPriceSellPhoneItemUI=(function(_super){
+	function OrderPriceSellPhoneItemUI(){
+		this.pronum=null;
+		this.widthtxt=null;
+		this.heighttxt=null;
+		this.filename=null;
+		this.tech=null;
+		this.matname=null;
+		this.itemseq=null;
+		this.picimg=null;
+		this.deliverydate=null;
+		this.isurgent=null;
+		this.bgimg=null;
+		this.unitPriceInput=null;
+		this.measureUnit=null;
+		this.totalPriceInput=null;
+		OrderPriceSellPhoneItemUI.__super.call(this);
+	}
+
+	__class(OrderPriceSellPhoneItemUI,'ui.usercenter.OrderPriceSellPhoneItemUI',_super);
+	var __proto=OrderPriceSellPhoneItemUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.createView(OrderPriceSellPhoneItemUI.uiView);
+	}
+
+	OrderPriceSellPhoneItemUI.uiView={"type":"View","props":{"width":1080,"height":175},"compId":2,"child":[{"type":"Box","props":{"y":68,"x":257},"compId":66,"child":[{"type":"Label","props":{"y":-2,"x":7,"width":58,"text":"宽(cm)","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"center"},"compId":68},{"type":"Label","props":{"y":75,"x":98,"width":38,"var":"pronum","text":"10","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":false,"align":"left"},"compId":69},{"type":"Label","props":{"y":34,"x":7,"width":58,"text":"高(cm)","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":70},{"type":"Label","props":{"y":1,"x":78,"width":50,"var":"widthtxt","text":"10000","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":71},{"type":"Label","props":{"y":34,"x":78,"width":58,"var":"heighttxt","text":"100","height":21,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":72},{"type":"Label","props":{"y":75,"x":3,"width":81,"text":"制作数量","rotation":0,"height":21,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},"compId":73}]},{"type":"Label","props":{"y":22,"x":257,"wordWrap":true,"width":190,"var":"filename","valign":"middle","text":"PP纸无背胶.jpg","overflow":"hidden","height":18,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":64},{"type":"Label","props":{"y":62,"x":424,"wordWrap":true,"width":169,"var":"tech","valign":"top","text":"户外材料--白胶车贴","rotation":0,"overflow":"hidden","height":95,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},"compId":63},{"type":"Label","props":{"y":20,"x":424,"wordWrap":true,"width":202,"var":"matname","valign":"middle","text":"户内PP纸无背胶","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"left"},"compId":67},{"type":"Label","props":{"y":22,"x":25,"width":29,"var":"itemseq","text":"1","height":21,"fontSize":28,"font":"SimHei","color":"#0","align":"left"},"compId":62},{"type":"Image","props":{"y":87,"x":154,"width":155,"var":"picimg","skin":"comp/image.png","height":155,"anchorY":0.5,"anchorX":0.5},"compId":61},{"type":"Label","props":{"y":79,"x":895,"var":"deliverydate","text":"2012-12-25 21:15:52","height":16,"fontSize":18,"font":"SimHei","color":"#0","bold":true,"align":"center"},"compId":59},{"type":"Label","props":{"y":7,"x":8,"var":"isurgent","valign":"middle","text":"加急","fontSize":18,"font":"SimHei","color":"#f3300b","align":"center"},"compId":58},{"type":"Image","props":{"var":"bgimg","skin":"commers/cutline.png","right":0,"left":0,"height":1,"bottom":0},"compId":3},{"type":"Label","props":{"y":79,"x":613,"width":100,"visible":true,"var":"unitPriceInput","text":"15.6","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":77},{"type":"Label","props":{"y":108,"x":637,"width":66,"var":"measureUnit","text":"平方米","rotation":0,"height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"left"},"compId":78},{"type":"Label","props":{"y":79,"x":762,"width":100,"visible":true,"var":"totalPriceInput","text":"15.6","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},"compId":79}],"loadList":["PP纸无背胶.jpg","comp/image.png","commers/cutline.png"],"loadList3D":[]};
+	return OrderPriceSellPhoneItemUI;
+})(View)
+
+
 //class ui.usercenter.ChargeActivityPanelUI extends laya.ui.View
 var ChargeActivityPanelUI=(function(_super){
 	function ChargeActivityPanelUI(){
@@ -70719,7 +71368,6 @@ var CutImageItemUI=(function(_super){
 	function CutImageItemUI(){
 		this.borderimg=null;
 		this.paintimg=null;
-		this.cutNumInput=null;
 		this.hbox=null;
 		this.hinput0=null;
 		this.hinput1=null;
@@ -70728,6 +71376,24 @@ var CutImageItemUI=(function(_super){
 		this.hinput4=null;
 		this.hinput5=null;
 		this.hinput6=null;
+		this.horiOperateBox=null;
+		this.cutNumInput=null;
+		this.hori0=null;
+		this.hori1=null;
+		this.hori2=null;
+		this.hori3=null;
+		this.hori4=null;
+		this.vertOperateBox=null;
+		this.vert0=null;
+		this.vert1=null;
+		this.vert2=null;
+		this.vert3=null;
+		this.vert4=null;
+		this.vertCutNumInput=null;
+		this.horiRdoBox=null;
+		this.horiCutWidthRdo=null;
+		this.vertRdoBox=null;
+		this.vertCutWidthRdo=null;
 		this.vbox=null;
 		this.vinput0=null;
 		this.vinput1=null;
@@ -70736,17 +71402,6 @@ var CutImageItemUI=(function(_super){
 		this.vinput4=null;
 		this.vinput5=null;
 		this.vinput6=null;
-		this.hori0=null;
-		this.hori1=null;
-		this.hori2=null;
-		this.hori3=null;
-		this.hori4=null;
-		this.vert0=null;
-		this.vert1=null;
-		this.vert2=null;
-		this.vert3=null;
-		this.vert4=null;
-		this.vertCutNumInput=null;
 		CutImageItemUI.__super.call(this);
 	}
 
@@ -70757,7 +71412,7 @@ var CutImageItemUI=(function(_super){
 		this.createView(CutImageItemUI.uiView);
 	}
 
-	CutImageItemUI.uiView={"type":"View","props":{},"compId":2,"child":[{"type":"Image","props":{"y":67,"x":60,"width":377,"skin":"upload1/inoutbg.png","sizeGrid":"3,3,3,3","height":377},"compId":3,"child":[{"type":"Image","props":{"y":188,"x":188,"width":375,"var":"borderimg","skin":"commers/blackbg.png","sizeGrid":"2,2,2,2","height":100,"anchorY":0.5,"anchorX":0.5,"alpha":0.5},"compId":35},{"type":"Image","props":{"y":188,"x":188,"width":375,"var":"paintimg","skin":"comp/image.png","height":375,"anchorY":0.5,"anchorX":0.5},"compId":4}]},{"type":"TextInput","props":{"y":20,"x":390,"width":38,"var":"cutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},"compId":36},{"type":"Label","props":{"y":24,"x":347,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},"compId":37},{"type":"HBox","props":{"y":459,"x":48,"width":400,"var":"hbox","height":30},"compId":20,"child":[{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput0","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":13},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput1","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":15},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput2","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":17},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput3","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":22},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput4","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":24},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput5","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":25},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput6","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":33}]},{"type":"VBox","props":{"y":65,"x":461,"width":50,"var":"vbox","height":400},"compId":26,"child":[{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"vinput0","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":27},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"vinput1","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":28},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"vinput2","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":29},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"vinput3","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":30},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"vinput4","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":31},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"vinput5","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":32},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"vinput6","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":34}]},{"type":"HBox","props":{"y":15,"x":48,"space":16},"compId":45,"child":[{"type":"Button","props":{"width":42,"var":"hori0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":39},{"type":"Button","props":{"x":58,"width":42,"var":"hori1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":40},{"type":"Button","props":{"x":116,"width":42,"var":"hori2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":42},{"type":"Button","props":{"x":174,"width":42,"var":"hori3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":43},{"type":"Button","props":{"x":232,"width":42,"var":"hori4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":44}]},{"type":"Label","props":{"y":14,"x":444,"text":"纵向\\n等份","fontSize":18,"font":"SimHei"},"compId":46},{"type":"VBox","props":{"y":108,"x":0,"space":16},"compId":53,"child":[{"type":"Button","props":{"width":42,"var":"vert0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":48},{"type":"Button","props":{"y":57,"width":42,"var":"vert1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":49},{"type":"Button","props":{"y":114,"width":42,"var":"vert2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":50},{"type":"Button","props":{"y":170,"width":42,"var":"vert3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":51},{"type":"Button","props":{"y":227,"width":42,"var":"vert4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":52}]},{"type":"Label","props":{"y":55,"x":3,"text":"横向\\n等份","fontSize":18,"font":"SimHei"},"compId":54},{"type":"TextInput","props":{"y":422,"x":10,"width":38,"var":"vertCutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},"compId":55},{"type":"Label","props":{"y":387,"x":6,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},"compId":56}],"loadList":["upload1/inoutbg.png","commers/blackbg.png","comp/image.png","commers/inputbg.png","comp/textinput.png","uiCommonUpdate/nusel.png"],"loadList3D":[]};
+	CutImageItemUI.uiView={"type":"View","props":{},"compId":2,"child":[{"type":"Image","props":{"y":87,"x":60,"width":377,"skin":"upload1/inoutbg.png","sizeGrid":"3,3,3,3","height":377},"compId":3,"child":[{"type":"Image","props":{"y":188,"x":188,"width":375,"var":"borderimg","skin":"commers/blackbg.png","sizeGrid":"2,2,2,2","height":100,"anchorY":0.5,"anchorX":0.5,"alpha":0.5},"compId":35},{"type":"Image","props":{"y":188,"x":188,"width":375,"var":"paintimg","skin":"comp/image.png","height":375,"anchorY":0.5,"anchorX":0.5},"compId":4}]},{"type":"HBox","props":{"y":479,"x":48,"width":400,"var":"hbox","height":30},"compId":20,"child":[{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput0","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":13},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput1","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":15},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput2","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":17},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput3","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":22},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput4","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":24},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput5","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":25},{"type":"TextInput","props":{"y":0,"x":0,"width":50,"var":"hinput6","text":"100","skin":"comp/textinput.png","fontSize":16,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":33}]},{"type":"Box","props":{"y":35,"x":48,"var":"horiOperateBox"},"compId":63,"child":[{"type":"TextInput","props":{"y":5,"x":342,"width":38,"var":"cutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},"compId":36},{"type":"Label","props":{"y":9,"x":299,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},"compId":37},{"type":"HBox","props":{"space":16},"compId":45,"child":[{"type":"Button","props":{"width":42,"var":"hori0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":39},{"type":"Button","props":{"x":58,"width":42,"var":"hori1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":40},{"type":"Button","props":{"x":116,"width":42,"var":"hori2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":42},{"type":"Button","props":{"x":174,"width":42,"var":"hori3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":43},{"type":"Button","props":{"x":232,"width":42,"var":"hori4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":44}]},{"type":"Label","props":{"y":9,"x":396,"text":"纵向","fontSize":18,"font":"SimHei"},"compId":46}]},{"type":"Box","props":{"y":99,"x":0,"var":"vertOperateBox"},"compId":64,"child":[{"type":"VBox","props":{"y":29,"space":16},"compId":53,"child":[{"type":"Button","props":{"width":42,"var":"vert0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":48},{"type":"Button","props":{"y":57,"width":42,"var":"vert1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":49},{"type":"Button","props":{"y":114,"width":42,"var":"vert2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":50},{"type":"Button","props":{"y":170,"width":42,"var":"vert3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":51},{"type":"Button","props":{"y":227,"width":42,"var":"vert4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},"compId":52}]},{"type":"Label","props":{"x":3,"text":"横向","fontSize":18,"font":"SimHei"},"compId":54},{"type":"TextInput","props":{"y":343,"x":10,"width":38,"var":"vertCutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},"compId":55},{"type":"Label","props":{"y":308,"x":6,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},"compId":56}]},{"type":"Box","props":{"y":12,"x":39,"var":"horiRdoBox"},"compId":65,"child":[{"type":"RadioGroup","props":{"x":120,"width":100,"var":"horiCutWidthRdo","skin":"comp/radiogroup.png","rotation":0,"labels":"120,240","labelSize":16,"height":14},"compId":58},{"type":"Label","props":{"width":96,"text":"纵向默认裁切长度：","height":16,"fontSize":14,"font":"SimHei"},"compId":59}]},{"type":"Box","props":{"y":12,"x":268,"var":"vertRdoBox"},"compId":66,"child":[{"type":"RadioGroup","props":{"x":118,"width":100,"var":"vertCutWidthRdo","skin":"comp/radiogroup.png","rotation":0,"labels":"120,240","labelSize":16,"height":14},"compId":61},{"type":"Label","props":{"width":96,"text":"横向默认裁切长度：","height":16,"fontSize":14,"font":"SimHei"},"compId":62}]},{"type":"Box","props":{"y":85,"x":461,"var":"vbox"},"compId":67,"child":[{"type":"TextInput","props":{"width":50,"var":"vinput0","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":27},{"type":"TextInput","props":{"width":50,"var":"vinput1","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":28},{"type":"TextInput","props":{"width":50,"var":"vinput2","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":29},{"type":"TextInput","props":{"width":50,"var":"vinput3","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":30},{"type":"TextInput","props":{"width":50,"var":"vinput4","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":31},{"type":"TextInput","props":{"width":50,"var":"vinput5","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":32},{"type":"TextInput","props":{"width":50,"var":"vinput6","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1","sizeGrid":"6,15,7,14"},"compId":34}]}],"loadList":["upload1/inoutbg.png","commers/blackbg.png","comp/image.png","comp/textinput.png","commers/inputbg.png","uiCommonUpdate/nusel.png","comp/radiogroup.png"],"loadList3D":[]};
 	return CutImageItemUI;
 })(View)
 
@@ -70807,6 +71462,8 @@ var CustomManagerPanelUI=(function(_super){
 		this.closeAddBtn=null;
 		this.payType=null;
 		this.businessMan=null;
+		this.sellPriceRatio=null;
+		this.delBtn=null;
 		CustomManagerPanelUI.__super.call(this);
 	}
 
@@ -71222,6 +71879,9 @@ var MaterialAdProcFlowPanelUI=(function(_super){
 		this.saveBtn=null;
 		this.closeBtn=null;
 		this.effectBtn=null;
+		this.batchNumInput=null;
+		this.addBtn=null;
+		this.subBtn=null;
 		MaterialAdProcFlowPanelUI.__super.call(this);
 	}
 
@@ -71585,6 +72245,7 @@ var CustomeItemUI=(function(_super){
 		this.addressTxt=null;
 		this.defaultPayType=null;
 		this.balancelbl=null;
+		this.discountlbl=null;
 		CustomeItemUI.__super.call(this);
 	}
 
@@ -71595,7 +72256,7 @@ var CustomeItemUI=(function(_super){
 		this.createView(CustomeItemUI.uiView);
 	}
 
-	CustomeItemUI.uiView={"type":"View","props":{"width":580,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"selectImg","top":0,"skin":"commers/graydisable.jpg","right":0,"left":0,"height":30,"bottom":0},"compId":13},{"type":"Label","props":{"y":7,"x":5,"width":161,"var":"customName","text":"客户名称最多六个字","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":3},{"type":"Label","props":{"y":8,"x":175,"width":80,"var":"phoneNumber","text":"13899998888","height":14,"fontSize":14,"font":"SimHei"},"compId":4},{"type":"Label","props":{"y":8,"x":267,"width":60,"visible":true,"var":"businessManlbl","text":"小李路","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":5},{"type":"Text","props":{"y":8,"x":470,"var":"updateInfoTxt","text":"修改","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":6,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":8}]},{"type":"Text","props":{"y":8,"x":547,"var":"deleteTxt","text":"删除","presetID":1,"fontSize":14,"font":"SimHei","color":"#d92e16","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":7,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":8,"x":508,"var":"addressTxt","text":"地址","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":10,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":11}]},{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":0,"bottom":0},"compId":12},{"type":"Label","props":{"y":8,"x":401,"width":58,"visible":true,"var":"defaultPayType","text":"预充","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":14},{"type":"Label","props":{"y":8,"x":335,"width":63,"visible":true,"var":"balancelbl","text":"0.00","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":15}],"loadList":["commers/graydisable.jpg","prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
+	CustomeItemUI.uiView={"type":"View","props":{"width":580,"height":30},"compId":2,"child":[{"type":"Image","props":{"var":"selectImg","top":0,"skin":"commers/graydisable.jpg","right":0,"left":0,"height":30,"bottom":0},"compId":13},{"type":"Label","props":{"y":7,"x":5,"width":152,"var":"customName","text":"客户名称最多六个字数","height":17,"fontSize":14,"font":"SimHei","align":"center"},"compId":3},{"type":"Label","props":{"y":7,"x":165,"width":80,"var":"phoneNumber","text":"13899998888","height":14,"fontSize":14,"font":"SimHei"},"compId":4},{"type":"Label","props":{"y":8,"x":252,"width":60,"visible":true,"var":"businessManlbl","text":"小李路","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":5},{"type":"Text","props":{"y":8,"x":470,"var":"updateInfoTxt","text":"修改","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":6,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":8}]},{"type":"Text","props":{"y":8,"x":547,"var":"deleteTxt","text":"删除","presetID":1,"fontSize":14,"font":"SimHei","color":"#d92e16","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":7,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":9}]},{"type":"Text","props":{"y":8,"x":508,"var":"addressTxt","text":"地址","presetID":1,"fontSize":14,"font":"SimHei","color":"#003dc6","bold":true,"isPresetRoot":true,"runtime":"laya.display.Text"},"compId":10,"child":[{"type":"Script","props":{"presetID":2,"runtime":"script.prefabScript.LinkTextControl"},"compId":11}]},{"type":"Image","props":{"y":0,"skin":"commers/cutline.png","right":0,"left":0,"bottom":0},"compId":12},{"type":"Label","props":{"y":8,"x":371,"width":48,"visible":true,"var":"defaultPayType","text":"预充","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":14},{"type":"Label","props":{"y":8,"x":309,"width":63,"visible":true,"var":"balancelbl","text":"0.00","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":15},{"type":"Label","props":{"y":7,"x":418,"width":47,"visible":true,"var":"discountlbl","text":"1.00","height":14,"fontSize":14,"font":"SimHei","align":"center"},"compId":16}],"loadList":["commers/graydisable.jpg","prefabs/LinksText.prefab","commers/cutline.png"],"loadList3D":[]};
 	return CustomeItemUI;
 })(View)
 
@@ -71609,6 +72270,9 @@ var AccountSettingPanelUI=(function(_super){
 		this.headImg=null;
 		this.editBtn=null;
 		this.createTime=null;
+		this.myQrCodeImg=null;
+		this.uploadQrCodeImg=null;
+		this.deleteQrCodeImg=null;
 		this.organizeBox=null;
 		this.memberlist=null;
 		this.createOrganize=null;
@@ -72221,6 +72885,35 @@ var BackImgItemUI=(function(_super){
 
 	BackImgItemUI.uiView={"type":"View","props":{},"compId":2,"child":[{"type":"Image","props":{"width":80,"var":"img","skin":"textureU3d/stone/stone1.jpg","height":80},"compId":3},{"type":"Image","props":{"width":82,"var":"frame","skin":"commers/inputfocus.png","sizeGrid":"3,3,3,3","height":82},"compId":4}],"loadList":["textureU3d/stone/stone1.jpg","commers/inputfocus.png"],"loadList3D":[]};
 	return BackImgItemUI;
+})(View)
+
+
+//class ui.usercenter.SellPriceSharePanelUI extends laya.ui.View
+var SellPriceSharePanelUI=(function(_super){
+	function SellPriceSharePanelUI(){
+		this.mainpanel=null;
+		this.orderSn=null;
+		this.customeNameTxt=null;
+		this.orderoanel=null;
+		this.orderbox=null;
+		this.layoutCost=null;
+		this.designCost=null;
+		this.deliveryCost=null;
+		this.otherCost=null;
+		this.sellPrice=null;
+		this.moneyPaidlbl=null;
+		this.qrCodeImg=null;
+		SellPriceSharePanelUI.__super.call(this);
+	}
+
+	__class(SellPriceSharePanelUI,'ui.usercenter.SellPriceSharePanelUI',_super);
+	var __proto=SellPriceSharePanelUI.prototype;
+	__proto.createChildren=function(){
+		laya.display.Scene.prototype.createChildren.call(this);
+		this.loadScene("usercenter/SellPriceSharePanel");
+	}
+
+	return SellPriceSharePanelUI;
 })(View)
 
 
@@ -77249,6 +77942,9 @@ var MaterialCell=(function(_super){
 		if(product.prodName){
 			this.matvo=product;
 			this.matbtn.label=this.matvo.prodName+(this.matvo.isClientProd?"(自有)":"");
+			if(this.matvo.materialColor !=""){
+				this.matbtn.label+="("+this.matvo.materialColor+")";
+			}
 			this.on("click",this,this.onClickMat,[this.matvo]);
 			this.moreBtn.visible=false;
 			this.grayimg.visible=PaintOrderModel.instance.checkExceedMaterialSize(this.matvo);
@@ -77822,9 +78518,9 @@ var LailiaoOrderItemCell=(function(_super){
 		this.unitPrice.text=this.ordervo.orderData.unitPrice;
 		var tech=provo.getTechDes(false,this.finalWidth,this.finalHeight);
 		if(tech.indexOf("超宽拼接")>=0)
-			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
+			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.hCutnum+"-"+this.ordervo.hEachCutLength.join(";")+")");
 		if(tech.indexOf("超幅拼接")>=0)
-			tech=tech.replace("超幅拼接","超幅拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
+			tech=tech.replace("超幅拼接","超幅拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.hCutnum+"-"+this.ordervo.hEachCutLength.join(";")+")");
 		if(tech.indexOf("小块裁切")>=0)
 			tech=tech.replace("小块裁切","小块裁切"+"(H-"+this.ordervo.horiCutNum+",V-"+this.ordervo.verCutNum+")");
 		if(tech.indexOf("正上方打扣")>=0){
@@ -78149,7 +78845,7 @@ var LailiaoOrderItemCell=(function(_super){
 		var cutlength=99999999;
 		for(var i=0;i < orderitemdata.conponent.procInfoList.length;i++){
 			if(orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超幅拼接")>=0 || orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超宽拼接")>=0){
-				cutlength=this.ordervo.eachCutLength[0];
+				cutlength=this.ordervo.hEachCutLength[0];
 			}
 		}
 		orderitemdata.minSideLength=Math.min(this.finalWidth,this.finalHeight,cutlength).toFixed(2);
@@ -78210,6 +78906,9 @@ var MaterialItem=(function(_super){
 		if(product.prodName){
 			this.matvo=product;
 			this.matbtn.label=this.matvo.prodName+(this.matvo.isClientProd?"(自有)":"");
+			if(this.matvo.materialColor !=""){
+				this.matbtn.label+="("+this.matvo.materialColor+")";
+			}
 			this.on("click",this,this.onClickMat,[this.matvo]);
 			this.moreBtn.visible=false;
 			this.grayimg.visible=PaintOrderModel.instance.checkExceedMaterialSize(this.matvo);
@@ -79267,6 +79966,70 @@ var BusinessManCell=(function(_super){
 })(BusinessManItemUI)
 
 
+//class script.usercenter.item.OrderPriceShareItem extends ui.usercenter.OrderPriceSellItemUI
+var OrderPriceShareItem=(function(_super){
+	function OrderPriceShareItem(){
+		this.adjustHeight=null;
+		this.caller=null;
+		this.ordata=null;
+		this.ordersn=null;
+		this.hasgetState=false;
+		OrderPriceShareItem.__super.call(this);
+	}
+
+	__class(OrderPriceShareItem,'script.usercenter.item.OrderPriceShareItem',_super);
+	var __proto=OrderPriceShareItem.prototype;
+	__proto.setData=function(orderdata){
+		this.itemseq.text=orderdata.itemSeq;
+		if(orderdata.conponent.thumbnailsPath !=null && orderdata.conponent.thumbnailsPath !="")
+			this.picimg.skin=orderdata.conponent.thumbnailsPath;
+		else
+		this.picimg.skin="commers/blackbg.png";
+		this.isurgent.visible=orderdata.isUrgent;
+		this.ordata=orderdata;
+		this.ordersn=orderdata.orderId;
+		this.matname.text=orderdata.conponent.prodName;
+		var sizearr=(orderdata.conponent.LWH).split("/");
+		if(orderdata.deliveryDate !=null)
+			this.deliverydate.text=UtilTool.getNextDayStr(orderdata.deliveryDate+" 00:00:00");
+		else
+		this.deliverydate.text="";
+		this.widthtxt.text=sizearr[0];
+		this.heighttxt.text=sizearr[1];
+		var picwidth=parseFloat(sizearr[0]);
+		var picheight=parseFloat(sizearr[1]);
+		if(picwidth > picheight){
+			this.picimg.width=155;
+			this.picimg.height=155/picwidth *picheight;
+		}
+		else{
+			this.picimg.height=155;
+			this.picimg.width=155/picheight *picwidth;
+		}
+		this.pronum.text=orderdata.itemNumber+"";
+		var techstr="";
+		if(orderdata.conponent.procInfoList !=null){
+			for(var i=0;i < orderdata.conponent.procInfoList.length;i++)
+			techstr+=orderdata.conponent.procInfoList[i].procDescription+"-";
+		}
+		this.tech.text=techstr.substr(0,techstr.length-1);
+		this.measureUnit.text=orderdata.measureUnit !=null? orderdata.measureUnit:"平方米";
+		if(orderdata.totalMeasureNum !=null && orderdata.totalMeasureNum !="" && this.ordata.totalSalesPrice !=null && this.ordata.totalSalesPrice !="")
+			var unitprice=(parseFloat(this.ordata.totalSalesPrice)/parseFloat(orderdata.totalMeasureNum)).toFixed(2);
+		else
+		unitprice=orderdata.itemPrice;
+		this,this.unitPriceInput.text=(this.ordata.unitSalesPrice !=null && this.ordata.unitSalesPrice !="")?this.ordata.unitSalesPrice:unitprice;
+		this.totalPriceInput.text=(this.ordata.totalSalesPrice !=null && this.ordata.totalSalesPrice !="")?this.ordata.totalSalesPrice:"0";
+		if(orderdata.conponent.filename !=null)
+			this.filename.text=orderdata.conponent.filename;
+		else
+		this.filename.text="";
+	}
+
+	return OrderPriceShareItem;
+})(OrderPriceSellItemUI)
+
+
 //class script.picUpload.DirectFolderItem extends ui.picManager.DirectItemUI
 var DirectFolderItem=(function(_super){
 	function DirectFolderItem(){
@@ -79918,6 +80681,586 @@ var CarvingOrderItemCell=(function(_super){
 })(CavingOderItemUI)
 
 
+//class script.dengxiang.DengxiangOrderItemCell extends ui.order.OrderItemUI
+var DengxiangOrderItemCell=(function(_super){
+	function DengxiangOrderItemCell(vo){
+		this.ordervo=null;
+		this.locked=true;
+		this.finalWidth=NaN;
+		this.finalHeight=NaN;
+		this.curproductvo=null;
+		this.fanmianFid=null;
+		this.discount=1;
+		DengxiangOrderItemCell.__super.call(this);
+		this.ordervo=vo;
+		EventCenter.instance.on("FIRST_PAGE_SHRINK",this,this.updateLblPos);
+		this.updateLblPos(Userdata.instance.shrinkState);
+		this.initItem();
+		if(this.ordervo.orderData !=null){
+			this.curproductvo=this.ordervo.productVo;
+			this.inputnum.text=this.ordervo.orderData.itemNumber;
+			var size=this.ordervo.orderData.conponent.LWH.split("/");
+			if(size.length > 1){
+				this.editwidth.text=size[0];
+				this.editheight.text=size[1];
+				this.finalWidth=parseFloat(size[0]);
+				this.finalHeight=parseFloat(size[1]);
+			}
+			this.initEditData();
+		}
+	}
+
+	__class(DengxiangOrderItemCell,'script.dengxiang.DengxiangOrderItemCell',_super);
+	var __proto=DengxiangOrderItemCell.prototype;
+	__proto.updateLblPos=function(state){
+		if(state==0){
+			this.deletBtn.x=1466;
+			this.total.x=1314;
+			this.unitPrice.x=1223;
+		}
+		else{
+			this.deletBtn.x=1566;
+			this.total.x=1415;
+			this.unitPrice.x=1324;
+		}
+	}
+
+	__proto.initItem=function(){
+		var dengxpicInfoVo=this.ordervo.picinfo;
+		this.editbox.visible=dengxpicInfoVo.rectangleOrCircle==0;
+		this.dengxiangRaid.visible=dengxpicInfoVo.rectangleOrCircle==1;
+		this.numindex.text=this.ordervo.indexNum.toString();
+		this.subtn.on("click",this,this.onSubItemNum);
+		this.addbtn.on("click",this,this.onAddItemNum);
+		this.hascomment.visible=false;
+		this.addmsg.visible=false;
+		if(this.ordervo.type==0){
+			this.fileimg.skin=HttpRequestUtil.smallerrPicUrl+this.ordervo.picinfo.fid+this.ordervo.picinfo.tailFix;
+			if(this.ordervo.picinfo.picWidth > this.ordervo.picinfo.picHeight){
+				this.fileimg.width=108;
+				this.fileimg.height=108/this.ordervo.picinfo.picWidth *this.ordervo.picinfo.picHeight;
+			}
+			else{
+				this.fileimg.height=108;
+				this.fileimg.width=108/this.ordervo.picinfo.picHeight *this.ordervo.picinfo.picWidth;
+			}
+		}
+		else{
+			if(dengxpicInfoVo.rectangleOrCircle==0)
+				this.fileimg.skin="commers/blackbg.png";
+			else
+			this.fileimg.skin="commers/circleDx.png";
+		}
+		this.yixingimg.width=this.fileimg.width;
+		this.yixingimg.height=this.fileimg.height;
+		this.backimg.width=this.fileimg.width;
+		this.backimg.height=this.fileimg.height;
+		this.yingxback.width=this.fileimg.width;
+		this.yingxback.height=this.fileimg.height;
+		this.yixingimg.visible=false;
+		this.backimg.visible=false;
+		this.yingxback.visible=false;
+		this.fileimg.on("click",this,this.onShowBigImg);
+		this.backimg.on("click",this,this.onShowBackImg);
+		this.finalWidth=this.ordervo.picinfo.picPhysicWidth;
+		this.finalHeight=this.ordervo.picinfo.picPhysicHeight;
+		this.editwidth.text=this.ordervo.picinfo.picPhysicWidth.toString();
+		this.editheight.text=this.ordervo.picinfo.picPhysicHeight.toString();
+		this.semiRadius.text=dengxpicInfoVo.picPhysicWidth.toString();
+		this.editwidth.restrict="0-9"+".";
+		this.editheight.restrict="0-9"+".";
+		this.semiRadius.restrict="0-9"+".";
+		this.filename.text=this.ordervo.picinfo.directName;
+		this.architype.text=this.ordervo.techStr;
+		this.total.text="0";
+		this.deleteorder.underline=true;
+		this.deleteorder.underlineColor="#222222";
+		this.inputnum.text="1";
+		this.inputnum.restrict="0-9";
+		this.deletBtn.on("click",this,this.onDeleteOrder);
+		this.addmsg.underline=true;
+		this.addmsg.underlineColor="#222222";
+		this.addmsg.on("click",this,this.onAddComment);
+		this.total.visible=!Userdata.instance.isHidePrice();
+		this.unitPrice.text="0";
+		this.inputnum.on("input",this,this.onNumChange);
+		this.editwidth.on("input",this,this.onWidthSizeChange);
+		this.editheight.on("input",this,this.onHeightSizeChange);
+		this.semiRadius.on("input",this,this.onRadiusSizeChange);
+		this.lockratio.on("click",this,this.onLockChange);
+		if(this.architype.textField.textHeight > 124)
+			this.architype.height=this.architype.textField.textHeight;
+		else
+		this.architype.height=124;
+		this.manuicon.visible=false;
+		this.setMatBtn.visible=this.curproductvo==null;
+		this.editmat.visible=this.curproductvo !=null;
+		this.setMatBtn.on("click",this,this.onShowMaterialView);
+		this.editmat.on("click",this,this.onShowMaterialView);
+		if(this.architype.height > 124)
+			this.height=this.architype.height+10;
+		else
+		this.height=134;
+		this.alighComponet();
+	}
+
+	__proto.initEditData=function(){
+		this.setMatBtn.visible=this.curproductvo==null;
+		this.editmat.visible=this.curproductvo !=null;
+		this.manuicon.visible=true;
+		this.manuicon.skin="commers/"+OrderConstant.OUTPUT_ICON[PaintOrderModel.instance.getManuFactureIndex(this.curproductvo.manufacturerCode)];
+		var area=(this.finalHeight *this.finalWidth)/10000;
+		var perimeter=(this.finalHeight+this.finalWidth)*2/100;
+		var provo=this.ordervo.productVo;
+		var hasSelectedTech=provo.getAllSelectedTech();
+		var doublesideImg="";
+		var yixingqiegeImg="";
+		var doublesame=false;
+		for(var i=0;i < hasSelectedTech.length;i++){
+			if(hasSelectedTech[i].procCode=="SPTE10320" || hasSelectedTech[i].procCode=="SPTE230414160834510"){
+				doublesame=true;
+				this.fanmianFid=this.ordervo.picinfo.fid;
+			}
+			else if(OrderConstant.backSideUnSame(hasSelectedTech[i].procCode)){
+				doublesideImg=this.ordervo.picinfo.backFid;
+				this.fanmianFid=doublesideImg;
+			}
+			else if(OrderConstant.yiXingCutProcess(hasSelectedTech[i].procCode)){
+				yixingqiegeImg=this.ordervo.picinfo.yixingFid;
+			}
+		}
+		this.backimg.visible=doublesideImg !="" || doublesame;
+		this.yingxback.visible=(doublesideImg !="" || doublesame)&& yixingqiegeImg !="";
+		if(doublesideImg !=""){
+			this.backimg.skin=HttpRequestUtil.biggerPicUrl+doublesideImg+".jpg";
+		}
+		if(doublesame){
+			this.backimg.skin=HttpRequestUtil.biggerPicUrl+this.ordervo.picinfo.fid+".jpg";
+		}
+		this.yixingimg.visible=yixingqiegeImg !="";
+		if(yixingqiegeImg !=""){
+			this.yixingimg.skin=HttpRequestUtil.biggerPicUrl+yixingqiegeImg+".jpg";
+			if(this.yingxback.visible){
+				this.yingxback.skin=HttpRequestUtil.biggerPicUrl+yixingqiegeImg+".jpg";
+			}
+		}
+		this.total.text=(parseInt(this.inputnum.text)*provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
+		this.unitPrice.text=this.ordervo.orderData.unitPrice;
+		var tech=provo.getTechDes(false,this.finalWidth,this.finalHeight);
+		if(tech.indexOf("超宽拼接")>=0)
+			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.hCutnum+"-"+this.ordervo.hEachCutLength.join(";")+")");
+		if(tech.indexOf("超幅拼接")>=0)
+			tech=tech.replace("超幅拼接","超幅拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.hCutnum+"-"+this.ordervo.hEachCutLength.join(";")+")");
+		if(tech.indexOf("小块裁切")>=0)
+			tech=tech.replace("小块裁切","小块裁切"+"(H-"+this.ordervo.horiCutNum+",V-"+this.ordervo.verCutNum+")");
+		if(tech.indexOf("正上方打扣")>=0){
+		}
+		this.architype.text=provo.prodName+"\n"+tech;
+		if(this.architype.textField.textHeight > 134)
+			this.architype.height=this.architype.textField.textHeight;
+		else
+		this.architype.height=134;
+		if(this.architype.height > 134)
+			this.height=this.architype.height+10;
+		else
+		this.height=134;
+		this.alighComponet();
+	}
+
+	__proto.reset=function(){
+		this.architype.text="";
+		this.total.text="0";
+		this.unitPrice.text="0";
+		this.ordervo.orderData=null;
+		this.ordervo.productVo=null;
+		this.curproductvo=null;
+		this.yixingimg.visible=false;
+		this.backimg.visible=false;
+		this.yingxback.visible=false;
+		this.manuicon.visible=false;
+		this.setMatBtn.visible=true;
+		this.editmat.visible=false;
+	}
+
+	__proto.onLockChange=function(){
+		if(this.locked){
+			this.lockratio.skin="commers/unlock.png";
+			this.locked=false;
+		}
+		else{
+			this.lockratio.skin="commers/lock.png";
+			this.locked=true;
+		}
+	}
+
+	__proto.onWidthSizeChange=function(){
+		var curwidth=Number(this.editwidth.text);
+		this.finalWidth=curwidth;
+		if(this.locked){
+			var heightration=curwidth/this.ordervo.picinfo.picPhysicWidth*this.ordervo.picinfo.picPhysicHeight;
+			this.finalHeight=heightration;
+			this.editheight.text=heightration.toFixed(2);
+		}
+		this.reset();
+		this.updatePrice();
+	}
+
+	__proto.onHeightSizeChange=function(){
+		var curheight=Number(this.editheight.text);
+		this.finalHeight=curheight;
+		if(this.locked){
+			var widthration=curheight/this.ordervo.picinfo.picPhysicHeight*this.ordervo.picinfo.picPhysicWidth;
+			this.finalWidth=widthration;
+			this.editwidth.text=widthration.toFixed(2);
+		}
+		this.reset();
+		this.updatePrice();
+	}
+
+	__proto.onRadiusSizeChange=function(){
+		var curwidth=Number(this.semiRadius.text);
+		this.finalWidth=curwidth;
+		this.finalHeight=curwidth;
+		this.editheight.text=curwidth.toFixed(2);
+		this.reset();
+		this.updatePrice();
+	}
+
+	__proto.onSubItemNum=function(){
+		var num=parseInt(this.inputnum.text);
+		if(num > 1)
+			num--;
+		this.inputnum.text=num.toString();
+		this.onNumChange();
+	}
+
+	__proto.onAddItemNum=function(){
+		var num=parseInt(this.inputnum.text);
+		num++;
+		this.inputnum.text=num.toString();
+		this.onNumChange();
+	}
+
+	__proto.onShowBigImg=function(){
+		if(this.ordervo.type==1)
+			return;
+		if(this.yixingimg.visible){
+			var obj=[];
+			obj.push(this.ordervo.picinfo);
+			obj.push(this.yixingimg.skin);
+			obj.push(1);
+			ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,obj);
+		}
+		else
+		ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,this.ordervo.picinfo);
+	}
+
+	__proto.onShowBackImg=function(){
+		var obj=new PicInfoVo({},1);
+		obj.fid=this.fanmianFid;
+		obj.picWidth=this.ordervo.picinfo.picWidth;
+		obj.picHeight=this.ordervo.picinfo.picHeight;
+		if(this.yingxback.visible){
+			var objdata=[];
+			objdata.push(obj);
+			objdata.push(this.yingxback.skin);
+			objdata.push(-1);
+			ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,objdata);
+		}
+		else
+		ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,obj);
+	}
+
+	__proto.onAddComment=function(){
+		ViewManager.instance.openView("VIEW_ADD_MESSAGE",false,{msg:this.ordervo.comment,caller:this,callback:this.onAddMsgBack});
+	}
+
+	__proto.onAddMsgBack=function(msg){
+		this.ordervo.comment=msg;
+		this.hascomment.visible=this.ordervo.comment !="";
+		if(this.ordervo.orderData){
+			this.ordervo.orderData.comments=this.ordervo.comment;
+		}
+	}
+
+	__proto.alighComponet=function(){
+		this.checkSel.y=(this.height-28)/2;
+		this.numindex.y=(this.height-this.numindex.height)/2;
+		this.fileimg.y=this.height/2;
+		this.backimg.y=this.height/2;
+		this.yingxback.y=this.height/2;
+		this.yixingimg.y=this.height/2;
+		this.filename.y=(this.height-this.filename.height)/2;
+		this.editbox.y=(this.height-this.editbox.height)/2;
+		this.numbox.y=(this.height)/2-12;
+		this.total.y=(this.height-this.total.height)/2;
+		this.editmat.y=(this.height-this.editmat.height)/2;
+		this.deletBtn.y=(this.height-this.deletBtn.height)/2;
+		this.operatebox.y=(this.height-this.operatebox.height)/2-10;
+	}
+
+	__proto.updateIndex=function(){
+		this.numindex.text=this.ordervo.indexNum.toString();
+	}
+
+	__proto.onDeleteOrder=function(){
+		EventCenter.instance.event("DELETE_PIC_ORDER",this);
+	}
+
+	__proto.updatePrice=function(){
+		if(this.curproductvo !=null){
+			this.updateOrderData(this.curproductvo);
+			var area=(this.finalHeight *this.finalWidth)/10000;
+			var perimeter=(this.finalHeight+this.finalWidth)*2/100;
+			this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
+		}
+		EventCenter.instance.event("UPDATE_ORDER_ITEM_TECH");
+	}
+
+	__proto.onNumChange=function(){
+		if(this.inputnum.text=="")
+			this.inputnum.text="1";
+		this.total.text=(parseInt(this.inputnum.text)*this.ordervo.noDiscountOrderPrice *this.discount).toFixed(1).toString();
+		if(this.ordervo.orderData){
+			this.ordervo.orderData.itemNumber=parseInt(this.inputnum.text);
+			this.ordervo.orderData.item_payPrice=parseFloat((parseInt(this.inputnum.text)*this.ordervo.orderPrice *this.discount).toFixed(1));
+		}
+		EventCenter.instance.event("UPDATE_ORDER_ITEM_TECH");
+	}
+
+	__proto.onShowMaterialView=function(){
+		if(PaintOrderModel.instance.selectAddress==null){
+			ViewManager.showAlert("请选择收货地址");
+			return;
+		}
+		if(PaintOrderModel.instance.outPutAddr==null || PaintOrderModel.instance.outPutAddr.length==0){
+			ViewManager.showAlert("当前的收货地址没有输出中心，请重新选择收货地址");
+			return;
+		}
+		for(var i=0;i < PaintOrderModel.instance.outPutAddr.length;i++){
+			if(PaintOrderModel.instance.allManuFacutreMatProcPrice[PaintOrderModel.instance.outPutAddr[i].org_code]==null){
+				ViewManager.showAlert("暂未获取到生产商材料工艺价格，请重新选择收货地址或稍后再试");
+				return;
+			}
+		}
+		if(PaintOrderModel.instance.productList==null || PaintOrderModel.instance.productList.length==0){
+			ViewManager.showAlert("未获取到材料列表，请重新选择收货地址或者刷新页面");
+			return;
+		}
+		if(PaintOrderModel.instance.selectAddress==null){
+			ViewManager.showAlert("请先选择收货地址");
+			return;
+		}
+		if(this.finalHeight !=0 && this.ordervo.type==0){
+			if(Math.abs((this.finalWidth/this.finalHeight-this.ordervo.picinfo.picPhysicWidth/this.ordervo.picinfo.picPhysicHeight)/(this.ordervo.picinfo.picPhysicWidth/this.ordervo.picinfo.picPhysicHeight))> 0.2){
+				ViewManager.showAlert("修改图片比例不能超过原图比例的20%");
+				this.finalWidth=this.ordervo.picinfo.picPhysicWidth;
+				this.finalHeight=this.ordervo.picinfo.picPhysicHeight;
+				this.editwidth.text=this.ordervo.picinfo.picPhysicWidth.toString();
+				this.editheight.text=this.ordervo.picinfo.picPhysicHeight.toString();
+				return;
+			}
+		}
+		PaintOrderModel.instance.curSelectOrderItem=this;
+		PaintOrderModel.instance.batchChangeMatItems=[];
+		PaintOrderModel.instance.curSelectMat=null;
+		if(PaintOrderModel.instance.orderType=="Zipai")
+			ViewManager.instance.openView("VIEW_CHARACTER_DEMONSTRATE_PANEL",false,this.ordervo.picinfo);
+		else
+		ViewManager.instance.openView("VIEW_SET_MATERIAL_PROCESS_PANEL",false,this.ordervo.picinfo);
+	}
+
+	__proto.updateProductPrice=function(){
+		if(this.ordervo.orderData !=null){
+			if(this.curproductvo !=null){
+				this.updateOrderDataPrice();
+				var area=(this.finalHeight *this.finalWidth)/10000;
+				var perimeter=(this.finalHeight+this.finalWidth)*2/100;
+				this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
+			}
+		}
+	}
+
+	__proto.changeProduct=function(provo){
+		this.curproductvo=provo.cloneData(this);
+		this.ordervo.productVo=this.curproductvo;
+		this.fanmianFid="";
+		this.updateOrderData(this.curproductvo);
+		var lastheight=this.height;
+		this.initEditData();
+		EventCenter.instance.event("ADJUST_PIC_ORDER_TECH",this.height-lastheight);
+	}
+
+	__proto.getPrice=function(){
+		return parseFloat((parseInt(this.inputnum.text)*this.ordervo.orderPrice *this.discount).toFixed(1));
+	}
+
+	//return parseFloat(this.total.text);
+	__proto.getNoDiscountPrice=function(){
+		if(this.ordervo.orderData !=null)
+			return parseInt(this.inputnum.text)*this.ordervo.noDiscountOrderPrice;
+		else
+		return 0;
+	}
+
+	__proto.updateOrderDataPrice=function(){
+		if(this.curproductvo !=null && this.ordervo.orderData !=null){
+			var area=(this.finalHeight *this.finalWidth)/10000;
+			var perimeter=(this.finalHeight+this.finalWidth)*2/100;
+			this.ordervo.orderPrice=this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+			if(this.ordervo.orderPrice < 0.15)
+				this.ordervo.orderPrice=0.15;
+			this.ordervo.noDiscountOrderPrice=this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true);
+			if(this.ordervo.noDiscountOrderPrice < 0.15)
+				this.ordervo.noDiscountOrderPrice=0.15;
+			this.ordervo.orderData.itemPrice=this.ordervo.orderPrice.toString();
+			this.ordervo.orderData.discountProcessPrice=this.curproductvo.getDiscountProcessPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+			this.ordervo.orderData.materialPrice=this.ordervo.orderPrice-this.ordervo.orderData.discountProcessPrice;
+			this.ordervo.orderData.one_mat_cost=this.curproductvo.getMaterialPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+			var cost=this.curproductvo.getProcessAndGrossPrices(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+			this.ordervo.orderData.one_proc_cost=cost[0];
+			this.ordervo.orderData.oneDiscountGrossMargin=cost[1];
+			this.ordervo.orderData.oneNoDiscountGrossMargin=cost[2];
+		}
+	}
+
+	__proto.updateOrderData=function(productVo){
+		var area=(this.finalHeight *this.finalWidth)/10000;
+		var perimeter=(this.finalHeight+this.finalWidth)*2/100;
+		this.ordervo.orderPrice=productVo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		this.ordervo.noDiscountOrderPrice=productVo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true);
+		if(this.ordervo.orderPrice < 0.15)
+			this.ordervo.orderPrice=0.15;
+		if(this.ordervo.noDiscountOrderPrice < 0.15)
+			this.ordervo.noDiscountOrderPrice=0.15;
+		this.ordervo.manufacturer_code=productVo.manufacturerCode;
+		this.ordervo.manufacturer_name=productVo.manufacturerName;
+		var orderitemdata={};
+		orderitemdata.material_code=productVo.materialCode;
+		orderitemdata.conponent={};
+		orderitemdata.conponent.prodName=productVo.prodName;
+		orderitemdata.conponent.prodCode=productVo.prodCode;
+		orderitemdata.conponent.num=1;
+		orderitemdata.conponent.LWH=this.finalWidth.toFixed(2)+"/"+this.finalHeight.toFixed(2)+"/1";
+		orderitemdata.conponent.prodDescription="";
+		orderitemdata.conponent.weight=productVo.getOrderSingleWeight(this.finalWidth/100,this.finalHeight/100,this.ordervo).toFixed(2);
+		if(this.ordervo.type==0){
+			orderitemdata.conponent.imageFilePath=HttpRequestUtil.originPicPicUrl+this.ordervo.picinfo.fid+"."+this.ordervo.picinfo.picClass;
+			orderitemdata.conponent.previewImagePath=HttpRequestUtil.biggerPicUrl+this.ordervo.picinfo.fid+this.ordervo.picinfo.tailFix;
+			orderitemdata.conponent.thumbnailsPath=HttpRequestUtil.smallerrPicUrl+this.ordervo.picinfo.fid+this.ordervo.picinfo.tailFix;
+		}
+		else{
+			var dengxpicInfoVo=this.ordervo.picinfo;
+			if(dengxpicInfoVo.rectangleOrCircle==0)
+				orderitemdata.conponent.thumbnailsPath="commers/blackbg.png";
+			else
+			orderitemdata.conponent.thumbnailsPath="commers/circleDx.png";
+		}
+		orderitemdata.conponent.filename=this.ordervo.picinfo.directName;
+		orderitemdata.itemNumber=parseInt(this.inputnum.text);
+		orderitemdata.itemPrice=this.ordervo.orderPrice.toString();
+		orderitemdata.actualAmount=parseFloat((parseInt(this.inputnum.text)*this.ordervo.orderPrice *this.discount).toFixed(1)).toExponential();
+		orderitemdata.isMerchandise=1;
+		orderitemdata.itemStatus="0";
+		orderitemdata.fixedDiscount=productVo.isFixedCustomerRatio;
+		orderitemdata.discountProcessPrice=productVo.getDiscountProcessPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		orderitemdata.materialPrice=this.ordervo.orderPrice-orderitemdata.discountProcessPrice;
+		orderitemdata.unitPrice=this.ordervo.orderPrice-productVo.getAllAttachPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		orderitemdata.unitPrice=orderitemdata.unitPrice/(this.finalWidth/100*this.finalHeight/100);
+		orderitemdata.unitPrice=orderitemdata.unitPrice.toFixed(2);
+		orderitemdata.one_mat_cost=productVo.getMaterialPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		var cost=productVo.getProcessAndGrossPrices(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
+		orderitemdata.one_proc_cost=cost[0];
+		orderitemdata.gross_margin=cost[1]+cost[2];
+		orderitemdata.oneDiscountGrossMargin=cost[1];
+		orderitemdata.oneNoDiscountGrossMargin=cost[2];
+		var tempstr="";
+		var hasfinddot=false;
+		for(var i=this.ordervo.picinfo.directName.length-1;i >=0;i--){
+			if(this.ordervo.picinfo.directName.charAt(i)=="." && hasfinddot==false){
+				hasfinddot=true;
+			}
+			else if(hasfinddot){
+				tempstr=this.ordervo.picinfo.directName.charAt(i)+tempstr;
+			}
+		}
+		orderitemdata.comments=tempstr.substr(0,20);
+		orderitemdata.conponent.procInfoList=productVo.getProInfoList(this.ordervo.picinfo,this.finalWidth/100,this.finalHeight/100,this.ordervo);
+		var cutlength=99999999;
+		for(var i=0;i < orderitemdata.conponent.procInfoList.length;i++){
+			if(orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超幅拼接")>=0 || orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超宽拼接")>=0){
+				cutlength=this.ordervo.hEachCutLength[0];
+			}
+		}
+		orderitemdata.minSideLength=Math.min(this.finalWidth,this.finalHeight,cutlength).toFixed(2);
+		orderitemdata.colorFormat=this.ordervo.picinfo.colorspace;
+		this.ordervo.orderData=orderitemdata;
+	}
+
+	__proto.getProcessPrice=function(){
+		if(this.curproductvo !=null)
+			return this.curproductvo.getProcessPrice(this.finalWidth/100,this.finalHeight/100,this.ordervo)*parseInt(this.inputnum.text);
+		else
+		return 0;
+	}
+
+	__proto.checkCanOrder=function(){
+		if(this.ordervo.orderData==null){
+			ViewManager.showAlert("未选择材料工艺");
+			return false;
+		}
+		if(this.ordervo.orderData.conponent.prodName.indexOf("户内")>=0 && this.architype.text.indexOf("户外")>=0){
+			var errordata="user_phone="+Userdata.instance.userAccount+"&error_msg="+this.ordervo.orderData.conponent.prodName+",工厂："+this.ordervo.manufacturer_name+",材料不匹配"+"&request_url=下单验证";
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/add-error-log?",null,null,errordata,"post");
+			ViewManager.showAlert("材料和工艺不匹配，请重新选择材料和工艺");
+			return false;
+		}
+		if(this.ordervo.orderData.conponent.prodName.indexOf("户外")>=0 && this.architype.text.indexOf("户内")>=0){
+			var errordata="user_phone="+Userdata.instance.userAccount+"&error_msg="+this.ordervo.orderData.conponent.prodName+",工厂："+this.ordervo.manufacturer_name+",材料不匹配"+"&request_url=下单验证";
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/add-error-log?",null,null,errordata,"post");
+			ViewManager.showAlert("材料和工艺不匹配，请重新选择材料和工艺");
+			return false;
+		}
+		if(this.ordervo.orderData.conponent.procInfoList==null || this.ordervo.orderData.conponent.procInfoList.length==0){
+			ViewManager.showAlert("未选择工艺");
+			return false;
+		}
+		return true;
+	}
+
+	return DengxiangOrderItemCell;
+})(OrderItemUI)
+
+
+//class script.prodCustomer.item.ProdCell extends ui.prodCustom.ProdCategoryItemUI
+var ProdCell=(function(_super){
+	function ProdCell(){
+		this.prodVo=null;
+		ProdCell.__super.call(this);
+		this.frame.visible=false;
+		this.on("mouseover",this,function(){
+			this.frame.visible=true;
+		});
+		this.on("mouseout",this,function(){
+			this.frame.visible=false;
+		});
+		this.on("doubleclick",this,this.onChooseProd);
+	}
+
+	__class(ProdCell,'script.prodCustomer.item.ProdCell',_super);
+	var __proto=ProdCell.prototype;
+	__proto.setData=function(data){
+		this.categoryName.text=data.cateName;
+	}
+
+	__proto.onChooseProd=function(){
+		ViewManager.instance.openView("VIEW_PRODUCT_CUSTOMIZATION_PANEL",true,this.prodVo);
+	}
+
+	return ProdCell;
+})(ProdCategoryItemUI)
+
+
 //class script.picUpload.PicInfoItem extends ui.inuoPicStore.PicShortItemNuoUI
 var PicInfoItem=(function(_super){
 	function PicInfoItem(){
@@ -80319,586 +81662,6 @@ var PicInfoItem=(function(_super){
 })(PicShortItemNuoUI)
 
 
-//class script.prodCustomer.item.ProdCell extends ui.prodCustom.ProdCategoryItemUI
-var ProdCell=(function(_super){
-	function ProdCell(){
-		this.prodVo=null;
-		ProdCell.__super.call(this);
-		this.frame.visible=false;
-		this.on("mouseover",this,function(){
-			this.frame.visible=true;
-		});
-		this.on("mouseout",this,function(){
-			this.frame.visible=false;
-		});
-		this.on("doubleclick",this,this.onChooseProd);
-	}
-
-	__class(ProdCell,'script.prodCustomer.item.ProdCell',_super);
-	var __proto=ProdCell.prototype;
-	__proto.setData=function(data){
-		this.categoryName.text=data.cateName;
-	}
-
-	__proto.onChooseProd=function(){
-		ViewManager.instance.openView("VIEW_PRODUCT_CUSTOMIZATION_PANEL",true,this.prodVo);
-	}
-
-	return ProdCell;
-})(ProdCategoryItemUI)
-
-
-//class script.dengxiang.DengxiangOrderItemCell extends ui.order.OrderItemUI
-var DengxiangOrderItemCell=(function(_super){
-	function DengxiangOrderItemCell(vo){
-		this.ordervo=null;
-		this.locked=true;
-		this.finalWidth=NaN;
-		this.finalHeight=NaN;
-		this.curproductvo=null;
-		this.fanmianFid=null;
-		this.discount=1;
-		DengxiangOrderItemCell.__super.call(this);
-		this.ordervo=vo;
-		EventCenter.instance.on("FIRST_PAGE_SHRINK",this,this.updateLblPos);
-		this.updateLblPos(Userdata.instance.shrinkState);
-		this.initItem();
-		if(this.ordervo.orderData !=null){
-			this.curproductvo=this.ordervo.productVo;
-			this.inputnum.text=this.ordervo.orderData.itemNumber;
-			var size=this.ordervo.orderData.conponent.LWH.split("/");
-			if(size.length > 1){
-				this.editwidth.text=size[0];
-				this.editheight.text=size[1];
-				this.finalWidth=parseFloat(size[0]);
-				this.finalHeight=parseFloat(size[1]);
-			}
-			this.initEditData();
-		}
-	}
-
-	__class(DengxiangOrderItemCell,'script.dengxiang.DengxiangOrderItemCell',_super);
-	var __proto=DengxiangOrderItemCell.prototype;
-	__proto.updateLblPos=function(state){
-		if(state==0){
-			this.deletBtn.x=1466;
-			this.total.x=1314;
-			this.unitPrice.x=1223;
-		}
-		else{
-			this.deletBtn.x=1566;
-			this.total.x=1415;
-			this.unitPrice.x=1324;
-		}
-	}
-
-	__proto.initItem=function(){
-		var dengxpicInfoVo=this.ordervo.picinfo;
-		this.editbox.visible=dengxpicInfoVo.rectangleOrCircle==0;
-		this.dengxiangRaid.visible=dengxpicInfoVo.rectangleOrCircle==1;
-		this.numindex.text=this.ordervo.indexNum.toString();
-		this.subtn.on("click",this,this.onSubItemNum);
-		this.addbtn.on("click",this,this.onAddItemNum);
-		this.hascomment.visible=false;
-		this.addmsg.visible=false;
-		if(this.ordervo.type==0){
-			this.fileimg.skin=HttpRequestUtil.smallerrPicUrl+this.ordervo.picinfo.fid+this.ordervo.picinfo.tailFix;
-			if(this.ordervo.picinfo.picWidth > this.ordervo.picinfo.picHeight){
-				this.fileimg.width=108;
-				this.fileimg.height=108/this.ordervo.picinfo.picWidth *this.ordervo.picinfo.picHeight;
-			}
-			else{
-				this.fileimg.height=108;
-				this.fileimg.width=108/this.ordervo.picinfo.picHeight *this.ordervo.picinfo.picWidth;
-			}
-		}
-		else{
-			if(dengxpicInfoVo.rectangleOrCircle==0)
-				this.fileimg.skin="commers/blackbg.png";
-			else
-			this.fileimg.skin="commers/circleDx.png";
-		}
-		this.yixingimg.width=this.fileimg.width;
-		this.yixingimg.height=this.fileimg.height;
-		this.backimg.width=this.fileimg.width;
-		this.backimg.height=this.fileimg.height;
-		this.yingxback.width=this.fileimg.width;
-		this.yingxback.height=this.fileimg.height;
-		this.yixingimg.visible=false;
-		this.backimg.visible=false;
-		this.yingxback.visible=false;
-		this.fileimg.on("click",this,this.onShowBigImg);
-		this.backimg.on("click",this,this.onShowBackImg);
-		this.finalWidth=this.ordervo.picinfo.picPhysicWidth;
-		this.finalHeight=this.ordervo.picinfo.picPhysicHeight;
-		this.editwidth.text=this.ordervo.picinfo.picPhysicWidth.toString();
-		this.editheight.text=this.ordervo.picinfo.picPhysicHeight.toString();
-		this.semiRadius.text=dengxpicInfoVo.picPhysicWidth.toString();
-		this.editwidth.restrict="0-9"+".";
-		this.editheight.restrict="0-9"+".";
-		this.semiRadius.restrict="0-9"+".";
-		this.filename.text=this.ordervo.picinfo.directName;
-		this.architype.text=this.ordervo.techStr;
-		this.total.text="0";
-		this.deleteorder.underline=true;
-		this.deleteorder.underlineColor="#222222";
-		this.inputnum.text="1";
-		this.inputnum.restrict="0-9";
-		this.deletBtn.on("click",this,this.onDeleteOrder);
-		this.addmsg.underline=true;
-		this.addmsg.underlineColor="#222222";
-		this.addmsg.on("click",this,this.onAddComment);
-		this.total.visible=!Userdata.instance.isHidePrice();
-		this.unitPrice.text="0";
-		this.inputnum.on("input",this,this.onNumChange);
-		this.editwidth.on("input",this,this.onWidthSizeChange);
-		this.editheight.on("input",this,this.onHeightSizeChange);
-		this.semiRadius.on("input",this,this.onRadiusSizeChange);
-		this.lockratio.on("click",this,this.onLockChange);
-		if(this.architype.textField.textHeight > 124)
-			this.architype.height=this.architype.textField.textHeight;
-		else
-		this.architype.height=124;
-		this.manuicon.visible=false;
-		this.setMatBtn.visible=this.curproductvo==null;
-		this.editmat.visible=this.curproductvo !=null;
-		this.setMatBtn.on("click",this,this.onShowMaterialView);
-		this.editmat.on("click",this,this.onShowMaterialView);
-		if(this.architype.height > 124)
-			this.height=this.architype.height+10;
-		else
-		this.height=134;
-		this.alighComponet();
-	}
-
-	__proto.initEditData=function(){
-		this.setMatBtn.visible=this.curproductvo==null;
-		this.editmat.visible=this.curproductvo !=null;
-		this.manuicon.visible=true;
-		this.manuicon.skin="commers/"+OrderConstant.OUTPUT_ICON[PaintOrderModel.instance.getManuFactureIndex(this.curproductvo.manufacturerCode)];
-		var area=(this.finalHeight *this.finalWidth)/10000;
-		var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-		var provo=this.ordervo.productVo;
-		var hasSelectedTech=provo.getAllSelectedTech();
-		var doublesideImg="";
-		var yixingqiegeImg="";
-		var doublesame=false;
-		for(var i=0;i < hasSelectedTech.length;i++){
-			if(hasSelectedTech[i].procCode=="SPTE10320" || hasSelectedTech[i].procCode=="SPTE230414160834510"){
-				doublesame=true;
-				this.fanmianFid=this.ordervo.picinfo.fid;
-			}
-			else if(OrderConstant.backSideUnSame(hasSelectedTech[i].procCode)){
-				doublesideImg=this.ordervo.picinfo.backFid;
-				this.fanmianFid=doublesideImg;
-			}
-			else if(OrderConstant.yiXingCutProcess(hasSelectedTech[i].procCode)){
-				yixingqiegeImg=this.ordervo.picinfo.yixingFid;
-			}
-		}
-		this.backimg.visible=doublesideImg !="" || doublesame;
-		this.yingxback.visible=(doublesideImg !="" || doublesame)&& yixingqiegeImg !="";
-		if(doublesideImg !=""){
-			this.backimg.skin=HttpRequestUtil.biggerPicUrl+doublesideImg+".jpg";
-		}
-		if(doublesame){
-			this.backimg.skin=HttpRequestUtil.biggerPicUrl+this.ordervo.picinfo.fid+".jpg";
-		}
-		this.yixingimg.visible=yixingqiegeImg !="";
-		if(yixingqiegeImg !=""){
-			this.yixingimg.skin=HttpRequestUtil.biggerPicUrl+yixingqiegeImg+".jpg";
-			if(this.yingxback.visible){
-				this.yingxback.skin=HttpRequestUtil.biggerPicUrl+yixingqiegeImg+".jpg";
-			}
-		}
-		this.total.text=(parseInt(this.inputnum.text)*provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
-		this.unitPrice.text=this.ordervo.orderData.unitPrice;
-		var tech=provo.getTechDes(false,this.finalWidth,this.finalHeight);
-		if(tech.indexOf("超宽拼接")>=0)
-			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
-		if(tech.indexOf("超幅拼接")>=0)
-			tech=tech.replace("超幅拼接","超幅拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
-		if(tech.indexOf("小块裁切")>=0)
-			tech=tech.replace("小块裁切","小块裁切"+"(H-"+this.ordervo.horiCutNum+",V-"+this.ordervo.verCutNum+")");
-		if(tech.indexOf("正上方打扣")>=0){
-		}
-		this.architype.text=provo.prodName+"\n"+tech;
-		if(this.architype.textField.textHeight > 134)
-			this.architype.height=this.architype.textField.textHeight;
-		else
-		this.architype.height=134;
-		if(this.architype.height > 134)
-			this.height=this.architype.height+10;
-		else
-		this.height=134;
-		this.alighComponet();
-	}
-
-	__proto.reset=function(){
-		this.architype.text="";
-		this.total.text="0";
-		this.unitPrice.text="0";
-		this.ordervo.orderData=null;
-		this.ordervo.productVo=null;
-		this.curproductvo=null;
-		this.yixingimg.visible=false;
-		this.backimg.visible=false;
-		this.yingxback.visible=false;
-		this.manuicon.visible=false;
-		this.setMatBtn.visible=true;
-		this.editmat.visible=false;
-	}
-
-	__proto.onLockChange=function(){
-		if(this.locked){
-			this.lockratio.skin="commers/unlock.png";
-			this.locked=false;
-		}
-		else{
-			this.lockratio.skin="commers/lock.png";
-			this.locked=true;
-		}
-	}
-
-	__proto.onWidthSizeChange=function(){
-		var curwidth=Number(this.editwidth.text);
-		this.finalWidth=curwidth;
-		if(this.locked){
-			var heightration=curwidth/this.ordervo.picinfo.picPhysicWidth*this.ordervo.picinfo.picPhysicHeight;
-			this.finalHeight=heightration;
-			this.editheight.text=heightration.toFixed(2);
-		}
-		this.reset();
-		this.updatePrice();
-	}
-
-	__proto.onHeightSizeChange=function(){
-		var curheight=Number(this.editheight.text);
-		this.finalHeight=curheight;
-		if(this.locked){
-			var widthration=curheight/this.ordervo.picinfo.picPhysicHeight*this.ordervo.picinfo.picPhysicWidth;
-			this.finalWidth=widthration;
-			this.editwidth.text=widthration.toFixed(2);
-		}
-		this.reset();
-		this.updatePrice();
-	}
-
-	__proto.onRadiusSizeChange=function(){
-		var curwidth=Number(this.semiRadius.text);
-		this.finalWidth=curwidth;
-		this.finalHeight=curwidth;
-		this.editheight.text=curwidth.toFixed(2);
-		this.reset();
-		this.updatePrice();
-	}
-
-	__proto.onSubItemNum=function(){
-		var num=parseInt(this.inputnum.text);
-		if(num > 1)
-			num--;
-		this.inputnum.text=num.toString();
-		this.onNumChange();
-	}
-
-	__proto.onAddItemNum=function(){
-		var num=parseInt(this.inputnum.text);
-		num++;
-		this.inputnum.text=num.toString();
-		this.onNumChange();
-	}
-
-	__proto.onShowBigImg=function(){
-		if(this.ordervo.type==1)
-			return;
-		if(this.yixingimg.visible){
-			var obj=[];
-			obj.push(this.ordervo.picinfo);
-			obj.push(this.yixingimg.skin);
-			obj.push(1);
-			ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,obj);
-		}
-		else
-		ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,this.ordervo.picinfo);
-	}
-
-	__proto.onShowBackImg=function(){
-		var obj=new PicInfoVo({},1);
-		obj.fid=this.fanmianFid;
-		obj.picWidth=this.ordervo.picinfo.picWidth;
-		obj.picHeight=this.ordervo.picinfo.picHeight;
-		if(this.yingxback.visible){
-			var objdata=[];
-			objdata.push(obj);
-			objdata.push(this.yingxback.skin);
-			objdata.push(-1);
-			ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,objdata);
-		}
-		else
-		ViewManager.instance.openView("VIEW_PICTURE_CHECK",false,obj);
-	}
-
-	__proto.onAddComment=function(){
-		ViewManager.instance.openView("VIEW_ADD_MESSAGE",false,{msg:this.ordervo.comment,caller:this,callback:this.onAddMsgBack});
-	}
-
-	__proto.onAddMsgBack=function(msg){
-		this.ordervo.comment=msg;
-		this.hascomment.visible=this.ordervo.comment !="";
-		if(this.ordervo.orderData){
-			this.ordervo.orderData.comments=this.ordervo.comment;
-		}
-	}
-
-	__proto.alighComponet=function(){
-		this.checkSel.y=(this.height-28)/2;
-		this.numindex.y=(this.height-this.numindex.height)/2;
-		this.fileimg.y=this.height/2;
-		this.backimg.y=this.height/2;
-		this.yingxback.y=this.height/2;
-		this.yixingimg.y=this.height/2;
-		this.filename.y=(this.height-this.filename.height)/2;
-		this.editbox.y=(this.height-this.editbox.height)/2;
-		this.numbox.y=(this.height)/2-12;
-		this.total.y=(this.height-this.total.height)/2;
-		this.editmat.y=(this.height-this.editmat.height)/2;
-		this.deletBtn.y=(this.height-this.deletBtn.height)/2;
-		this.operatebox.y=(this.height-this.operatebox.height)/2-10;
-	}
-
-	__proto.updateIndex=function(){
-		this.numindex.text=this.ordervo.indexNum.toString();
-	}
-
-	__proto.onDeleteOrder=function(){
-		EventCenter.instance.event("DELETE_PIC_ORDER",this);
-	}
-
-	__proto.updatePrice=function(){
-		if(this.curproductvo !=null){
-			this.updateOrderData(this.curproductvo);
-			var area=(this.finalHeight *this.finalWidth)/10000;
-			var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-			this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
-		}
-		EventCenter.instance.event("UPDATE_ORDER_ITEM_TECH");
-	}
-
-	__proto.onNumChange=function(){
-		if(this.inputnum.text=="")
-			this.inputnum.text="1";
-		this.total.text=(parseInt(this.inputnum.text)*this.ordervo.noDiscountOrderPrice *this.discount).toFixed(1).toString();
-		if(this.ordervo.orderData){
-			this.ordervo.orderData.itemNumber=parseInt(this.inputnum.text);
-			this.ordervo.orderData.item_payPrice=parseFloat((parseInt(this.inputnum.text)*this.ordervo.orderPrice *this.discount).toFixed(1));
-		}
-		EventCenter.instance.event("UPDATE_ORDER_ITEM_TECH");
-	}
-
-	__proto.onShowMaterialView=function(){
-		if(PaintOrderModel.instance.selectAddress==null){
-			ViewManager.showAlert("请选择收货地址");
-			return;
-		}
-		if(PaintOrderModel.instance.outPutAddr==null || PaintOrderModel.instance.outPutAddr.length==0){
-			ViewManager.showAlert("当前的收货地址没有输出中心，请重新选择收货地址");
-			return;
-		}
-		for(var i=0;i < PaintOrderModel.instance.outPutAddr.length;i++){
-			if(PaintOrderModel.instance.allManuFacutreMatProcPrice[PaintOrderModel.instance.outPutAddr[i].org_code]==null){
-				ViewManager.showAlert("暂未获取到生产商材料工艺价格，请重新选择收货地址或稍后再试");
-				return;
-			}
-		}
-		if(PaintOrderModel.instance.productList==null || PaintOrderModel.instance.productList.length==0){
-			ViewManager.showAlert("未获取到材料列表，请重新选择收货地址或者刷新页面");
-			return;
-		}
-		if(PaintOrderModel.instance.selectAddress==null){
-			ViewManager.showAlert("请先选择收货地址");
-			return;
-		}
-		if(this.finalHeight !=0 && this.ordervo.type==0){
-			if(Math.abs((this.finalWidth/this.finalHeight-this.ordervo.picinfo.picPhysicWidth/this.ordervo.picinfo.picPhysicHeight)/(this.ordervo.picinfo.picPhysicWidth/this.ordervo.picinfo.picPhysicHeight))> 0.2){
-				ViewManager.showAlert("修改图片比例不能超过原图比例的20%");
-				this.finalWidth=this.ordervo.picinfo.picPhysicWidth;
-				this.finalHeight=this.ordervo.picinfo.picPhysicHeight;
-				this.editwidth.text=this.ordervo.picinfo.picPhysicWidth.toString();
-				this.editheight.text=this.ordervo.picinfo.picPhysicHeight.toString();
-				return;
-			}
-		}
-		PaintOrderModel.instance.curSelectOrderItem=this;
-		PaintOrderModel.instance.batchChangeMatItems=[];
-		PaintOrderModel.instance.curSelectMat=null;
-		if(PaintOrderModel.instance.orderType=="Zipai")
-			ViewManager.instance.openView("VIEW_CHARACTER_DEMONSTRATE_PANEL",false,this.ordervo.picinfo);
-		else
-		ViewManager.instance.openView("VIEW_SET_MATERIAL_PROCESS_PANEL",false,this.ordervo.picinfo);
-	}
-
-	__proto.updateProductPrice=function(){
-		if(this.ordervo.orderData !=null){
-			if(this.curproductvo !=null){
-				this.updateOrderDataPrice();
-				var area=(this.finalHeight *this.finalWidth)/10000;
-				var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-				this.total.text=(parseInt(this.inputnum.text)*this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
-			}
-		}
-	}
-
-	__proto.changeProduct=function(provo){
-		this.curproductvo=provo.cloneData(this);
-		this.ordervo.productVo=this.curproductvo;
-		this.fanmianFid="";
-		this.updateOrderData(this.curproductvo);
-		var lastheight=this.height;
-		this.initEditData();
-		EventCenter.instance.event("ADJUST_PIC_ORDER_TECH",this.height-lastheight);
-	}
-
-	__proto.getPrice=function(){
-		return parseFloat((parseInt(this.inputnum.text)*this.ordervo.orderPrice *this.discount).toFixed(1));
-	}
-
-	//return parseFloat(this.total.text);
-	__proto.getNoDiscountPrice=function(){
-		if(this.ordervo.orderData !=null)
-			return parseInt(this.inputnum.text)*this.ordervo.noDiscountOrderPrice;
-		else
-		return 0;
-	}
-
-	__proto.updateOrderDataPrice=function(){
-		if(this.curproductvo !=null && this.ordervo.orderData !=null){
-			var area=(this.finalHeight *this.finalWidth)/10000;
-			var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-			this.ordervo.orderPrice=this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-			if(this.ordervo.orderPrice < 0.15)
-				this.ordervo.orderPrice=0.15;
-			this.ordervo.noDiscountOrderPrice=this.curproductvo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true);
-			if(this.ordervo.noDiscountOrderPrice < 0.15)
-				this.ordervo.noDiscountOrderPrice=0.15;
-			this.ordervo.orderData.itemPrice=this.ordervo.orderPrice.toString();
-			this.ordervo.orderData.discountProcessPrice=this.curproductvo.getDiscountProcessPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-			this.ordervo.orderData.materialPrice=this.ordervo.orderPrice-this.ordervo.orderData.discountProcessPrice;
-			this.ordervo.orderData.one_mat_cost=this.curproductvo.getMaterialPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-			var cost=this.curproductvo.getProcessAndGrossPrices(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-			this.ordervo.orderData.one_proc_cost=cost[0];
-			this.ordervo.orderData.oneDiscountGrossMargin=cost[1];
-			this.ordervo.orderData.oneNoDiscountGrossMargin=cost[2];
-		}
-	}
-
-	__proto.updateOrderData=function(productVo){
-		var area=(this.finalHeight *this.finalWidth)/10000;
-		var perimeter=(this.finalHeight+this.finalWidth)*2/100;
-		this.ordervo.orderPrice=productVo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-		this.ordervo.noDiscountOrderPrice=productVo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true);
-		if(this.ordervo.orderPrice < 0.15)
-			this.ordervo.orderPrice=0.15;
-		if(this.ordervo.noDiscountOrderPrice < 0.15)
-			this.ordervo.noDiscountOrderPrice=0.15;
-		this.ordervo.manufacturer_code=productVo.manufacturerCode;
-		this.ordervo.manufacturer_name=productVo.manufacturerName;
-		var orderitemdata={};
-		orderitemdata.material_code=productVo.materialCode;
-		orderitemdata.conponent={};
-		orderitemdata.conponent.prodName=productVo.prodName;
-		orderitemdata.conponent.prodCode=productVo.prodCode;
-		orderitemdata.conponent.num=1;
-		orderitemdata.conponent.LWH=this.finalWidth.toFixed(2)+"/"+this.finalHeight.toFixed(2)+"/1";
-		orderitemdata.conponent.prodDescription="";
-		orderitemdata.conponent.weight=productVo.getOrderSingleWeight(this.finalWidth/100,this.finalHeight/100,this.ordervo).toFixed(2);
-		if(this.ordervo.type==0){
-			orderitemdata.conponent.imageFilePath=HttpRequestUtil.originPicPicUrl+this.ordervo.picinfo.fid+"."+this.ordervo.picinfo.picClass;
-			orderitemdata.conponent.previewImagePath=HttpRequestUtil.biggerPicUrl+this.ordervo.picinfo.fid+this.ordervo.picinfo.tailFix;
-			orderitemdata.conponent.thumbnailsPath=HttpRequestUtil.smallerrPicUrl+this.ordervo.picinfo.fid+this.ordervo.picinfo.tailFix;
-		}
-		else{
-			var dengxpicInfoVo=this.ordervo.picinfo;
-			if(dengxpicInfoVo.rectangleOrCircle==0)
-				orderitemdata.conponent.thumbnailsPath="commers/blackbg.png";
-			else
-			orderitemdata.conponent.thumbnailsPath="commers/circleDx.png";
-		}
-		orderitemdata.conponent.filename=this.ordervo.picinfo.directName;
-		orderitemdata.itemNumber=parseInt(this.inputnum.text);
-		orderitemdata.itemPrice=this.ordervo.orderPrice.toString();
-		orderitemdata.actualAmount=parseFloat((parseInt(this.inputnum.text)*this.ordervo.orderPrice *this.discount).toFixed(1)).toExponential();
-		orderitemdata.isMerchandise=1;
-		orderitemdata.itemStatus="0";
-		orderitemdata.fixedDiscount=productVo.isFixedCustomerRatio;
-		orderitemdata.discountProcessPrice=productVo.getDiscountProcessPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-		orderitemdata.materialPrice=this.ordervo.orderPrice-orderitemdata.discountProcessPrice;
-		orderitemdata.unitPrice=this.ordervo.orderPrice-productVo.getAllAttachPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-		orderitemdata.unitPrice=orderitemdata.unitPrice/(this.finalWidth/100*this.finalHeight/100);
-		orderitemdata.unitPrice=orderitemdata.unitPrice.toFixed(2);
-		orderitemdata.one_mat_cost=productVo.getMaterialPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-		var cost=productVo.getProcessAndGrossPrices(this.finalWidth/100,this.finalHeight/100,false,this.ordervo);
-		orderitemdata.one_proc_cost=cost[0];
-		orderitemdata.gross_margin=cost[1]+cost[2];
-		orderitemdata.oneDiscountGrossMargin=cost[1];
-		orderitemdata.oneNoDiscountGrossMargin=cost[2];
-		var tempstr="";
-		var hasfinddot=false;
-		for(var i=this.ordervo.picinfo.directName.length-1;i >=0;i--){
-			if(this.ordervo.picinfo.directName.charAt(i)=="." && hasfinddot==false){
-				hasfinddot=true;
-			}
-			else if(hasfinddot){
-				tempstr=this.ordervo.picinfo.directName.charAt(i)+tempstr;
-			}
-		}
-		orderitemdata.comments=tempstr.substr(0,20);
-		orderitemdata.conponent.procInfoList=productVo.getProInfoList(this.ordervo.picinfo,this.finalWidth/100,this.finalHeight/100,this.ordervo);
-		var cutlength=99999999;
-		for(var i=0;i < orderitemdata.conponent.procInfoList.length;i++){
-			if(orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超幅拼接")>=0 || orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超宽拼接")>=0){
-				cutlength=this.ordervo.eachCutLength[0];
-			}
-		}
-		orderitemdata.minSideLength=Math.min(this.finalWidth,this.finalHeight,cutlength).toFixed(2);
-		orderitemdata.colorFormat=this.ordervo.picinfo.colorspace;
-		this.ordervo.orderData=orderitemdata;
-	}
-
-	__proto.getProcessPrice=function(){
-		if(this.curproductvo !=null)
-			return this.curproductvo.getProcessPrice(this.finalWidth/100,this.finalHeight/100,this.ordervo)*parseInt(this.inputnum.text);
-		else
-		return 0;
-	}
-
-	__proto.checkCanOrder=function(){
-		if(this.ordervo.orderData==null){
-			ViewManager.showAlert("未选择材料工艺");
-			return false;
-		}
-		if(this.ordervo.orderData.conponent.prodName.indexOf("户内")>=0 && this.architype.text.indexOf("户外")>=0){
-			var errordata="user_phone="+Userdata.instance.userAccount+"&error_msg="+this.ordervo.orderData.conponent.prodName+",工厂："+this.ordervo.manufacturer_name+",材料不匹配"+"&request_url=下单验证";
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/add-error-log?",null,null,errordata,"post");
-			ViewManager.showAlert("材料和工艺不匹配，请重新选择材料和工艺");
-			return false;
-		}
-		if(this.ordervo.orderData.conponent.prodName.indexOf("户外")>=0 && this.architype.text.indexOf("户内")>=0){
-			var errordata="user_phone="+Userdata.instance.userAccount+"&error_msg="+this.ordervo.orderData.conponent.prodName+",工厂："+this.ordervo.manufacturer_name+",材料不匹配"+"&request_url=下单验证";
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"group/add-error-log?",null,null,errordata,"post");
-			ViewManager.showAlert("材料和工艺不匹配，请重新选择材料和工艺");
-			return false;
-		}
-		if(this.ordervo.orderData.conponent.procInfoList==null || this.ordervo.orderData.conponent.procInfoList.length==0){
-			ViewManager.showAlert("未选择工艺");
-			return false;
-		}
-		return true;
-	}
-
-	return DengxiangOrderItemCell;
-})(OrderItemUI)
-
-
 //class script.order.OutputCenterCell extends ui.order.OutPutCenterUI
 var OutputCenterCell=(function(_super){
 	function OutputCenterCell(factdata,index){
@@ -80984,8 +81747,8 @@ var OrderPriceSettingItem=(function(_super){
 		this.money.text=(Number(orderdata.itemPrice)*Number(orderdata.itemNumber)).toFixed(2);
 		this.unitPriceTxt.text=orderdata.itemPrice;
 		this.measureUnit.text=orderdata.measureUnit !=null? orderdata.measureUnit:"平方米";
-		if(orderdata.totalMeasureNum !=null && orderdata.totalMeasureNum !="")
-			var unitprice=(parseFloat(this.money.text)/parseFloat(orderdata.totalMeasureNum)).toFixed(2);
+		if(orderdata.totalMeasureNum !=null && orderdata.totalMeasureNum !="" && this.ordata.totalSalesPrice !=null && this.ordata.totalSalesPrice !="")
+			var unitprice=(parseFloat(this.ordata.totalSalesPrice)/parseFloat(orderdata.totalMeasureNum)).toFixed(2);
 		else
 		unitprice=orderdata.itemPrice;
 		this,this.unitPriceInput.text=(this.ordata.unitSalesPrice !=null && this.ordata.unitSalesPrice !="")?this.ordata.unitSalesPrice:unitprice;
@@ -81066,35 +81829,6 @@ var MaterialClassBtn=(function(_super){
 })(TabChooseBtnUI)
 
 
-//class script.login.CityAreaItem extends ui.login.CityAreaItemUI
-var CityAreaItem=(function(_super){
-	function CityAreaItem(){
-		this.areaVo=null;
-		CityAreaItem.__super.call(this);
-		this.on("mouseover",this,this.onMouseOver);
-		this.on("mouseout",this,this.onMouseOut);
-		this.bg.visible=false;
-	}
-
-	__class(CityAreaItem,'script.login.CityAreaItem',_super);
-	var __proto=CityAreaItem.prototype;
-	__proto.onMouseOver=function(){
-		this.bg.visible=true;
-	}
-
-	__proto.onMouseOut=function(){
-		this.bg.visible=false;
-	}
-
-	__proto.setData=function(areavo){
-		this.areaVo=areavo;
-		this.productname.text=this.areaVo.areaName;
-	}
-
-	return CityAreaItem;
-})(CityAreaItemUI)
-
-
 //class script.usercenter.item.MemberItem extends ui.usercenter.OrganizeMemberItemUI
 var MemberItem=(function(_super){
 	function MemberItem(){
@@ -81143,6 +81877,35 @@ var MemberItem=(function(_super){
 
 	return MemberItem;
 })(OrganizeMemberItemUI)
+
+
+//class script.login.CityAreaItem extends ui.login.CityAreaItemUI
+var CityAreaItem=(function(_super){
+	function CityAreaItem(){
+		this.areaVo=null;
+		CityAreaItem.__super.call(this);
+		this.on("mouseover",this,this.onMouseOver);
+		this.on("mouseout",this,this.onMouseOut);
+		this.bg.visible=false;
+	}
+
+	__class(CityAreaItem,'script.login.CityAreaItem',_super);
+	var __proto=CityAreaItem.prototype;
+	__proto.onMouseOver=function(){
+		this.bg.visible=true;
+	}
+
+	__proto.onMouseOut=function(){
+		this.bg.visible=false;
+	}
+
+	__proto.setData=function(areavo){
+		this.areaVo=areavo;
+		this.productname.text=this.areaVo.areaName;
+	}
+
+	return CityAreaItem;
+})(CityAreaItemUI)
 
 
 //class script.usercenter.item.CustomerAddressCell extends ui.usercenter.CustomerAddressItemUI
@@ -81198,6 +81961,70 @@ var CustomerAddressCell=(function(_super){
 
 	return CustomerAddressCell;
 })(CustomerAddressItemUI)
+
+
+//class script.usercenter.item.OrderPriceSharePhoneItem extends ui.usercenter.OrderPriceSellPhoneItemUI
+var OrderPriceSharePhoneItem=(function(_super){
+	function OrderPriceSharePhoneItem(){
+		this.adjustHeight=null;
+		this.caller=null;
+		this.ordata=null;
+		this.ordersn=null;
+		this.hasgetState=false;
+		OrderPriceSharePhoneItem.__super.call(this);
+	}
+
+	__class(OrderPriceSharePhoneItem,'script.usercenter.item.OrderPriceSharePhoneItem',_super);
+	var __proto=OrderPriceSharePhoneItem.prototype;
+	__proto.setData=function(orderdata){
+		this.itemseq.text=orderdata.itemSeq;
+		if(orderdata.conponent.thumbnailsPath !=null && orderdata.conponent.thumbnailsPath !="")
+			this.picimg.skin=orderdata.conponent.thumbnailsPath;
+		else
+		this.picimg.skin="commers/blackbg.png";
+		this.isurgent.visible=orderdata.isUrgent;
+		this.ordata=orderdata;
+		this.ordersn=orderdata.orderId;
+		this.matname.text=orderdata.conponent.prodName;
+		var sizearr=(orderdata.conponent.LWH).split("/");
+		if(orderdata.deliveryDate !=null)
+			this.deliverydate.text=UtilTool.getNextDayStr(orderdata.deliveryDate+" 00:00:00");
+		else
+		this.deliverydate.text="";
+		this.widthtxt.text=sizearr[0];
+		this.heighttxt.text=sizearr[1];
+		var picwidth=parseFloat(sizearr[0]);
+		var picheight=parseFloat(sizearr[1]);
+		if(picwidth > picheight){
+			this.picimg.width=155;
+			this.picimg.height=155/picwidth *picheight;
+		}
+		else{
+			this.picimg.height=155;
+			this.picimg.width=155/picheight *picwidth;
+		}
+		this.pronum.text=orderdata.itemNumber+"";
+		var techstr="";
+		if(orderdata.conponent.procInfoList !=null){
+			for(var i=0;i < orderdata.conponent.procInfoList.length;i++)
+			techstr+=orderdata.conponent.procInfoList[i].procDescription+"-";
+		}
+		this.tech.text=techstr.substr(0,techstr.length-1);
+		this.measureUnit.text=orderdata.measureUnit !=null? orderdata.measureUnit:"平方米";
+		if(orderdata.totalMeasureNum !=null && orderdata.totalMeasureNum !="" && this.ordata.totalSalesPrice !=null && this.ordata.totalSalesPrice !="")
+			var unitprice=(parseFloat(this.ordata.totalSalesPrice)/parseFloat(orderdata.totalMeasureNum)).toFixed(2);
+		else
+		unitprice=orderdata.itemPrice;
+		this,this.unitPriceInput.text=(this.ordata.unitSalesPrice !=null && this.ordata.unitSalesPrice !="")?this.ordata.unitSalesPrice:unitprice;
+		this.totalPriceInput.text=(this.ordata.totalSalesPrice !=null && this.ordata.totalSalesPrice !="")?this.ordata.totalSalesPrice:"0";
+		if(orderdata.conponent.filename !=null)
+			this.filename.text=orderdata.conponent.filename;
+		else
+		this.filename.text="";
+	}
+
+	return OrderPriceSharePhoneItem;
+})(OrderPriceSellPhoneItemUI)
 
 
 //class script.usercenter.QuestOrderItem extends ui.usercenter.OrderQuestItemUI
@@ -81299,6 +82126,38 @@ var QuestOrderItem=(function(_super){
 })(OrderQuestItemUI)
 
 
+//class script.order.SelectAttachBtn extends ui.order.TabChooseBtnUI
+var SelectAttachBtn=(function(_super){
+	function SelectAttachBtn(){
+		this.attachCatVo=null;
+		SelectAttachBtn.__super.call(this);
+	}
+
+	__class(SelectAttachBtn,'script.order.SelectAttachBtn',_super);
+	var __proto=SelectAttachBtn.prototype;
+	__proto.setData=function(matName){
+		this.attachCatVo=matName;
+		this.selbtn.label=this.attachCatVo.accessory_name;
+		var textwdth=this.selbtn.text.textWidth+40;
+		this.width=textwdth;
+		this.selbtn.width=textwdth;
+		this.selbtn.on("doubleclick",this,this.onSelectSure);
+		this.selfIcon.visible=this.attachCatVo.is_belongtoClient;
+	}
+
+	//this.selbtn.on(Event.CLICK,this,ShowSelected);
+	__proto.onSelectSure=function(){
+		EventCenter.instance.event("ADD_TECH_ATTACH",this.attachCatVo);
+	}
+
+	__proto.ShowSelected=function(sel){
+		this.selbtn.selected=sel;
+	}
+
+	return SelectAttachBtn;
+})(TabChooseBtnUI)
+
+
 //class script.usercenter.item.WriteOffOrderCell extends ui.usercenter.WriteOffOrderItemUI
 var WriteOffOrderCell=(function(_super){
 	function WriteOffOrderCell(){
@@ -81349,38 +82208,6 @@ var WriteOffOrderCell=(function(_super){
 
 	return WriteOffOrderCell;
 })(WriteOffOrderItemUI)
-
-
-//class script.order.SelectAttachBtn extends ui.order.TabChooseBtnUI
-var SelectAttachBtn=(function(_super){
-	function SelectAttachBtn(){
-		this.attachCatVo=null;
-		SelectAttachBtn.__super.call(this);
-	}
-
-	__class(SelectAttachBtn,'script.order.SelectAttachBtn',_super);
-	var __proto=SelectAttachBtn.prototype;
-	__proto.setData=function(matName){
-		this.attachCatVo=matName;
-		this.selbtn.label=this.attachCatVo.accessory_name;
-		var textwdth=this.selbtn.text.textWidth+40;
-		this.width=textwdth;
-		this.selbtn.width=textwdth;
-		this.selbtn.on("doubleclick",this,this.onSelectSure);
-		this.selfIcon.visible=this.attachCatVo.is_belongtoClient;
-	}
-
-	//this.selbtn.on(Event.CLICK,this,ShowSelected);
-	__proto.onSelectSure=function(){
-		EventCenter.instance.event("ADD_TECH_ATTACH",this.attachCatVo);
-	}
-
-	__proto.ShowSelected=function(sel){
-		this.selbtn.selected=sel;
-	}
-
-	return SelectAttachBtn;
-})(TabChooseBtnUI)
 
 
 //class script.usercenter.item.OrganizeItem extends ui.usercenter.OrganizeItemUI
@@ -81616,10 +82443,22 @@ var PicOrderItem=(function(_super){
 		this.total.text=(parseInt(this.inputnum.text)*provo.getTotalPrice(this.finalWidth/100,this.finalHeight/100,false,this.ordervo,true)*this.discount).toFixed(1)+"";
 		this.unitPrice.text=this.ordervo.orderData.unitPrice;
 		var tech=provo.getTechDes(false,this.finalWidth,this.finalHeight);
+		var chaokuanTechStr;
+		if(tech.indexOf("超宽拼接")>=0 || tech.indexOf("超幅拼接")>=0){
+			if(this.ordervo.cuttype==0){
+				chaokuanTechStr="(V-"+this.ordervo.vCutnum+"-"+this.ordervo.vEachCutLength.join(";")+")";
+			}
+			else if(this.ordervo.cuttype==1){
+				chaokuanTechStr="(H-"+this.ordervo.hCutnum+"-"+this.ordervo.hEachCutLength.join(";")+")";
+			}
+			else{
+				chaokuanTechStr="(V-"+this.ordervo.vCutnum+"-"+this.ordervo.vEachCutLength.join(";")+",H-"+this.ordervo.hCutnum+"-"+this.ordervo.hEachCutLength.join(";")+")";
+			}
+		}
 		if(tech.indexOf("超宽拼接")>=0)
-			tech=tech.replace("超宽拼接","超宽拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
+			tech=tech.replace("超宽拼接","超宽拼接"+chaokuanTechStr);
 		if(tech.indexOf("超幅拼接")>=0)
-			tech=tech.replace("超幅拼接","超幅拼接"+"("+["V","H"][this.ordervo.cuttype]+"-"+this.ordervo.cutnum+"-"+this.ordervo.eachCutLength.join(";")+")");
+			tech=tech.replace("超幅拼接","超幅拼接"+chaokuanTechStr);
 		if(tech.indexOf("小块裁切")>=0)
 			tech=tech.replace("小块裁切","小块裁切"+"(H-"+this.ordervo.horiCutNum+",V-"+this.ordervo.verCutNum+")");
 		if(tech.indexOf("正上方打扣")>=0){
@@ -81940,7 +82779,10 @@ var PicOrderItem=(function(_super){
 		var cutlength=99999999;
 		for(var i=0;i < orderitemdata.conponent.procInfoList.length;i++){
 			if(orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超幅拼接")>=0 || orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超宽拼接")>=0){
-				cutlength=this.ordervo.eachCutLength[0];
+				if(this.ordervo.cuttype==0 || this.ordervo.cuttype==2)
+					cutlength=this.ordervo.vEachCutLength[0];
+				else
+				cutlength=this.ordervo.hEachCutLength[0];
 			}
 		}
 		orderitemdata.minSideLength=Math.min(this.finalWidth,this.finalHeight,cutlength).toFixed(2);
@@ -82212,8 +83054,8 @@ var OrderCheckListItem=(function(_super){
 
 	__proto.confirmDeleteOrders=function(b){
 		if(b){
-			var params="id="+this.orderdata.id;
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"account/delete-unpaid-order?",this,this.deleteOrderListBack,params,"post");
+			var params={"orderId":this.orderdata.id};
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl+"order/deleteUnpaid?",this,this.deleteOrderListBack,JSON.stringify(params),"post");
 		}
 	}
 
@@ -83272,31 +84114,6 @@ var GroupAddressCell=(function(_super){
 })(GroupAddressItemUI)
 
 
-//class script.workpanel.items.MaterialCategoryCell extends ui.inuoView.items.MatCategoryItemUI
-var MaterialCategoryCell=(function(_super){
-	function MaterialCategoryCell(){
-		this.matclassvo=null;
-		MaterialCategoryCell.__super.call(this);
-	}
-
-	__class(MaterialCategoryCell,'script.workpanel.items.MaterialCategoryCell',_super);
-	var __proto=MaterialCategoryCell.prototype;
-	__proto.setData=function(matName){
-		this.matclassvo=matName;
-		this.selbtn.label=this.matclassvo.matclassname;
-		this.selbtn.width=this.selbtn.text.textWidth+40;
-		this.width=this.selbtn.width;
-		this.selfIcon.visible=false;
-	}
-
-	__getset(0,__proto,'ShowSelected',null,function(value){
-		this.selbtn.selected=value;
-	});
-
-	return MaterialCategoryCell;
-})(MatCategoryItemUI)
-
-
 //class script.usercenter.item.CustomCell extends ui.usercenter.items.CustomeItemUI
 var CustomCell=(function(_super){
 	function CustomCell(){
@@ -83317,6 +84134,7 @@ var CustomCell=(function(_super){
 		this.selectImg.visible=false;
 		this.businessManlbl.text=this.customData.salerName;
 		this.balancelbl.text=this.customData.balanceMoney.toFixed(2);
+		this.discountlbl.text=this.customData.discount;
 		this.defaultPayType.text=Constast.PAY_TYPE_NAME[this.customData.defaultPayment-1];
 	}
 
@@ -83355,6 +84173,31 @@ var CustomCell=(function(_super){
 })(CustomeItemUI)
 
 
+//class script.workpanel.items.MaterialCategoryCell extends ui.inuoView.items.MatCategoryItemUI
+var MaterialCategoryCell=(function(_super){
+	function MaterialCategoryCell(){
+		this.matclassvo=null;
+		MaterialCategoryCell.__super.call(this);
+	}
+
+	__class(MaterialCategoryCell,'script.workpanel.items.MaterialCategoryCell',_super);
+	var __proto=MaterialCategoryCell.prototype;
+	__proto.setData=function(matName){
+		this.matclassvo=matName;
+		this.selbtn.label=this.matclassvo.matclassname;
+		this.selbtn.width=this.selbtn.text.textWidth+40;
+		this.width=this.selbtn.width;
+		this.selfIcon.visible=false;
+	}
+
+	__getset(0,__proto,'ShowSelected',null,function(value){
+		this.selbtn.selected=value;
+	});
+
+	return MaterialCategoryCell;
+})(MatCategoryItemUI)
+
+
 //class script.order.ImageCutItem extends ui.order.CutImageItemUI
 var ImageCutItem=(function(_super){
 	function ImageCutItem(){
@@ -83373,6 +84216,8 @@ var ImageCutItem=(function(_super){
 		this.inputCount=7;
 		this.horiCutNumBtnList=null;
 		this.vertCutNumBtnList=null;
+		this.horiCutLen=120;
+		this.vertCutLen=120;
 		this.linelist=[];
 		ImageCutItem.__super.call(this);
 		this.hinputlist=[];
@@ -83396,6 +84241,8 @@ var ImageCutItem=(function(_super){
 		this.cutNumInput.maxChars=2;
 		this.cutNumInput.on("input",this,this.onNumberChange);
 		this.vertCutNumInput.on("input",this,this.onVertNumberChange);
+		this.horiCutWidthRdo.on("change",this,this.onChangeHoriCutLength);
+		this.vertCutWidthRdo.on("change",this,this.onChangeVertCutLength);
 	}
 
 	__class(ImageCutItem,'script.order.ImageCutItem',_super);
@@ -83413,42 +84260,23 @@ var ImageCutItem=(function(_super){
 		this.curColorIndex=(this.curColorIndex+1)%2;
 	}
 
-	__proto.onCutTypeChange=function(){
-		var finalwidth=this.cutdata.finalWidth+this.cutdata.border;
-		var finalheight=this.cutdata.finalHeight+this.cutdata.border;;
-		var product=PaintOrderModel.instance.curSelectMat;
-		var maxwidth=this.cutdata.maxwidth;
-		if(this.cuttype==1){
-			this.leastCutNum=Math.ceil(finalheight/maxwidth);
-			if(this.cutdata.maxwidth < 160){
-				this.cutdata.orderitemvo.cutnum=Math.ceil(finalheight/120);
-				if(this.cutdata.orderitemvo.cutnum < 2)
-					this.cutdata.orderitemvo.cutnum=2;
-			}
-			else
-			this.cutdata.orderitemvo.cutnum=this.leastCutNum;
-		}
-		else{
-			this.leastCutNum=Math.ceil(finalwidth/maxwidth);
-			if(this.cutdata.maxwidth < 160){
-				this.cutdata.orderitemvo.cutnum=Math.ceil(finalwidth/120);
-				if(this.cutdata.orderitemvo.cutnum < 2)
-					this.cutdata.orderitemvo.cutnum=2;
-			}
-			else
-			this.cutdata.orderitemvo.cutnum=this.leastCutNum;
-		}
-		this.cutdata.orderitemvo.cuttype=this.cuttype;
-		this.initCutNum();
-		this.resetCutlen();
-		this.updateInputText();
-	}
-
+	// }
 	__proto.initView=function(){
 		var finalwidth=this.cutdata.finalWidth;
 		var finalheight=this.cutdata.finalHeight;
 		var border=this.cutdata.border;
 		this.borderimg.visible=border > 0;
+		this.horiCutWidthRdo.labels=this.cutdata.cutLength.join(",");
+		this.vertCutWidthRdo.labels=this.cutdata.cutLength.join(",");
+		this.horiCutWidthRdo.selectedIndex=0;
+		this.horiCutLen=this.cutdata.cutLength[0];
+		this.horiRdoBox.visible=(this.cutdata.orderitemvo.cutDirect==0 || this.cutdata.orderitemvo.cutDirect==2);
+		this.vertRdoBox.visible=(this.cutdata.orderitemvo.cutDirect==1 || this.cutdata.orderitemvo.cutDirect==2);
+		if(this.cutdata.cutLength.length > 1 && this.cuttype==2)
+			this.vertCutWidthRdo.selectedIndex=1;
+		else
+		this.vertCutWidthRdo.selectedIndex=0;
+		this.vertCutLen=this.cutdata.cutLength[this.vertCutWidthRdo.selectedIndex];
 		if(finalwidth > finalheight){
 			this.borderimg.width=375;
 			this.borderimg.height=375*(finalheight+border)/(finalwidth+border);
@@ -83463,19 +84291,25 @@ var ImageCutItem=(function(_super){
 		}
 		this.hbox.width=this.paintimg.width;
 		this.vbox.height=this.paintimg.height;
+		this.horiOperateBox.visible=(this.cutdata.orderitemvo.cutDirect==0 || this.cutdata.orderitemvo.cutDirect==2);
+		this.vertOperateBox.visible=(this.cutdata.orderitemvo.cutDirect==1 || this.cutdata.orderitemvo.cutDirect==2);
 		this.hbox.x=48+(375-this.hbox.width)/2;
-		this.vbox.y=65+(375-this.vbox.height)/2;
+		this.vbox.y=85+(375-this.vbox.height)/2;
 		this.paintimg.skin=HttpRequestUtil.biggerPicUrl+this.cutdata.fid+(this.cutdata.orderitemvo.picinfo.picClass.toUpperCase()=="PNG"?".png":".jpg");
-		if(this.cuttype==0){
-			for(var i=0;i < this.cutdata.orderitemvo.cutnum;i++){
-				if(this.hinputlist.length > i)
-					this.hinputlist[i].text=this.cutdata.orderitemvo.eachCutLength[i]+"";
+		if(this.cuttype==0 || this.cuttype==2){
+			if(this.cutdata.orderitemvo.cutDirect==0 || this.cutdata.orderitemvo.cutDirect==2){
+				for(var i=0;i < this.cutdata.orderitemvo.vCutnum;i++){
+					if(this.hinputlist.length > i)
+						this.hinputlist[i].text=this.cutdata.orderitemvo.vEachCutLength[i]+"";
+				}
 			}
 		}
-		else{
-			for(var i=0;i < this.cutdata.orderitemvo.cutnum;i++){
-				if(this.vinputlist.length > i)
-					this.vinputlist[i].text=this.cutdata.orderitemvo.eachCutLength[i]+"";
+		if(this.cuttype==1 || this.cuttype==2){
+			if(this.cutdata.orderitemvo.cutDirect==1 || this.cutdata.orderitemvo.cutDirect==2){
+				for(var i=0;i < this.cutdata.orderitemvo.hCutnum;i++){
+					if(this.vinputlist.length > i)
+						this.vinputlist[i].text=this.cutdata.orderitemvo.hEachCutLength[i]+"";
+				}
 			}
 		}
 		this.updateInputText();
@@ -83484,158 +84318,316 @@ var ImageCutItem=(function(_super){
 
 	// cuttype=0;
 	__proto.onHoriInput=function(index){
-		if(index==this.cutdata.orderitemvo.cutnum-1){
-			this.hinputlist[index].text=this.cutdata.orderitemvo.eachCutLength[index]+"";
+		if(index==this.cutdata.orderitemvo.vCutnum-1){
+			this.hinputlist[index].text=this.cutdata.orderitemvo.vEachCutLength[index]+"";
 			return;
 		}
 		if(this.hinputlist[index].text=="")
 			return;
-		var maxwidth=this.cutdata.maxwidth;
+		var maxwidth=this.horiCutLen;
 		var hascutlen=0;
 		for(var i=0;i < index;i++){
-			hascutlen+=this.cutdata.orderitemvo.eachCutLength[i];
+			hascutlen+=this.cutdata.orderitemvo.vEachCutLength[i];
 		};
 		var curnum=parseFloat(parseFloat(this.hinputlist[index].text).toFixed(2));
 		this.hinputlist[index].text=curnum+"";
-		var maxlen=Math.min(maxwidth,this.cutdata.finalWidth+this.cutdata.border-hascutlen-this.cutdata.orderitemvo.cutnum+index+1);
-		var minlen=Math.max(1,this.cutdata.finalWidth+this.cutdata.border-hascutlen-maxwidth*(this.cutdata.orderitemvo.cutnum-index-1));
+		var maxlen=Math.min(maxwidth,this.cutdata.finalWidth+this.cutdata.border-hascutlen-this.cutdata.orderitemvo.vCutnum+index+1);
+		var minlen=Math.max(1,this.cutdata.finalWidth+this.cutdata.border-hascutlen-maxwidth*(this.cutdata.orderitemvo.vCutnum-index-1));
 		hascutlen+=parseFloat(this.hinputlist[index].text);
-		var leftAvg=(this.cutdata.finalWidth+this.cutdata.border-hascutlen)/(this.cutdata.orderitemvo.cutnum-index-1);
-		for(var i=index+1;i < this.cutdata.orderitemvo.cutnum;i++){
+		var leftAvg=(this.cutdata.finalWidth+this.cutdata.border-hascutlen)/(this.cutdata.orderitemvo.vCutnum-index-1);
+		for(var i=index+1;i < this.cutdata.orderitemvo.vCutnum;i++){
 			if(i < this.vinputlist.length)
 				this.hinputlist[i].text=leftAvg.toFixed(2);
+		};
+		var temp=[];
+		var isvalid=true;
+		for(var i=0;i < this.cutdata.orderitemvo.vCutnum;i++){
+			if(i < this.vinputlist.length){
+				temp.push(parseFloat(this.hinputlist[i].text));
+				if(temp[i] > this.cutdata.maxlength)
+					isvalid=false;
+			}
 		}
-		for(var i=0;i < this.cutdata.orderitemvo.cutnum;i++){
-			if(i < this.vinputlist.length)
-				this.cutdata.orderitemvo.eachCutLength[i]=parseFloat(this.hinputlist[i].text);
+		if(isvalid){
+			for(var i=0;i < this.cutdata.orderitemvo.vCutnum;i++){
+				this.cutdata.orderitemvo.vEachCutLength[i]=temp[i];
+			}
+		}
+		else{
+			for(var i=0;i < this.cutdata.orderitemvo.vCutnum;i++){
+				if(this.hinputlist.length > i)
+					this.hinputlist[i].text=this.cutdata.orderitemvo.vEachCutLength[i]+"";
+			}
 		}
 		this.drawLines();
 	}
 
 	__proto.onVertInput=function(index){
-		if(index==this.cutdata.orderitemvo.cutnum-1){
-			this.vinputlist[index].text=this.cutdata.orderitemvo.eachCutLength[index]+"";
+		if(index==this.cutdata.orderitemvo.hCutnum-1){
+			this.vinputlist[index].text=this.cutdata.orderitemvo.hEachCutLength[index]+"";
 			return;
 		}
 		if(this.vinputlist[index].text=="")
 			return;
-		var maxwidth=this.cutdata.maxwidth;
+		var maxwidth=this.vertCutLen;
 		var hascutlen=0;
 		for(var i=0;i < index;i++){
-			hascutlen+=this.cutdata.orderitemvo.eachCutLength[i];
+			hascutlen+=this.cutdata.orderitemvo.hEachCutLength[i];
 		};
 		var curnum=parseFloat(parseFloat(this.vinputlist[index].text).toFixed(2));
 		this.vinputlist[index].text=curnum+"";
-		var maxlen=Math.min(maxwidth,this.cutdata.finalHeight+this.cutdata.border-hascutlen-this.cutdata.orderitemvo.cutnum+index+1);
-		var minlen=Math.max(1,this.cutdata.finalHeight+this.cutdata.border-hascutlen-maxwidth*(this.cutdata.orderitemvo.cutnum-index-1));
+		var maxlen=Math.min(maxwidth,this.cutdata.finalHeight+this.cutdata.border-hascutlen-this.cutdata.orderitemvo.hCutnum+index+1);
+		var minlen=Math.max(1,this.cutdata.finalHeight+this.cutdata.border-hascutlen-maxwidth*(this.cutdata.orderitemvo.hCutnum-index-1));
 		hascutlen+=parseFloat(this.vinputlist[index].text);
-		var leftAvg=(this.cutdata.finalHeight+this.cutdata.border-hascutlen)/(this.cutdata.orderitemvo.cutnum-index-1);
-		for(var i=index+1;i < this.cutdata.orderitemvo.cutnum;i++){
+		var leftAvg=(this.cutdata.finalHeight+this.cutdata.border-hascutlen)/(this.cutdata.orderitemvo.hCutnum-index-1);
+		for(var i=index+1;i < this.cutdata.orderitemvo.hCutnum;i++){
 			if(i < this.vinputlist.length)
 				this.vinputlist[i].text=leftAvg.toFixed(2);
+		};
+		var temp=[];
+		var isvalid=true;
+		for(var i=0;i < this.cutdata.orderitemvo.hCutnum;i++){
+			if(i < this.vinputlist.length){
+				temp.push(parseFloat(this.vinputlist[i].text));
+				if(temp[i] > this.cutdata.maxlength)
+					isvalid=false;
+			}
 		}
-		for(var i=0;i < this.cutdata.orderitemvo.cutnum;i++){
-			if(i < this.vinputlist.length)
-				this.cutdata.orderitemvo.eachCutLength[i]=parseFloat(this.vinputlist[i].text);
+		if(isvalid){
+			for(var i=0;i < this.cutdata.orderitemvo.hCutnum;i++){
+				this.cutdata.orderitemvo.hEachCutLength[i]=temp[i];
+			}
+		}
+		else{
+			for(var i=0;i < this.cutdata.orderitemvo.hCutnum;i++){
+				if(this.vinputlist.length > i)
+					this.vinputlist[i].text=this.cutdata.orderitemvo.hEachCutLength[i]+"";
+			}
 		}
 		this.drawLines();
 	}
 
-	__proto.resetCutlen=function(){
+	__proto.resetCutlen=function(changeDirect){
 		var cutlen=0;
-		if(this.cuttype==0)
-			cutlen=(this.cutdata.finalWidth+this.cutdata.border)/this.cutdata.orderitemvo.cutnum;
-		else
-		cutlen=(this.cutdata.finalHeight+this.cutdata.border)/this.cutdata.orderitemvo.cutnum;
-		cutlen=parseFloat(cutlen.toFixed(2));
-		this.cutdata.orderitemvo.eachCutLength=[];
-		for(var j=0;j < this.cutdata.orderitemvo.cutnum;j++)
-		this.cutdata.orderitemvo.eachCutLength.push(cutlen);
-		if(this.cuttype==0){
-			for(var i=0;i < this.cutdata.orderitemvo.cutnum;i++){
-				if(this.hinputlist.length > i)
-					this.hinputlist[i].text=this.cutdata.orderitemvo.eachCutLength[i]+"";
+		if((this.cuttype==0 || this.cuttype==2)&& changeDirect==0){
+			var leasCutNum=Math.ceil((this.cutdata.finalWidth+this.cutdata.border)/this.horiCutLen);
+			if(this.cutdata.orderitemvo.vCutnum > leasCutNum || this.cuttype !=2){
+				cutlen=(this.cutdata.finalWidth+this.cutdata.border)/this.cutdata.orderitemvo.vCutnum;
+				cutlen=parseFloat(cutlen.toFixed(2));
+				this.cutdata.orderitemvo.vEachCutLength=[];
+				for(var j=0;j < this.cutdata.orderitemvo.vCutnum;j++)
+				this.cutdata.orderitemvo.vEachCutLength.push(cutlen);
+			}
+			else{
+				this.cutdata.orderitemvo.vEachCutLength=[];
+				for(var j=0;j < this.cutdata.orderitemvo.vCutnum;j++){
+					if(j < this.cutdata.orderitemvo.vCutnum-1)
+						this.cutdata.orderitemvo.vEachCutLength.push(this.horiCutLen);
+					else
+					this.cutdata.orderitemvo.vEachCutLength.push(this.cutdata.finalWidth+this.cutdata.border-this.horiCutLen *(this.cutdata.orderitemvo.vCutnum-1));
+				}
 			}
 		}
-		else{
-			for(var i=0;i < this.cutdata.orderitemvo.cutnum;i++){
+		if((this.cuttype==1 || this.cuttype==2)&& changeDirect==1){
+			var leasCutNum=Math.ceil((this.cutdata.finalHeight+this.cutdata.border)/this.vertCutLen);
+			if(this.cutdata.orderitemvo.hCutnum > leasCutNum || this.cuttype !=2){
+				cutlen=(this.cutdata.finalHeight+this.cutdata.border)/this.cutdata.orderitemvo.hCutnum;
+				cutlen=parseFloat(cutlen.toFixed(2));
+				this.cutdata.orderitemvo.hEachCutLength=[];
+				for(var j=0;j < this.cutdata.orderitemvo.hCutnum;j++)
+				this.cutdata.orderitemvo.hEachCutLength.push(cutlen);
+			}
+			else{
+				this.cutdata.orderitemvo.hEachCutLength=[];
+				for(var j=0;j < this.cutdata.orderitemvo.hCutnum;j++){
+					if(j < this.cutdata.orderitemvo.hCutnum-1)
+						this.cutdata.orderitemvo.hEachCutLength.push(this.vertCutLen);
+					else
+					this.cutdata.orderitemvo.hEachCutLength.push(this.cutdata.finalHeight+this.cutdata.border-this.vertCutLen *(this.cutdata.orderitemvo.hCutnum-1));
+				}
+			}
+		}
+		if(this.cuttype==0 || this.cuttype==2){
+			for(var i=0;i < this.cutdata.orderitemvo.vCutnum;i++){
 				if(this.hinputlist.length > i)
-					this.vinputlist[i].text=this.cutdata.orderitemvo.eachCutLength[i]+"";
+					this.hinputlist[i].text=this.cutdata.orderitemvo.vEachCutLength[i]+"";
+			}
+		}
+		if(this.cuttype==1 || this.cuttype==2){
+			for(var i=0;i < this.cutdata.orderitemvo.hCutnum;i++){
+				if(this.hinputlist.length > i)
+					this.vinputlist[i].text=this.cutdata.orderitemvo.hEachCutLength[i]+"";
 			}
 		}
 	}
 
 	__proto.updateInputText=function(){
-		this.hbox.visible=this.cuttype==0;
-		this.vbox.visible=this.cuttype==1;
+		this.hbox.visible=(this.cuttype==0 || this.cuttype==2);
+		this.vbox.visible=(this.cuttype==1 || this.cuttype==2);
 		for(var i=0;i < this.hinputlist.length;i++){
-			this.hinputlist[i].visible=i < this.cutdata.orderitemvo.cutnum && this.cutdata.orderitemvo.cutnum <=7;
-			this.vinputlist[i].visible=i < this.cutdata.orderitemvo.cutnum && this.cutdata.orderitemvo.cutnum <=7;
+			this.hinputlist[i].visible=i < this.cutdata.orderitemvo.vCutnum && this.cutdata.orderitemvo.vCutnum <=7;
+			this.vinputlist[i].visible=i < this.cutdata.orderitemvo.hCutnum && this.cutdata.orderitemvo.hCutnum <=7;
 		}
-		this.hbox.space=(this.hbox.width-this.hinput0.width*this.cutdata.orderitemvo.cutnum)/(this.cutdata.orderitemvo.cutnum-1);
-		this.vbox.space=(this.vbox.height-this.vinput0.height*this.cutdata.orderitemvo.cutnum)/(this.cutdata.orderitemvo.cutnum-1);
+		if(this.cuttype==0 || this.cuttype==2)
+			this.hbox.space=(this.hbox.width-this.hinput0.width*this.cutdata.orderitemvo.vCutnum)/(this.cutdata.orderitemvo.vCutnum-1);
+		if(this.cuttype==1 || this.cuttype==2){
+			var space=(this.vbox.height-this.vinput0.height*this.cutdata.orderitemvo.hCutnum)/(this.cutdata.orderitemvo.hCutnum-1);
+			for(var i=0;i < this.vinputlist.length;i++){
+				this.vinputlist[i].y=this.vbox.height-this.vinput0.height*(i+1)-space*i;
+			}
+		}
 	}
 
 	__proto.initCutNum=function(){
 		var finalwidth=this.cutdata.finalWidth+this.cutdata.border;
 		var finalheight=this.cutdata.finalHeight+this.cutdata.border;
-		var product=PaintOrderModel.instance.curSelectMat;
-		var maxwidth=this.cutdata.maxwidth;
+		var maxwidth=this.horiCutLen;
 		this.leastCutNum=Math.ceil(finalwidth/maxwidth);
 		for(var i=0;i < 5;i++){
 			this.horiCutNumBtnList[i].label=(this.leastCutNum+i)+"";
 		}
-		if(this.cuttype==0){
-			this.horiCutNumBtnList[this.cutdata.orderitemvo.cutnum-this.leastCutNum].selected=true;
-			this.cutNumInput.text=this.cutdata.orderitemvo.cutnum+"";
+		if(this.cuttype==0 || this.cuttype==2){
+			if(this.cutdata.orderitemvo.cutDirect==0 || this.cutdata.orderitemvo.cutDirect==2){
+				this.horiCutNumBtnList[this.cutdata.orderitemvo.vCutnum-this.leastCutNum].selected=true;
+				this.cutNumInput.text=this.cutdata.orderitemvo.vCutnum+"";
+			}
 		}
+		maxwidth=this.vertCutLen;
 		this.leastCutNum=Math.ceil(finalheight/maxwidth);
 		for(var i=0;i < 5;i++){
 			this.vertCutNumBtnList[i].label=(this.leastCutNum+i)+"";
 		}
-		if(this.cuttype==1){
-			this.vertCutNumBtnList[this.cutdata.orderitemvo.cutnum-this.leastCutNum].selected=true;
-			this.vertCutNumInput.text=this.cutdata.orderitemvo.cutnum+"";
+		if(this.cuttype==1 || this.cuttype==2){
+			if(this.cutdata.orderitemvo.cutDirect==1 || this.cutdata.orderitemvo.cutDirect==2){
+				this.vertCutNumBtnList[this.cutdata.orderitemvo.hCutnum-this.leastCutNum].selected=true;
+				this.vertCutNumInput.text=this.cutdata.orderitemvo.hCutnum+"";
+			}
 		}
 		this.drawLines();
 	}
 
-	__proto.onCutNumChange=function(){
-		this.updateInputText();
-		this.resetCutlen();
-		this.drawLines();
-	}
-
+	// }
 	__proto.onHoriNumChange=function(index){
 		for(var i=0;i < this.horiCutNumBtnList.length;i++)
 		(this.horiCutNumBtnList [i]).selected=false;
-		for(var i=0;i < this.vertCutNumBtnList.length;i++)
-		(this.vertCutNumBtnList [i]).selected=false;
+		if(this.cuttype !=2){
+			for(var i=0;i < this.vertCutNumBtnList.length;i++)
+			(this.vertCutNumBtnList [i]).selected=false;
+		}
 		(this.horiCutNumBtnList [index]).selected=true;
-		this.cuttype=0;
-		this.cutdata.orderitemvo.cuttype=this.cuttype;
+		if(this.cuttype !=2){
+			this.cuttype=0;
+			this.cutdata.orderitemvo.cuttype=this.cuttype;
+			this.cutdata.orderitemvo.hCutnum=0;
+			this.cutdata.orderitemvo.hEachCutLength=[];
+		};
 		var lineNum=parseInt((this.horiCutNumBtnList [index]).text.text);
-		this.cutdata.orderitemvo.cutnum=lineNum;
+		this.cutdata.orderitemvo.vCutnum=lineNum;
 		this.cutNumInput.text=lineNum+"";
 		this.updateInputText();
-		this.resetCutlen();
+		this.resetCutlen(0);
 		this.drawLines();
 	}
 
 	__proto.onVertNumChange=function(index){
 		for(var i=0;i < this.vertCutNumBtnList.length;i++)
 		(this.vertCutNumBtnList [i]).selected=false;
-		for(var i=0;i < this.horiCutNumBtnList.length;i++)
-		(this.horiCutNumBtnList [i]).selected=false;
+		if(this.cuttype !=2){
+			for(var i=0;i < this.horiCutNumBtnList.length;i++)
+			(this.horiCutNumBtnList [i]).selected=false;
+		}
 		(this.vertCutNumBtnList [index]).selected=true;
-		this.cuttype=1;
-		this.cutdata.orderitemvo.cuttype=this.cuttype;
+		if(this.cuttype !=2){
+			this.cuttype=1;
+			this.cutdata.orderitemvo.cuttype=this.cuttype;
+			this.cutdata.orderitemvo.vCutnum=0;
+			this.cutdata.orderitemvo.vEachCutLength=[];
+		};
 		var lineNum=parseInt((this.vertCutNumBtnList [index]).text.text);
-		this.cutdata.orderitemvo.cutnum=lineNum;
+		this.cutdata.orderitemvo.hCutnum=lineNum;
 		this.vertCutNumInput.text=lineNum+"";
 		this.updateInputText();
-		this.resetCutlen();
+		this.resetCutlen(1);
 		this.drawLines();
+	}
+
+	__proto.onChangeHoriCutLength=function(){
+		this.horiCutLen=this.cutdata.cutLength[this.horiCutWidthRdo.selectedIndex];
+		var finalwidth=this.cutdata.finalWidth+this.cutdata.border;
+		this.leastCutNum=Math.ceil(finalwidth/this.horiCutLen);
+		this.cutdata.orderitemvo.vCutnum=this.leastCutNum;
+		if(this.cutdata.orderitemvo.vCutnum < 2)
+			this.cutdata.orderitemvo.vCutnum=2;
+		var cutlen=finalwidth/this.cutdata.orderitemvo.vCutnum;
+		cutlen=parseFloat(cutlen.toFixed(2));
+		this.cutdata.orderitemvo.vEachCutLength=[];
+		for(var j=0;j < this.cutdata.orderitemvo.vCutnum;j++){
+			if(this.cuttype==2){
+				if(j < this.cutdata.orderitemvo.vCutnum-1)
+					this.cutdata.orderitemvo.vEachCutLength.push(this.horiCutLen);
+				else
+				this.cutdata.orderitemvo.vEachCutLength.push(finalwidth-this.horiCutLen *(this.cutdata.orderitemvo.vCutnum-1));
+			}
+			else
+			this.cutdata.orderitemvo.vEachCutLength.push(cutlen);
+		}
+		for(var i=0;i < 5;i++){
+			this.horiCutNumBtnList[i].label=(this.leastCutNum+i)+"";
+			this.horiCutNumBtnList[i].selected=false;
+		}
+		if(this.cuttype==0 || this.cuttype==2){
+			if(this.cutdata.orderitemvo.cutDirect==0 || this.cutdata.orderitemvo.cutDirect==2){
+				this.horiCutNumBtnList[this.cutdata.orderitemvo.vCutnum-this.leastCutNum].selected=true;
+				this.cutNumInput.text=this.cutdata.orderitemvo.vCutnum+"";
+			}
+		}
+		if(this.cuttype==0 || this.cuttype==2){
+			for(var i=0;i < this.cutdata.orderitemvo.vCutnum;i++){
+				if(this.hinputlist.length > i)
+					this.hinputlist[i].text=this.cutdata.orderitemvo.vEachCutLength[i]+"";
+			}
+		}
+		this.updateInputText();
+	}
+
+	__proto.onChangeVertCutLength=function(){
+		this.vertCutLen=this.cutdata.cutLength[this.vertCutWidthRdo.selectedIndex];
+		var finalheight=this.cutdata.finalHeight+this.cutdata.border;
+		this.leastCutNum=Math.ceil(finalheight/this.vertCutLen);
+		this.cutdata.orderitemvo.hCutnum=this.leastCutNum;
+		if(this.cutdata.orderitemvo.hCutnum < 2)
+			this.cutdata.orderitemvo.hCutnum=2;
+		var cutlen=finalheight/this.cutdata.orderitemvo.hCutnum;
+		cutlen=parseFloat(cutlen.toFixed(2));
+		this.cutdata.orderitemvo.hEachCutLength=[];
+		for(var j=0;j < this.cutdata.orderitemvo.hCutnum;j++){
+			if(this.cuttype==2){
+				if(j < this.cutdata.orderitemvo.hCutnum-1)
+					this.cutdata.orderitemvo.hEachCutLength.push(this.vertCutLen);
+				else
+				this.cutdata.orderitemvo.hEachCutLength.push(finalheight-this.vertCutLen *(this.cutdata.orderitemvo.hCutnum-1));
+			}
+			else{
+				this.cutdata.orderitemvo.hEachCutLength.push(cutlen);
+			}
+		}
+		for(var i=0;i < 5;i++){
+			this.vertCutNumBtnList[i].label=(this.leastCutNum+i)+"";
+			this.vertCutNumBtnList[i].selected=false;
+		}
+		if(this.cuttype==1 || this.cuttype==2){
+			if(this.cutdata.orderitemvo.cutDirect==1 || this.cutdata.orderitemvo.cutDirect==2){
+				this.vertCutNumBtnList[this.cutdata.orderitemvo.hCutnum-this.leastCutNum].selected=true;
+				this.vertCutNumInput.text=this.cutdata.orderitemvo.hCutnum+"";
+			}
+		}
+		if(this.cuttype==1 || this.cuttype==2){
+			for(var i=0;i < this.cutdata.orderitemvo.hCutnum;i++){
+				if(this.vinputlist.length > i)
+					this.vinputlist[i].text=this.cutdata.orderitemvo.hEachCutLength[i]+"";
+			}
+		}
+		this.updateInputText();
 	}
 
 	__proto.onNumberChange=function(){
@@ -83646,14 +84638,18 @@ var ImageCutItem=(function(_super){
 		var num=parseInt(this.cutNumInput.text);
 		if(num <=0)
 			return;
+		var finalwidth=this.cutdata.finalWidth+this.cutdata.border;
+		var product=PaintOrderModel.instance.curSelectMat;
+		var maxwidth=this.horiCutLen;
+		this.leastCutNum=Math.ceil(finalwidth/maxwidth);
 		var index=num-this.leastCutNum;
 		for(var i=0;i < this.horiCutNumBtnList.length;i++)
 		this.horiCutNumBtnList[i].selected=false;
 		if(index >=0 && index < 5)
 			this.horiCutNumBtnList[index].selected=true;
-		this.cutdata.orderitemvo.cutnum=num;
+		this.cutdata.orderitemvo.vCutnum=num;
 		this.updateInputText();
-		this.resetCutlen();
+		this.resetCutlen(0);
 		this.drawLines();
 	}
 
@@ -83665,14 +84661,18 @@ var ImageCutItem=(function(_super){
 		var num=parseInt(this.vertCutNumInput.text);
 		if(num <=0)
 			return;
+		var finalheight=this.cutdata.finalHeight+this.cutdata.border;
+		var product=PaintOrderModel.instance.curSelectMat;
+		var maxwidth=this.vertCutLen;
+		this.leastCutNum=Math.ceil(finalheight/maxwidth);
 		var index=num-this.leastCutNum;
 		for(var i=0;i < this.vertCutNumBtnList.length;i++)
 		this.vertCutNumBtnList[i].selected=false;
 		if(index >=0 && index < 5)
 			this.vertCutNumBtnList[index].selected=true;
-		this.cutdata.orderitemvo.cutnum=num;
+		this.cutdata.orderitemvo.hCutnum=num;
 		this.updateInputText();
-		this.resetCutlen();
+		this.resetCutlen(1);
 		this.drawLines();
 	}
 
@@ -83686,9 +84686,9 @@ var ImageCutItem=(function(_super){
 		if(this.cutdata.orderitemvo==null){
 			console.log("null");
 		};
-		var lineNum=this.cutdata.orderitemvo.cutnum;
+		var lineNum=this.cutdata.orderitemvo.vCutnum;
 		var stepdist=0;
-		if(this.cuttype==0){
+		if(this.cuttype==0 || this.cuttype==2){
 			stepdist=this.borderimg.width/lineNum;
 			for(var i=0;i < 2;i++){
 				var sp=new Sprite();
@@ -83705,7 +84705,8 @@ var ImageCutItem=(function(_super){
 				this.linelist.push(sp);
 			}
 		}
-		else{
+		if(this.cuttype==1 || this.cuttype==2){
+			lineNum=this.cutdata.orderitemvo.hCutnum;
 			stepdist=this.borderimg.height/lineNum;
 			for(var i=0;i < 2;i++){
 				var sp=new Sprite();
@@ -83722,16 +84723,17 @@ var ImageCutItem=(function(_super){
 				this.linelist.push(sp);
 			}
 		}
-		for(var i=0;i < lineNum+1;i++){
-			var sp=new Sprite();
-			this.paintimg.addChild(sp);
-			sp.x=(this.paintimg.width-this.borderimg.width)/2;
-			sp.y=(this.paintimg.height-this.borderimg.height)/2;
-			if(this.cuttype==0){
+		if(this.cuttype==0 || this.cuttype==2){
+			lineNum=this.cutdata.orderitemvo.vCutnum;
+			for(var i=0;i < lineNum+1;i++){
+				var sp=new Sprite();
+				this.paintimg.addChild(sp);
+				sp.x=(this.paintimg.width-this.borderimg.width)/2;
+				sp.y=(this.paintimg.height-this.borderimg.height)/2;
 				var linelen=this.borderimg.height/this.linenum;
 				var beforewidth=0;
 				for(var k=0;k < i;k++)
-				beforewidth+=this.cutdata.orderitemvo.eachCutLength[k];
+				beforewidth+=this.cutdata.orderitemvo.vEachCutLength[k];
 				var startpos=(beforewidth/this.cutdata.finalWidth)*this.paintimg.width;
 				for(var j=0;j < this.linenum;j++){
 					if(j % 2==0)
@@ -83739,21 +84741,29 @@ var ImageCutItem=(function(_super){
 					else
 					sp.graphics.drawLine(startpos,j *linelen,startpos,(j+1)*linelen,this.curColorIndex==1? this.color1:this.color2,this.linethick);
 				}
+				this.linelist.push(sp);
 			}
-			else{
+		}
+		if(this.cuttype==1 || this.cuttype==2){
+			lineNum=this.cutdata.orderitemvo.hCutnum;
+			for(var i=0;i < lineNum+1;i++){
+				var sp=new Sprite();
+				this.paintimg.addChild(sp);
+				sp.x=(this.paintimg.width-this.borderimg.width)/2;
+				sp.y=(this.paintimg.height-this.borderimg.height)/2;
 				var linelen=this.borderimg.width/this.linenum;
 				var beforewidth=0;
 				for(var k=0;k < i;k++)
-				beforewidth+=this.cutdata.orderitemvo.eachCutLength[k];
-				var startpos=(beforewidth/(this.cutdata.finalHeight+this.cutdata.border))*this.borderimg.height;
+				beforewidth+=this.cutdata.orderitemvo.hEachCutLength[k];
+				var startpos=this.borderimg.height-(beforewidth/(this.cutdata.finalHeight+this.cutdata.border))*this.borderimg.height;
 				for(var j=0;j < this.linenum;j++){
 					if(j % 2==0)
 						sp.graphics.drawLine(j *linelen,startpos,(j+1)*linelen,startpos,this.curColorIndex==0? this.color1:this.color2,this.linethick);
 					else
 					sp.graphics.drawLine(j *linelen,startpos,(j+1)*linelen,startpos,this.curColorIndex==1? this.color1:this.color2,this.linethick);
 				}
+				this.linelist.push(sp);
 			}
-			this.linelist.push(sp);
 		}
 	}
 

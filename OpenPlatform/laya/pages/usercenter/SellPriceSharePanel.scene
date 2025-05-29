@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":65,
-    "selecteID":93,
+    "selectedBox":6,
+    "selecteID":16,
     "searchKey":"View",
     "props":{"width":1920,"sceneColor":"#ffffff","height":1080},
     "nodeParent":-1,
-    "maxID":94,
+    "maxID":97,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -63,7 +63,7 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image",
-                    "props":{"top":30,"skin":"commers/commonpopbg.png","sizeGrid":"3,3,3,3","right":30,"left":30,"bottom":30},
+                    "props":{"top":0,"skin":"commers/commonpopbg.png","sizeGrid":"3,3,3,3","right":0,"left":0,"bottom":0},
                     "nodeParent":4,
                     "label":"Image",
                     "isOpen":true,
@@ -86,13 +86,13 @@
                             "compId":8,
                             "child":[
                                 ],
-                            "$LOCKED":true
+                            "$LOCKED":false
                         },
                         {
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label,orderSn",
-                            "props":{"y":44,"x":190,"var":"orderSn","text":"1879562315453","fontSize":36,"font":"SimHei","color":"#0f0e0e","bold":true},
+                            "props":{"y":44,"x":190,"var":"orderSn","fontSize":36,"font":"SimHei","color":"#0f0e0e","bold":true},
                             "nodeParent":6,
                             "label":"orderSn",
                             "isOpen":true,
@@ -102,23 +102,38 @@
                             "compId":45,
                             "child":[
                                 ],
-                            "$LOCKED":true
+                            "$LOCKED":false
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label,customeNameTxt",
+                            "props":{"y":44,"x":530,"var":"customeNameTxt","fontSize":36,"font":"SimHei","color":"#0f0e0e","bold":true},
+                            "nodeParent":6,
+                            "label":"customeNameTxt",
+                            "isOpen":true,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":93,
+                            "child":[
+                                ],
+                            "$LOCKED":false
                         },
                         {
                             "x":45,
                             "type":"Panel",
                             "searchKey":"Panel,orderoanel",
-                            "props":{"x":26,"width":1754,"var":"orderoanel","top":160,"height":726,"bottom":134},
+                            "props":{"x":26,"width":1500,"var":"orderoanel","top":160,"height":786,"bottom":134},
                             "nodeParent":6,
                             "label":"orderoanel",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":16,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"List",
                                     "searchKey":"List,orderbox",
                                     "props":{"var":"orderbox","vScrollBarSkin":"uiCommonUpdate/vscroll.png","top":0,"right":0,"left":0,"bottom":0},
@@ -133,20 +148,6 @@
                                         ]
                                 }],
                             "$HIDDEN":false
-                        },
-                        {
-                            "x":45,
-                            "type":"Button",
-                            "searchKey":"Button,closebtn",
-                            "props":{"y":43,"x":1796,"width":32,"var":"closebtn","stateNum":"1","skin":"uiCommonUpdate/closeBtn.png","height":32},
-                            "nodeParent":6,
-                            "label":"closebtn",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":18,
-                            "child":[
-                                ]
                         },
                         {
                             "x":45,
@@ -165,7 +166,7 @@
                                     "x":60,
                                     "type":"Image",
                                     "searchKey":"Image",
-                                    "props":{"y":0,"x":0,"width":1754,"skin":"uiCommonUpdate/e4e4e4.png","height":59},
+                                    "props":{"y":0,"x":0,"width":1500,"skin":"uiCommonUpdate/e4e4e4.png","height":59},
                                     "nodeParent":27,
                                     "label":"Image",
                                     "isDirectory":false,
@@ -223,7 +224,7 @@
                                     "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
-                                    "props":{"y":33,"x":1235,"text":"交货日期","fontSize":18,"font":"SimHei"},
+                                    "props":{"y":33,"x":1226,"text":"交货日期","fontSize":18,"font":"SimHei"},
                                     "nodeParent":27,
                                     "label":"Label",
                                     "isDirectory":false,
@@ -441,7 +442,7 @@
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"x":294,"text":"总售价：","fontSize":24,"font":"SimHei","bottom":35},
+                            "props":{"x":20,"text":"总售价：","fontSize":24,"font":"SimHei","bottom":35},
                             "nodeParent":6,
                             "label":"Label",
                             "isDirectory":false,
@@ -455,7 +456,7 @@
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label,sellPrice",
-                            "props":{"x":395,"width":140,"var":"sellPrice","text":"165.8","height":24,"fontSize":28,"font":"SimHei","color":"#ec2724","bottom":35},
+                            "props":{"x":121,"width":140,"var":"sellPrice","text":"0","height":24,"fontSize":28,"font":"SimHei","color":"#ec2724","bottom":35},
                             "nodeParent":6,
                             "label":"sellPrice",
                             "isDirectory":false,
@@ -467,23 +468,9 @@
                         },
                         {
                             "x":45,
-                            "type":"Button",
-                            "searchKey":"Button,okbtn",
-                            "props":{"x":1408,"var":"okbtn","skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF","label":"确定","bottom":10},
-                            "nodeParent":6,
-                            "label":"okbtn",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":82,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
-                            "props":{"x":20,"text":"订单总价：","fontSize":24,"font":"SimHei","bottom":35},
+                            "props":{"x":20,"visible":false,"text":"订单总价：","fontSize":24,"font":"SimHei","bottom":35},
                             "nodeParent":6,
                             "label":"Label",
                             "isDirectory":false,
@@ -491,13 +478,14 @@
                             "hasChild":false,
                             "compId":87,
                             "child":[
-                                ]
+                                ],
+                            "$HIDDEN":true
                         },
                         {
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label,moneyPaidlbl",
-                            "props":{"x":143,"width":140,"var":"moneyPaidlbl","text":"165.8","height":24,"fontSize":28,"font":"SimHei","color":"#050404","bottom":35},
+                            "props":{"x":143,"width":140,"visible":false,"var":"moneyPaidlbl","text":"0","height":24,"fontSize":28,"font":"SimHei","color":"#050404","bottom":35},
                             "nodeParent":6,
                             "label":"moneyPaidlbl",
                             "isDirectory":false,
@@ -505,19 +493,34 @@
                             "hasChild":false,
                             "compId":88,
                             "child":[
+                                ],
+                            "$HIDDEN":true
+                        },
+                        {
+                            "x":45,
+                            "type":"Image",
+                            "searchKey":"Image,qrCodeImg",
+                            "props":{"width":250,"var":"qrCodeImg","right":46,"height":250,"bottom":35},
+                            "nodeParent":6,
+                            "label":"qrCodeImg",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":95,
+                            "child":[
                                 ]
                         },
                         {
                             "x":45,
-                            "type":"Button",
-                            "searchKey":"Button,shareBtn",
-                            "props":{"x":1598,"var":"shareBtn","skin":"uiCommonUpdate/greenBtn.png","labelSize":24,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF","label":"分享","bottom":10},
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"text":"收款二维码","right":320,"fontSize":24,"font":"SimHei","bottom":100},
                             "nodeParent":6,
-                            "label":"shareBtn",
+                            "label":"Label",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
-                            "compId":91,
+                            "compId":96,
                             "child":[
                                 ]
                         }],
@@ -530,16 +533,16 @@
             "x":15,
             "type":"Script",
             "switchAble":true,
-            "source":"src/script/usercenter/OrderPriceSettingController.as",
-            "searchKey":"Script,OrderPriceSettingController",
+            "source":"src/script/usercenter/OrderPriceShareController.as",
+            "searchKey":"Script,OrderPriceShareController",
             "removeAble":true,
             "props":{},
             "nodeParent":2,
-            "label":"OrderPriceSettingController",
+            "label":"OrderPriceShareController",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
-            "compId":89,
+            "compId":94,
             "child":[
                 ]
         }],

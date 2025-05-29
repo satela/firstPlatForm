@@ -12,6 +12,9 @@ package ui.usercenter {
 		public var headImg:Image;
 		public var editBtn:Image;
 		public var createTime:Label;
+		public var myQrCodeImg:Image;
+		public var uploadQrCodeImg:Button;
+		public var deleteQrCodeImg:Button;
 		public var organizeBox:Box;
 		public var memberlist:List;
 		public var createOrganize:Button;

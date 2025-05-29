@@ -270,10 +270,10 @@ package script.lailiao
 			var tech:String = provo.getTechDes(false,finalWidth,finalHeight);
 			
 			if(tech.indexOf("超宽拼接") >= 0)
-				tech = tech.replace("超宽拼接","超宽拼接" + "(" + ["V","H"][this.ordervo.cuttype] + "-" +  this.ordervo.cutnum+ "-" + this.ordervo.eachCutLength.join(";") +")");
+				tech = tech.replace("超宽拼接","超宽拼接" + "(" + ["V","H"][this.ordervo.cuttype] + "-" +  this.ordervo.hCutnum+ "-" + this.ordervo.hEachCutLength.join(";") +")");
 			
 			if(tech.indexOf("超幅拼接") >= 0)
-				tech = tech.replace("超幅拼接","超幅拼接" + "(" + ["V","H"][this.ordervo.cuttype] + "-" +  this.ordervo.cutnum+ "-" + this.ordervo.eachCutLength.join(";") +")");
+				tech = tech.replace("超幅拼接","超幅拼接" + "(" + ["V","H"][this.ordervo.cuttype] + "-" +  this.ordervo.hCutnum+ "-" + this.ordervo.hEachCutLength.join(";") +")");
 			
 			if(tech.indexOf("小块裁切") >= 0)
 				tech = tech.replace("小块裁切","小块裁切"+ "(H-" + this.ordervo.horiCutNum+ ",V-" + this.ordervo.verCutNum + ")");
@@ -783,7 +783,7 @@ package script.lailiao
 			{
 				if(orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超幅拼接") >=0 || orderitemdata.conponent.procInfoList[i].procDescription.indexOf("超宽拼接") >= 0)
 				{
-					cutlength = this.ordervo.eachCutLength[0];
+					cutlength = this.ordervo.hEachCutLength[0];
 				}
 			}
 			orderitemdata.minSideLength = Math.min(this.finalWidth,this.finalHeight,cutlength).toFixed(2);

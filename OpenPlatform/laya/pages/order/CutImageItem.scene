@@ -2,11 +2,11 @@
     "x":0,
     "type":"View",
     "selectedBox":2,
-    "selecteID":26,
+    "selecteID":67,
     "searchKey":"View",
     "props":{"sceneColor":"#f6f1f1"},
     "nodeParent":-1,
-    "maxID":57,
+    "maxID":68,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -18,7 +18,7 @@
             "x":15,
             "type":"Image",
             "searchKey":"Image",
-            "props":{"y":67,"x":60,"width":377,"skin":"upload1/inoutbg.png","sizeGrid":"3,3,3,3","height":377},
+            "props":{"y":87,"x":60,"width":377,"skin":"upload1/inoutbg.png","sizeGrid":"3,3,3,3","height":377},
             "nodeParent":2,
             "label":"Image",
             "isOpen":true,
@@ -60,37 +60,9 @@
         },
         {
             "x":15,
-            "type":"TextInput",
-            "searchKey":"TextInput,cutNumInput",
-            "props":{"y":20,"x":390,"width":38,"var":"cutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},
-            "nodeParent":2,
-            "label":"cutNumInput",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":36,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "searchKey":"Label",
-            "props":{"y":24,"x":347,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},
-            "nodeParent":2,
-            "label":"Label",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":37,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
             "type":"HBox",
             "searchKey":"HBox,hbox",
-            "props":{"y":459,"x":48,"width":400,"var":"hbox","height":30},
+            "props":{"y":479,"x":48,"width":400,"var":"hbox","height":30},
             "nodeParent":2,
             "label":"hbox",
             "isOpen":false,
@@ -193,23 +165,369 @@
         },
         {
             "x":15,
-            "type":"VBox",
-            "searchKey":"VBox,vbox",
-            "props":{"y":65,"x":461,"width":50,"var":"vbox","height":400},
+            "type":"Box",
+            "searchKey":"Box,horiOperateBox",
+            "props":{"y":35,"x":48,"var":"horiOperateBox"},
             "nodeParent":2,
-            "label":"vbox",
+            "label":"horiOperateBox",
+            "isOpen":null,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":63,
+            "child":[
+                {
+                    "type":"TextInput",
+                    "searchKey":"TextInput,cutNumInput",
+                    "props":{"y":5,"x":342,"width":38,"var":"cutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},
+                    "nodeParent":63,
+                    "label":"cutNumInput",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":36,
+                    "child":[
+                        ]
+                },
+                {
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"y":9,"x":299,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},
+                    "nodeParent":63,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":37,
+                    "child":[
+                        ]
+                },
+                {
+                    "type":"HBox",
+                    "searchKey":"HBox",
+                    "props":{"space":16},
+                    "nodeParent":63,
+                    "label":"HBox",
+                    "isOpen":false,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":45,
+                    "child":[
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,hori0",
+                            "props":{"width":42,"var":"hori0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":45,
+                            "label":"hori0",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":39,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,hori1",
+                            "props":{"x":58,"width":42,"var":"hori1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":45,
+                            "label":"hori1",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":40,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,hori2",
+                            "props":{"x":116,"width":42,"var":"hori2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":45,
+                            "label":"hori2",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":42,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,hori3",
+                            "props":{"x":174,"width":42,"var":"hori3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":45,
+                            "label":"hori3",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":43,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,hori4",
+                            "props":{"x":232,"width":42,"var":"hori4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":45,
+                            "label":"hori4",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":44,
+                            "child":[
+                                ]
+                        }]
+                },
+                {
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"y":9,"x":396,"text":"纵向","fontSize":18,"font":"SimHei"},
+                    "nodeParent":63,
+                    "label":"Label",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":46,
+                    "child":[
+                        ]
+                }]
+        },
+        {
+            "x":15,
+            "type":"Box",
+            "searchKey":"Box,vertOperateBox",
+            "props":{"y":99,"x":0,"var":"vertOperateBox"},
+            "nodeParent":2,
+            "label":"vertOperateBox",
+            "isOpen":null,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":64,
+            "child":[
+                {
+                    "type":"VBox",
+                    "searchKey":"VBox",
+                    "props":{"y":29,"space":16},
+                    "nodeParent":64,
+                    "label":"VBox",
+                    "isOpen":true,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":53,
+                    "child":[
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,vert0",
+                            "props":{"width":42,"var":"vert0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":53,
+                            "label":"vert0",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":48,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,vert1",
+                            "props":{"y":57,"width":42,"var":"vert1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":53,
+                            "label":"vert1",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":49,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,vert2",
+                            "props":{"y":114,"width":42,"var":"vert2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":53,
+                            "label":"vert2",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":50,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,vert3",
+                            "props":{"y":170,"width":42,"var":"vert3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":53,
+                            "label":"vert3",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":51,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
+                            "searchKey":"Button,vert4",
+                            "props":{"y":227,"width":42,"var":"vert4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
+                            "nodeParent":53,
+                            "label":"vert4",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":52,
+                            "child":[
+                                ]
+                        }]
+                },
+                {
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"x":3,"text":"横向","fontSize":18,"font":"SimHei"},
+                    "nodeParent":64,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":54,
+                    "child":[
+                        ]
+                },
+                {
+                    "type":"TextInput",
+                    "searchKey":"TextInput,vertCutNumInput",
+                    "props":{"y":343,"x":10,"width":38,"var":"vertCutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},
+                    "nodeParent":64,
+                    "label":"vertCutNumInput",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":55,
+                    "child":[
+                        ]
+                },
+                {
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"y":308,"x":6,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},
+                    "nodeParent":64,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":56,
+                    "child":[
+                        ]
+                }]
+        },
+        {
+            "x":15,
+            "type":"Box",
+            "searchKey":"Box,horiRdoBox",
+            "props":{"y":12,"x":39,"var":"horiRdoBox"},
+            "nodeParent":2,
+            "label":"horiRdoBox",
             "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
-            "compId":26,
+            "compId":65,
             "child":[
                 {
                     "x":30,
+                    "type":"RadioGroup",
+                    "searchKey":"RadioGroup,horiCutWidthRdo",
+                    "props":{"x":120,"width":100,"var":"horiCutWidthRdo","skin":"comp/radiogroup.png","rotation":0,"labels":"120,240","labelSize":16,"height":14},
+                    "nodeParent":65,
+                    "label":"horiCutWidthRdo",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":58,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"width":96,"text":"纵向默认裁切长度：","height":16,"fontSize":14,"font":"SimHei"},
+                    "nodeParent":65,
+                    "label":"Label",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":59,
+                    "child":[
+                        ]
+                }]
+        },
+        {
+            "x":15,
+            "type":"Box",
+            "searchKey":"Box,vertRdoBox",
+            "props":{"y":12,"x":268,"var":"vertRdoBox"},
+            "nodeParent":2,
+            "label":"vertRdoBox",
+            "isOpen":null,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":66,
+            "child":[
+                {
+                    "type":"RadioGroup",
+                    "searchKey":"RadioGroup,vertCutWidthRdo",
+                    "props":{"x":118,"width":100,"var":"vertCutWidthRdo","skin":"comp/radiogroup.png","rotation":0,"labels":"120,240","labelSize":16,"height":14},
+                    "nodeParent":66,
+                    "label":"vertCutWidthRdo",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":61,
+                    "child":[
+                        ]
+                },
+                {
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"width":96,"text":"横向默认裁切长度：","height":16,"fontSize":14,"font":"SimHei"},
+                    "nodeParent":66,
+                    "label":"Label",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":62,
+                    "child":[
+                        ]
+                }]
+        },
+        {
+            "x":15,
+            "type":"Box",
+            "searchKey":"Box,vbox",
+            "props":{"y":85,"x":461,"var":"vbox"},
+            "nodeParent":2,
+            "label":"vbox",
+            "isOpen":null,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":67,
+            "child":[
+                {
                     "type":"TextInput",
                     "searchKey":"TextInput,vinput0",
-                    "props":{"y":0,"x":0,"width":50,"var":"vinput0","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
-                    "nodeParent":26,
+                    "props":{"width":50,"var":"vinput0","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
+                    "nodeParent":67,
                     "label":"vinput0",
                     "isDirectory":false,
                     "isAniNode":true,
@@ -219,11 +537,10 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,vinput1",
-                    "props":{"y":0,"x":0,"width":50,"var":"vinput1","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
-                    "nodeParent":26,
+                    "props":{"width":50,"var":"vinput1","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
+                    "nodeParent":67,
                     "label":"vinput1",
                     "isDirectory":false,
                     "isAniNode":true,
@@ -233,11 +550,10 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,vinput2",
-                    "props":{"y":0,"x":0,"width":50,"var":"vinput2","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
-                    "nodeParent":26,
+                    "props":{"width":50,"var":"vinput2","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
+                    "nodeParent":67,
                     "label":"vinput2",
                     "isDirectory":false,
                     "isAniNode":true,
@@ -247,11 +563,10 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,vinput3",
-                    "props":{"y":0,"x":0,"width":50,"var":"vinput3","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
-                    "nodeParent":26,
+                    "props":{"width":50,"var":"vinput3","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
+                    "nodeParent":67,
                     "label":"vinput3",
                     "isDirectory":false,
                     "isAniNode":true,
@@ -261,11 +576,10 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,vinput4",
-                    "props":{"y":0,"x":0,"width":50,"var":"vinput4","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
-                    "nodeParent":26,
+                    "props":{"width":50,"var":"vinput4","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
+                    "nodeParent":67,
                     "label":"vinput4",
                     "isDirectory":false,
                     "isAniNode":true,
@@ -275,11 +589,10 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,vinput5",
-                    "props":{"y":0,"x":0,"width":50,"var":"vinput5","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
-                    "nodeParent":26,
+                    "props":{"width":50,"var":"vinput5","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
+                    "nodeParent":67,
                     "label":"vinput5",
                     "isDirectory":false,
                     "isAniNode":true,
@@ -289,11 +602,10 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"TextInput",
                     "searchKey":"TextInput,vinput6",
-                    "props":{"y":0,"x":0,"width":50,"var":"vinput6","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
-                    "nodeParent":26,
+                    "props":{"width":50,"var":"vinput6","text":"100","skin":"comp/textinput.png","fontSize":18,"font":"SimSun","color":"#B1B1B1"},
+                    "nodeParent":67,
                     "label":"vinput6",
                     "isDirectory":false,
                     "isAniNode":true,
@@ -302,225 +614,6 @@
                     "child":[
                         ]
                 }]
-        },
-        {
-            "x":15,
-            "type":"HBox",
-            "searchKey":"HBox",
-            "props":{"y":15,"x":48,"space":16},
-            "nodeParent":2,
-            "label":"HBox",
-            "isOpen":false,
-            "isDirectory":true,
-            "isAniNode":true,
-            "hasChild":true,
-            "compId":45,
-            "child":[
-                {
-                    "type":"Button",
-                    "searchKey":"Button,hori0",
-                    "props":{"width":42,"var":"hori0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":45,
-                    "label":"hori0",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":39,
-                    "child":[
-                        ]
-                },
-                {
-                    "type":"Button",
-                    "searchKey":"Button,hori1",
-                    "props":{"x":58,"width":42,"var":"hori1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":45,
-                    "label":"hori1",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":40,
-                    "child":[
-                        ]
-                },
-                {
-                    "type":"Button",
-                    "searchKey":"Button,hori2",
-                    "props":{"x":116,"width":42,"var":"hori2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":45,
-                    "label":"hori2",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":42,
-                    "child":[
-                        ]
-                },
-                {
-                    "type":"Button",
-                    "searchKey":"Button,hori3",
-                    "props":{"x":174,"width":42,"var":"hori3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":45,
-                    "label":"hori3",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":43,
-                    "child":[
-                        ]
-                },
-                {
-                    "type":"Button",
-                    "searchKey":"Button,hori4",
-                    "props":{"x":232,"width":42,"var":"hori4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":45,
-                    "label":"hori4",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":44,
-                    "child":[
-                        ]
-                }]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "searchKey":"Label",
-            "props":{"y":14,"x":444,"text":"纵向\\n等份","fontSize":18,"font":"SimHei"},
-            "nodeParent":2,
-            "label":"Label",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":46,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"VBox",
-            "searchKey":"VBox",
-            "props":{"y":108,"x":0,"space":16},
-            "nodeParent":2,
-            "label":"VBox",
-            "isOpen":true,
-            "isDirectory":true,
-            "isAniNode":true,
-            "hasChild":true,
-            "compId":53,
-            "child":[
-                {
-                    "x":30,
-                    "type":"Button",
-                    "searchKey":"Button,vert0",
-                    "props":{"width":42,"var":"vert0","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":53,
-                    "label":"vert0",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":48,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
-                    "type":"Button",
-                    "searchKey":"Button,vert1",
-                    "props":{"y":57,"width":42,"var":"vert1","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":53,
-                    "label":"vert1",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":49,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
-                    "type":"Button",
-                    "searchKey":"Button,vert2",
-                    "props":{"y":114,"width":42,"var":"vert2","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":53,
-                    "label":"vert2",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":50,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
-                    "type":"Button",
-                    "searchKey":"Button,vert3",
-                    "props":{"y":170,"width":42,"var":"vert3","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":53,
-                    "label":"vert3",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":51,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
-                    "type":"Button",
-                    "searchKey":"Button,vert4",
-                    "props":{"y":227,"width":42,"var":"vert4","skin":"uiCommonUpdate/nusel.png","labelSize":18,"labelColors":"#0,#FFFFFF,#FFFFFF","label":"2","height":34},
-                    "nodeParent":53,
-                    "label":"vert4",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":52,
-                    "child":[
-                        ]
-                }]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "searchKey":"Label",
-            "props":{"y":55,"x":3,"text":"横向\\n等份","fontSize":18,"font":"SimHei"},
-            "nodeParent":2,
-            "label":"Label",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":54,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"TextInput",
-            "searchKey":"TextInput,vertCutNumInput",
-            "props":{"y":422,"x":10,"width":38,"var":"vertCutNumInput","type":"number","text":"25","skin":"commers/inputbg.png","sizeGrid":"8","height":22,"fontSize":18},
-            "nodeParent":2,
-            "label":"vertCutNumInput",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":55,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "searchKey":"Label",
-            "props":{"y":387,"x":6,"width":41,"text":"更多：","height":16,"fontSize":16,"font":"SimHei","color":"#010101"},
-            "nodeParent":2,
-            "label":"Label",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":56,
-            "child":[
-                ]
         }],
     "animations":[
         {

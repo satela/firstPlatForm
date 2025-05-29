@@ -200,10 +200,12 @@ package script.login
 			uiSkin.provList.repeatX = 1;
 			uiSkin.provList.spaceY = 2;
 //			
+			
 			uiSkin.provList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.provList.selectEnable = true;
 			uiSkin.provList.selectHandler = new Handler(this, selectProvince);
-			
+			uiSkin.provList.array = [];
+
 			uiSkin.cityList.itemRender = CityAreaItem;
 			uiSkin.cityList.vScrollBarSkin = "";
 			uiSkin.cityList.repeatX = 1;
@@ -213,7 +215,8 @@ package script.login
 			
 			uiSkin.cityList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.cityList.selectHandler = new Handler(this, selectCity);
-			
+			uiSkin.cityList.array = [];
+
 			
 			uiSkin.areaList.itemRender = CityAreaItem;
 			uiSkin.areaList.vScrollBarSkin = "";
@@ -223,7 +226,8 @@ package script.login
 			
 			uiSkin.areaList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.areaList.selectHandler = new Handler(this, selectArea);
-			
+			uiSkin.areaList.array = [];
+
 			uiSkin.townList.itemRender = CityAreaItem;
 			uiSkin.townList.vScrollBarSkin = "";
 			uiSkin.townList.selectEnable = true;
@@ -232,7 +236,8 @@ package script.login
 			
 			uiSkin.townList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.townList.selectHandler = new Handler(this, selectTown);
-			
+			uiSkin.townList.array = [];
+
 			
 			uiSkin.btnSelProv.on(Event.CLICK,this,onShowProvince);
 			uiSkin.btnSelCity.on(Event.CLICK,this,onShowCity);
@@ -616,12 +621,6 @@ package script.login
 				//Browser.window.alert("注册成功！");
 				//Browser.document.body.removeChild(verifycode);//添加到舞台
 				//verifycode = null;
-				uiSkin.step1Panel.visible = false;
-				uiSkin.step2Panel.visible = true;
-				uiSkin.input_companyname.focus = true;
-				
-				curStep = 1;
-				updateStep();
 				
 				
 				//var param:String = "phone=" + uiSkin.input_phone.text + "&pwd=" + uiSkin.input_pwd.text + "&mode=0";
@@ -683,6 +682,13 @@ package script.login
 
 				//ViewManager.instance.closeView(ViewManager.VIEW_lOGPANEL);
 				//ViewManager.instance.openView(ViewManager.VIEW_FIRST_PAGE);
+				
+				uiSkin.step1Panel.visible = false;
+				uiSkin.step2Panel.visible = true;
+				uiSkin.input_companyname.focus = true;
+				
+				curStep = 1;
+				updateStep();
 				
 				
 				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=0",this,initView,null,null);
@@ -780,7 +786,9 @@ package script.login
 			uiSkin.townbox.visible = false;
 			
 			uiSkin.mainpanel.vScrollBar.target = null;
-						
+			if(uiSkin.provList.array.length == 0)
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer + "parentId=0",this,initView,null,null);
+
 			e.stopPropagation();
 		}
 		private function onShowCity(e:Event):void
@@ -828,6 +836,9 @@ package script.login
 			//WaitingRespond.instance.hideWaitingView();
 			var result:Object = JSON.parse(data as String);
 			
+			if(result.data == null)
+				return;
+			
 			uiSkin.provList.array = result.data as Array;//ChinaAreaModel.instance.getAllProvince();
 			
 			var selpro:int = 0;
@@ -872,6 +883,9 @@ package script.login
 					return;
 				
 				var result:Object = JSON.parse(data as String);
+				
+				if(result.data == null)
+					return;
 				
 				uiSkin.cityList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
 				uiSkin.cityList.refresh();
@@ -920,6 +934,9 @@ package script.login
 					return;
 				
 				var result:Object = JSON.parse(data as String);
+				
+				if(result.data == null)
+					return;
 				
 				uiSkin.areaList.array = result.data as Array;//ChinaAreaModel.instance.getAllCity(province.id);
 				uiSkin.areaList.refresh();
@@ -973,6 +990,9 @@ package script.login
 				
 				
 				var result:Object = JSON.parse(data as String);
+				
+				if(result.data == null)
+					return;
 				
 				uiSkin.btnSelTown.visible = result.data.length > 0;
 				if(result.data.length == 0)

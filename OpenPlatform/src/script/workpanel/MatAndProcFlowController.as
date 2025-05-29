@@ -68,6 +68,13 @@ package script.workpanel
 			uiSkin.closeBtn.on(Event.CLICK,this,closeView);
 			uiSkin.effectBtn.on(Event.CLICK,this,showEffectPanel);
 			
+			uiSkin.subBtn.on(Event.CLICK,this,onSubItemNum);
+			uiSkin.addBtn.on(Event.CLICK,this,onAddItemNum);
+			uiSkin.batchNumInput.on(Event.INPUT,this,onNumChange);
+			uiSkin.batchNumInput.text = "1";
+			uiSkin.batchNumInput.restrict = "0-9";
+			
+			
 			EventCenter.instance.on(EventCenter.SHOW_SELECT_TECH,this,initTechView);
 			//EventCenter.instance.on(EventCenter.SELECT_PIC_ORDER,this,checkShowEffectImg);
 			//EventCenter.instance.on(EventCenter.CLOSE_PANEL_VIEW,this,checkShowEffectImg);
@@ -533,6 +540,26 @@ package script.workpanel
 				return;
 			}
 			ViewManager.instance.openView(ViewManager.EFFECT_PREVIEW_PANEL,false,matProc);
+		}
+		
+		private function onSubItemNum():void
+		{
+			var num:int = parseInt(uiSkin.batchNumInput.text);
+			if(num > 1)
+				num--;
+			uiSkin.batchNumInput.text = num.toString();
+			onNumChange();
+		}
+		private function onAddItemNum():void
+		{
+			var num:int = parseInt(uiSkin.batchNumInput.text);
+			num++;
+			uiSkin.batchNumInput.text = num.toString();
+			onNumChange();
+		}
+		private function onNumChange():void
+		{
+			EventCenter.instance.event(EventCenter.BATCH_CHANGE_PRODUCT_NUM,uiSkin.batchNumInput.text);
 		}
 		
 		private function closeView():void

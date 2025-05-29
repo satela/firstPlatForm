@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":91,
-    "selecteID":135,
+    "selectedBox":2,
+    "selecteID":144,
     "searchKey":"View",
     "props":{"width":1624,"top":0,"sceneColor":"#ffffff","right":0,"left":0,"height":1080,"bottom":0},
     "nodeParent":-1,
-    "maxID":140,
+    "maxID":145,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -28,7 +28,7 @@
             "child":[
                 ],
             "$LOCKED":true,
-            "$HIDDEN":true
+            "$HIDDEN":false
         },
         {
             "x":15,
@@ -48,16 +48,17 @@
             "x":15,
             "type":"Box",
             "searchKey":"Box",
-            "props":{"y":129.5,"x":42},
+            "props":{"y":109,"x":42},
             "nodeParent":2,
             "label":"Box",
-            "isOpen":null,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":119,
             "child":[
                 {
+                    "x":30,
                     "type":"Label",
                     "searchKey":"Label",
                     "props":{"y":41.5,"x":197,"text":"账户名称","fontSize":24,"font":"SimHei"},
@@ -71,6 +72,7 @@
                         ]
                 },
                 {
+                    "x":30,
                     "type":"Image",
                     "selectedBox":25,
                     "selecteID":62,
@@ -164,6 +166,7 @@
                         }]
                 },
                 {
+                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,changeName",
                     "props":{"y":32.5,"x":605,"width":140,"var":"changeName","skin":"uiCommonUpdate/green2.png","sizeGrid":"3,3,3,3","labelSize":24,"labelFont":"SimHei","labelColors":"#003dc6,#FFFFFF,#FFFFFF","label":"确定","height":47},
@@ -178,6 +181,7 @@
                     "$HIDDEN":false
                 },
                 {
+                    "x":30,
                     "type":"Image",
                     "searchKey":"Image,headImg",
                     "props":{"y":-0.5,"var":"headImg","skin":"iconsNew/head.png"},
@@ -190,6 +194,7 @@
                     "compId":112,
                     "child":[
                         {
+                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":0,"x":0,"width":161,"skin":"uiCommonUpdate/Ellipse216.png","renderType":"mask","height":161},
@@ -206,6 +211,7 @@
                     "$HIDDEN":false
                 },
                 {
+                    "x":30,
                     "type":"Image",
                     "searchKey":"Image,editBtn",
                     "props":{"y":123.5,"x":119,"width":40,"var":"editBtn","skin":"uiCommonUpdate/Ellipse215.png","height":40},
@@ -218,6 +224,7 @@
                     "compId":114,
                     "child":[
                         {
+                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":8,"x":8,"skin":"iconsNew/edithead.png"},
@@ -232,6 +239,7 @@
                         }]
                 },
                 {
+                    "x":30,
                     "type":"Label",
                     "searchKey":"Label",
                     "props":{"y":129.5,"x":196,"text":"加入时间","fontSize":24,"font":"SimHei","color":"#0","bold":true},
@@ -245,6 +253,7 @@
                         ]
                 },
                 {
+                    "x":30,
                     "type":"Label",
                     "searchKey":"Label,createTime",
                     "props":{"y":129.5,"x":317,"width":261,"var":"createTime","text":"2023-12-10  23:09:29","height":24,"fontSize":24,"font":"SimHei","color":"#0","bold":true},
@@ -256,8 +265,80 @@
                     "compId":117,
                     "child":[
                         ]
+                },
+                {
+                    "x":30,
+                    "type":"Box",
+                    "searchKey":"Box",
+                    "props":{"y":0,"x":765},
+                    "nodeParent":119,
+                    "label":"Box",
+                    "isOpen":true,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":144,
+                    "child":[
+                        {
+                            "x":45,
+                            "type":"Image",
+                            "searchKey":"Image,myQrCodeImg",
+                            "props":{"y":53,"width":150,"var":"myQrCodeImg","height":150},
+                            "nodeParent":144,
+                            "label":"myQrCodeImg",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":140,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label",
+                            "props":{"y":3,"text":"收款二维码","fontSize":24,"font":"SimHei","color":"#0","bold":true},
+                            "nodeParent":144,
+                            "label":"Label",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":141,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "searchKey":"Button,uploadQrCodeImg",
+                            "props":{"x":164,"width":100,"var":"uploadQrCodeImg","skin":"uiCommonUpdate/green2.png","sizeGrid":"3,3,3,3","labelSize":24,"labelFont":"SimHei","labelColors":"#003dc6,#FFFFFF,#FFFFFF","label":"上传","height":30},
+                            "nodeParent":144,
+                            "label":"uploadQrCodeImg",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":142,
+                            "child":[
+                                ],
+                            "$HIDDEN":false
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "searchKey":"Button,deleteQrCodeImg",
+                            "props":{"y":65,"x":164,"width":100,"var":"deleteQrCodeImg","skin":"uiCommonUpdate/green2.png","sizeGrid":"3,3,3,3","labelSize":24,"labelFont":"SimHei","labelColors":"#003dc6,#FFFFFF,#FFFFFF","label":"删除","height":30},
+                            "nodeParent":144,
+                            "label":"deleteQrCodeImg",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":143,
+                            "child":[
+                                ],
+                            "$HIDDEN":false
+                        }]
                 }],
-            "$HIDDEN":true
+            "$HIDDEN":false
         },
         {
             "x":15,
@@ -693,7 +774,7 @@
                     "child":[
                         ]
                 }],
-            "$HIDDEN":false
+            "$HIDDEN":true
         },
         {
             "x":15,
@@ -702,14 +783,13 @@
             "props":{"y":0,"x":0,"var":"setAuthorityPanel","top":0,"right":0,"left":0,"bottom":0},
             "nodeParent":2,
             "label":"setAuthorityPanel",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":73,
             "child":[
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image",
                     "props":{"top":0,"skin":"commers/blackbg.png","sizeGrid":"2,2,2,2","right":0,"mouseEnabled":true,"left":0,"bottom":0,"alpha":0.6},
@@ -724,7 +804,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image",
                     "props":{"y":200,"x":50,"width":850,"skin":"commers/grayback.jpg","sizeGrid":"2,2,2,2","right":50,"mouseEnabled":true,"left":50,"height":400,"alpha":1},
@@ -738,7 +817,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,confirmauthoritybtn",
                     "props":{"y":547,"x":743,"width":138,"var":"confirmauthoritybtn","skin":"uiCommonUpdate/green2.png","sizeGrid":"3,3,3,3","labelSize":20,"labelFont":"SimHei","labelColors":"#003d6c,#FFFFFF,#FFFFFF","label":"确定","height":40},
@@ -752,7 +830,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,closeauthoritybtn",
                     "props":{"y":214,"width":32,"var":"closeauthoritybtn","stateNum":"1","skin":"uiCommonUpdate/closeBtn.png","right":73,"labelSize":20,"labelFont":"SimHei","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF","height":32},
@@ -767,7 +844,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":280,"x":160},
@@ -780,7 +856,6 @@
                     "compId":84,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"width":29,"text":"1.","height":22,"fontSize":22,"font":"SimHei"},
@@ -794,7 +869,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,order_submit",
                             "props":{"y":0,"x":44,"var":"order_submit","skin":"uiCommonUpdate/grennsel.png","labelSize":24,"labelPadding":"-1","labelFont":"SimHei","label":"扫码支付"},
@@ -809,7 +883,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":323,"x":160},
@@ -822,7 +895,6 @@
                     "compId":85,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"width":29,"text":"2.","height":22,"fontSize":22,"font":"SimHei"},
@@ -836,7 +908,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,order_submit_with_balances",
                             "props":{"y":0,"x":44,"var":"order_submit_with_balances","skin":"uiCommonUpdate/grennsel.png","labelSize":24,"labelPadding":"-1","labelFont":"SimHei","label":"余额支付"},
@@ -851,7 +922,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":367,"x":160},
@@ -864,7 +934,6 @@
                     "compId":88,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"width":29,"text":"3.","height":22,"fontSize":22,"font":"SimHei"},
@@ -878,7 +947,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,order_price_display",
                             "props":{"y":0,"x":44,"var":"order_price_display","skin":"uiCommonUpdate/grennsel.png","labelSize":24,"labelPadding":"-1","labelFont":"SimHei","label":"显示订单金额"},
@@ -893,7 +961,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":410,"x":160},
@@ -906,7 +973,6 @@
                     "compId":91,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"width":29,"text":"4.","height":22,"fontSize":22,"font":"SimHei"},
@@ -920,7 +986,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,order_list_self",
                             "props":{"y":0,"x":44,"var":"order_list_self","skin":"uiCommonUpdate/grennsel.png","labelSize":24,"labelPadding":"-1","labelFont":"SimHei","label":"查看自己订单"},
@@ -935,7 +1000,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":453,"x":160},
@@ -948,7 +1012,6 @@
                     "compId":94,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"width":29,"text":"5.","height":22,"fontSize":22,"font":"SimHei"},
@@ -962,7 +1025,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,order_list_org",
                             "props":{"y":0,"x":44,"var":"order_list_org","skin":"uiCommonUpdate/grennsel.png","labelSize":24,"labelPadding":"-1","labelFont":"SimHei","label":"查看公司订单"},
@@ -977,7 +1039,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "searchKey":"Label,accoutname",
                     "props":{"y":216,"x":78,"var":"accoutname","text":"设置账户：135666666 的权限","fontSize":20,"font":"SimHei","color":"#50575C"},
@@ -991,7 +1052,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Box",
                     "searchKey":"Box",
                     "props":{"y":496,"x":160},
@@ -1004,7 +1064,6 @@
                     "compId":137,
                     "child":[
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label",
                             "props":{"width":29,"text":"6.","height":22,"fontSize":22,"font":"SimHei"},
@@ -1018,7 +1077,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"CheckBox",
                             "searchKey":"CheckBox,asset_log_list",
                             "props":{"y":0,"x":44,"var":"asset_log_list","skin":"uiCommonUpdate/grennsel.png","labelSize":24,"labelPadding":"-1","labelFont":"SimHei","label":"查看资金流水"},
@@ -1032,7 +1090,7 @@
                                 ]
                         }]
                 }],
-            "$HIDDEN":false
+            "$HIDDEN":true
         },
         {
             "x":15,

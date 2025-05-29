@@ -21,6 +21,8 @@ package script.usercenter
 		
 		public var param:Object;
 		private var orderdata;
+		private var share:Boolean = false;
+		
 		public function OrderPriceSettingController()
 		{
 			super();
@@ -90,8 +92,9 @@ package script.usercenter
 			uiSkin.designCost.on(Event.INPUT,this,updateSellPrice);
 			uiSkin.deliveryCost.on(Event.INPUT,this,updateSellPrice);
 			uiSkin.otherCost.on(Event.INPUT,this,updateSellPrice);
-			uiSkin.okbtn.on(Event.CLICK,this,onSettingConfirm);
+			uiSkin.okbtn.on(Event.CLICK,this,onSaveChanges);
 			uiSkin.shareBtn.on(Event.CLICK,this,onShare);
+			//uiSkin.shareBtn.visible = false;
 			
 			uiSkin.layoutCost.text = (orderdata.installationFee != null && orderdata.installationFee != "")?orderdata.installationFee:"0";
 			uiSkin.designCost.text = (orderdata.designFee != null && orderdata.designFee != "")?orderdata.designFee:"0";
@@ -107,7 +110,8 @@ package script.usercenter
 		
 		private function onShare():void
 		{
-			Browser.window.open("about:self","_blank").location.href = Browser.window.location + "?" + "orderID="+ param.id;
+			share = true;
+			onSettingConfirm();
 
 		}
 		public function updateOrderList(cell:OrderPriceSettingItem):void
@@ -159,6 +163,10 @@ package script.usercenter
 
 		}
 		
+		private function onSaveChanges():void
+		{
+			onSettingConfirm();
+		}
 		private function onSettingConfirm():void
 		{
 			if(this.uiSkin.layoutCost.text == "" || this.uiSkin.designCost.text == "" || this.uiSkin.deliveryCost.text == "" || this.uiSkin.otherCost.text == "" )
@@ -180,7 +188,6 @@ package script.usercenter
 
 
 		}
-		
 		private function onUpdateOrderBack(data:*):void
 		{
 			var result:Object = JSON.parse(data as String);
@@ -188,7 +195,14 @@ package script.usercenter
 			{
 				//ViewManager.instance.closeView(ViewManager.ORDER_PRICE_SETTING_PANEL);
 				EventCenter.instance.event(EventCenter.DELETE_ORDER_BACK);
-				onCloseView();
+				if(share)
+				{
+					share = false;
+					Browser.window.open("about:self","_blank").location.href = Browser.window.location + "?" + "orderID="+ param.id +"&qrCode=" + Userdata.instance.paymentQrCode;
+
+				}
+				else
+					onCloseView();
 			}
 		}
 		private function onCloseView():void

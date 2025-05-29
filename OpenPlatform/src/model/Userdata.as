@@ -83,7 +83,7 @@ package model
 		public var orgAuditState:int = -1;//公司审核状态 -1 没有提交审核 0 审核中 1 审核通过 2 审核拒绝
 		public var defaultManufactureSelected = true;
 		public var orderBasePrice:Number = 2;
-		
+		public var paymentQrCode:String = "";//二维码收款图片
 		
 		public static function get instance():Userdata
 		{
@@ -109,7 +109,7 @@ package model
 			token = "";
 			inOrdering = false;
 			privilege =[];
-			
+			paymentQrCode = "";
 		}
 		
 		public function get accountType():int

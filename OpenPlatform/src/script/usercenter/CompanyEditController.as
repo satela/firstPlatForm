@@ -81,6 +81,11 @@ package script.usercenter
 			uiSkin.townList.renderHandler = new Handler(this, updateCityList);
 			uiSkin.townList.selectHandler = new Handler(this, selectTown);
 			
+			uiSkin.provList.array = [];
+			uiSkin.cityList.array = [];
+			uiSkin.areaList.array = [];
+			uiSkin.townList.array = [];
+			
 			uiSkin.btnSelProv.on(Event.CLICK,this,onShowProvince);
 			uiSkin.btnSelCity.on(Event.CLICK,this,onShowCity);
 			uiSkin.btnSelArea.on(Event.CLICK,this,onShowArea);

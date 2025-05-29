@@ -101,6 +101,8 @@ package script.workpanel
 			EventCenter.instance.on(EventCenter.PAY_ORDER_SUCESS,this,onPaySucess);
 			EventCenter.instance.on(EventCenter.CANCEL_PAY_ORDER,this,onCancelPay);
 			EventCenter.instance.on(EventCenter.FIRST_PAGE_SHRINK,this,updateLblPos);
+			EventCenter.instance.on(EventCenter.BATCH_CHANGE_PRODUCT_NUM,this,changeProductNum);
+
 			resetOrderInfo();
 			updateLblPos(Userdata.instance.shrinkState);
 			

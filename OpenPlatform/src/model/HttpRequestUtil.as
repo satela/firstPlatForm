@@ -129,7 +129,7 @@ package model
 
 		public static const getOrderRecordList:String = "order/list?";//查询订单 date = 201910 curpage=1
 		
-		public static const deleteOrderList:String = "account/delete-unpaid-order?";//删除订单
+		public static const deleteOrderList:String = "order/deleteUnpaid?";//删除订单
 
 
 		public static const changeCompanyName:String = "group/update_group?";//修改公司名
@@ -219,7 +219,7 @@ package model
 		//public static const setProductCategoryDefault:String = "account/add-product-default-category?";//获取材料分类默认值
 		public static const updateProductCategoryDefault:String = "account/update-product-default-category?";//获取材料分类默认值
 
-		public static const leaveGroupUrl:String = "account/leave-group?";//退出公司
+		public static const leaveGroupUrl:String = "sys/exitOrg?";//退出公司
 
 		public static const getFactoryFreezeBalance:String = "business/getToBeTopupAmount?customer_code=";//获取工厂代充冻结余额
 
@@ -300,10 +300,14 @@ package model
 
 		public static var getPlatformConfig:String =  "sys/getConfigList?" ;//平台设置参数
 
-		
+		public static var noticeServerQrcodeComplete:String =  "org/updatePaymentQrCode?" ;//通知服务器二维码上传完成
+		public static var deleteQrCodeImg:String =  "org/updatePaymentQrCode?" ;//通知服务器二维码上传完成
+
 		public static const getDeaultDeliveryList:String = "business/getDeliveryType?"//clientCode=CL10600&addrId=360423?webCode=xxx?";//=SPSC00100&addr_id=330700";//获取配送列表
 
+		public static var getOrderDetailById:String =  "sys/shareOrder?" ;//获取订单详情
 
+		
 		public static function get instance():HttpRequestUtil
 		{
 			if(_instance == null)

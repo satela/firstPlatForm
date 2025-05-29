@@ -1,12 +1,12 @@
 <page>
    <parsererror style="display: block; white-space: pre; border: 2px solid #c77; padding: 0 1em 0 1em; margin: 1em; background-color: #fdd; color: black">
-      <h3>This page contains the following errors:                                                                                                                                                                                                                                                                                                                                          </h3>
+      <h3>This page contains the following errors:                                                                                                                                                                                                                                                                                                                                                            </h3>
       <div style="font-family:monospace;font-size:12px">error on line 3 at column 2: StartTag: invalid element name
-                                                                                                                                                                                                                                                                                                                                          </div>
-      <h3>Below is a rendering of the page up to the first error.                                                                                                                                                                                                                                                                                                                                          </h3>
+                                                                                                                                                                                                                                                                                                                                                            </div>
+      <h3>Below is a rendering of the page up to the first error.                                                                                                                                                                                                                                                                                                                                                            </h3>
    </parsererror>
    <parsererror style="display: block; white-space: pre; border: 2px solid #c77; padding: 0 1em 0 1em; margin: 1em; background-color: #fdd; color: black">
-                                                                                                                                                                     </parsererror>
+                                                                                                                                                                              </parsererror>
    <item name="inuoView/MaterialAdProcFlowPanel.scene" props="" ifExport="分离模式" aName=""/>
    <item name="login/LogPanel.scene" props="" ifExport="分离模式" aName=""/>
    <item name="common/TipPanel.scene" props="" ifExport="内嵌模式" aName=""/>
@@ -101,4 +101,8 @@
    <item name="usercenter/WriteOffOrderItem.scene" props="" ifExport="内嵌模式" aName=""/>
    <item name="login/CityAreaItem.scene" props="" ifExport="内嵌模式" aName=""/>
    <item name="orderList/StatisticalAnalyPanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/SellPriceSharePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/OrderPriceSellItem.scene" props="" ifExport="内嵌模式" aName=""/>
+   <item name="usercenter/SellPriceSharePhonePanel.scene" props="" ifExport="分离模式" aName=""/>
+   <item name="usercenter/OrderPriceSellPhoneItem.scene" props="" ifExport="内嵌模式" aName=""/>
 </page>

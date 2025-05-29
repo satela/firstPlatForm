@@ -41,10 +41,13 @@ package model.orderModel
 		public var comment:String = "";
 		
 		public var cuttype:int = 0;//裁切类型
-		public var cutnum:int = 0;//裁切数
-		
-		public var eachCutLength:Array;
-		
+		public var hCutnum:int = 0;//横向裁切数
+		public var vCutnum:int = 0;//纵向裁切数
+
+		public var cutDirect:int = 0;// 
+		public var hEachCutLength:Array;//横向裁切长度列表
+		public var vEachCutLength:Array;//纵向裁切长度列表
+
 		public var horiCutNum:int = 1;
 		public var verCutNum:int = 1;
 		

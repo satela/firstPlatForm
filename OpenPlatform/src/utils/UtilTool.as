@@ -749,16 +749,21 @@ package utils
 			
 		}
 		
-		public static function getYixingPrice(picinfo:PicInfoVo,basePrice:Number,unitPrice:Number,finalwidth:Number,finalheight:Number):Number
-		{			
-			var linemeter:Number = (picinfo.relatedRoadLength /picinfo.relatedPicWidth)  * finalwidth;
-			
-			//var linemeter1:Number = (picinfo.relatedRoadLength / picinfo.relatedDpi * 2.54) * (finalwidth/picinfo.picPhysicWidth);
-			
-			//trace("line1:" + linemeter + "," + linemeter1);
-
-			
-			return basePrice * picinfo.relatedRoadNum + linemeter*unitPrice;
+		public static function getYixingPrice(picinfo:PicInfoVo,basePrice:Number,unitPrice:Number,finalwidth:Number,finalheight:Number,unit:String):Number
+		{		
+			if(unit == OrderConstant.MEASURE_UNIT_YIXING_CUT)
+			{
+				var linemeter:Number = (picinfo.relatedRoadLength /picinfo.relatedPicWidth)  * finalwidth;
+				
+				//var linemeter1:Number = (picinfo.relatedRoadLength / picinfo.relatedDpi * 2.54) * (finalwidth/picinfo.picPhysicWidth);
+				
+				//trace("line1:" + linemeter + "," + linemeter1);
+	
+				
+				return basePrice * picinfo.relatedRoadNum + linemeter*unitPrice;
+			}
+			else
+				return  getProcessPrice(finalwidth,finalheight,unit,unitPrice,basePrice);
 		}
 		
 		public static function getAvgCutPrice(orderitem:PicOrderItemVo,basePrice:Number,unitPrice:Number,finalwidth:Number,finalheight:Number):Number

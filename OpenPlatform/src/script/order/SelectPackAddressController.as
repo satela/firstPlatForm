@@ -142,6 +142,8 @@ package script.order
 			uiSkin.nextPage.on(Event.CLICK,this,onNextPage);
 			uiSkin.searchInput.maxChars = 20;
 			uiSkin.searchbtn.on(Event.CLICK,this,onSearchAddress);
+			
+			
 			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getAddressFromServer+ "parentId=0",this,initAddr,null,null);
 			
 			//分组

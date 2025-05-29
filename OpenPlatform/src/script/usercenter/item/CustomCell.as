@@ -34,6 +34,8 @@ package script.usercenter.item
 			this.selectImg.visible = false;
 			this.businessManlbl.text = customData.salerName;
 			this.balancelbl.text = customData.balanceMoney.toFixed(2);
+			this.discountlbl.text = customData.discount;
+			
 			this.defaultPayType.text = Constast.PAY_TYPE_NAME[customData.defaultPayment - 1];
 			
 

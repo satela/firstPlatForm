@@ -143,7 +143,7 @@ package script.order
 		{
 			for(var i:int=0;i < arr.length;i++)
 			{
-				if(!PaintOrderModel.instance.hasExistAddress(arr[i].id))
+				//if(!PaintOrderModel.instance.hasExistAddress(arr[i].id))
 					PaintOrderModel.instance.addPackage(arr[i],orderDatas);
 
 			}

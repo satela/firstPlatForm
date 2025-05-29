@@ -2,11 +2,11 @@
     "x":0,
     "type":"View",
     "selectedBox":2,
-    "selecteID":76,
+    "selecteID":79,
     "searchKey":"View",
-    "props":{"width":1745,"sceneColor":"#fdf9f9","height":175},
+    "props":{"width":1080,"sceneColor":"#fdf9f9","height":175},
     "nodeParent":-1,
-    "maxID":79,
+    "maxID":80,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -109,21 +109,6 @@
         {
             "x":15,
             "type":"Label",
-            "searchKey":"Label,money",
-            "props":{"y":79,"x":819,"width":100,"visible":false,"var":"money","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},
-            "nodeParent":2,
-            "label":"money",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":65,
-            "child":[
-                ],
-            "$HIDDEN":true
-        },
-        {
-            "x":15,
-            "type":"Label",
             "searchKey":"Label,filename",
             "props":{"y":22,"x":257,"wordWrap":true,"width":190,"var":"filename","valign":"middle","text":"PP纸无背胶.jpg","overflow":"hidden","height":18,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},
             "nodeParent":2,
@@ -139,7 +124,7 @@
             "x":15,
             "type":"Label",
             "searchKey":"Label,tech",
-            "props":{"y":62,"x":458,"wordWrap":true,"width":169,"var":"tech","valign":"top","text":"户外材料--白胶车贴","rotation":0,"overflow":"hidden","height":95,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},
+            "props":{"y":62,"x":424,"wordWrap":true,"width":169,"var":"tech","valign":"top","text":"户外材料--白胶车贴","rotation":0,"overflow":"hidden","height":95,"fontSize":18,"font":"SimHei","color":"#0","align":"left"},
             "nodeParent":2,
             "label":"tech",
             "isDirectory":false,
@@ -153,7 +138,7 @@
             "x":15,
             "type":"Label",
             "searchKey":"Label,matname",
-            "props":{"y":20,"x":458,"wordWrap":true,"width":202,"var":"matname","valign":"middle","text":"户内PP纸无背胶","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"left"},
+            "props":{"y":20,"x":424,"wordWrap":true,"width":202,"var":"matname","valign":"middle","text":"户内PP纸无背胶","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"left"},
             "nodeParent":2,
             "label":"matname",
             "isDirectory":false,
@@ -196,7 +181,7 @@
             "x":15,
             "type":"Label",
             "searchKey":"Label,deliverydate",
-            "props":{"y":79,"x":1242,"var":"deliverydate","text":"2012-12-25 21:15:52","height":16,"fontSize":18,"font":"SimHei","color":"#0","bold":true,"align":"center"},
+            "props":{"y":79,"x":895,"var":"deliverydate","text":"2012-12-25 21:15:52","height":16,"fontSize":18,"font":"SimHei","color":"#0","bold":true,"align":"center"},
             "nodeParent":2,
             "label":"deliverydate",
             "isDirectory":false,
@@ -237,52 +222,24 @@
         },
         {
             "x":15,
-            "type":"TextInput",
-            "searchKey":"TextInput,unitPriceInput",
-            "props":{"y":77,"x":801,"width":94,"var":"unitPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},
+            "type":"Label",
+            "searchKey":"Label,unitPriceInput",
+            "props":{"y":79,"x":613,"width":100,"visible":true,"var":"unitPriceInput","text":"15.6","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},
             "nodeParent":2,
             "label":"unitPriceInput",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":75,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"TextInput",
-            "searchKey":"TextInput,totalPriceInput",
-            "props":{"y":77,"x":1000,"width":94,"var":"totalPriceInput","type":"number","text":"2670","skin":"commers/inputbg.png","sizeGrid":"5,5,5,5","height":22,"fontSize":18,"font":"SimHei","bold":true},
-            "nodeParent":2,
-            "label":"totalPriceInput",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":76,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "searchKey":"Label,unitPriceTxt",
-            "props":{"y":79,"x":693,"width":100,"visible":false,"var":"unitPriceTxt","text":"12680","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},
-            "nodeParent":2,
-            "label":"unitPriceTxt",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
             "compId":77,
             "child":[
                 ],
-            "$HIDDEN":true
+            "$HIDDEN":false
         },
         {
             "x":15,
             "type":"Label",
             "searchKey":"Label,measureUnit",
-            "props":{"y":108,"x":800,"width":66,"var":"measureUnit","text":"平方米","rotation":0,"height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"left"},
+            "props":{"y":108,"x":637,"width":66,"var":"measureUnit","text":"平方米","rotation":0,"height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"left"},
             "nodeParent":2,
             "label":"measureUnit",
             "isDirectory":false,
@@ -291,6 +248,21 @@
             "compId":78,
             "child":[
                 ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "searchKey":"Label,totalPriceInput",
+            "props":{"y":79,"x":762,"width":100,"visible":true,"var":"totalPriceInput","text":"15.6","height":16,"fontSize":18,"font":"SimHei","color":"#262B2E","bold":true,"align":"center"},
+            "nodeParent":2,
+            "label":"totalPriceInput",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":79,
+            "child":[
+                ],
+            "$HIDDEN":false
         }],
     "animations":[
         {

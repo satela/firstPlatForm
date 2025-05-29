@@ -31,6 +31,7 @@ package model.orderModel
 		public static const MEASURE_UNIT_SINGLE_SUIT:String = "件";//
 
 		public static const MEASURE_UNIT_SINGLE_TAO:String = "套";//
+		public static const MEASURE_UNIT_YIXING_CUT:String = "切割米";//
 
 		public static const ATTACH_NO:String = "SPno";
 		public static const ATTACH_JPG:String = "SPjpg";
@@ -124,6 +125,10 @@ package model.orderModel
 		public static const DELIVERY_TYPE_BY_SELF:String = "工厂自提";
 		public static const DELIVERY_TYPE_BY_OTHER:String = "专车配送";
 		public static const DELIVERY_TYPE_BY_NORMAL_DELIVERY:String = "普通快递";
+
+		public static const CUT_WIDTH_ONLY:int = 0;//只能切宽
+		public static const CUT_HEIGHT_ONLY:int = 1;//只能切高
+		public static const CUT_TWO_SIDE:int = 2;//两边都能切
 
 		public static const MAX_ORDER_NUMER:int = 100;
 

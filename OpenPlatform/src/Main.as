@@ -156,10 +156,8 @@
 			
 			
 			
-			var u = new Browser.window.URL(Browser.window.location.href);
-			var tt = u.searchParams.get('orderID');
 			
-			trace("id:" + tt);
+			//trace("id:" + tt);
 			
 			
 			//Laya.stage.addChild(new LoginViewUI());
@@ -190,7 +188,17 @@
 			HttpRequestUtil.httpUrl = json["httpUrl"];
 			Userdata.instance.clientCode = json["clientCode"];
 
-			ViewManager.instance.openView(ViewManager.VIEW_lOGPANEL);
+			var u = new Browser.window.URL(Browser.window.location.href);
+			var orderId:String = u.searchParams.get('orderID');
+			var qrcode:String = u.searchParams.get('qrCode');
+			if(orderId != null)
+			{
+				ViewManager.instance.openView(ViewManager.VIEW_SELL_PRICE_SHARE_PANEL,false,{"id":orderId,"qrCode":qrcode});
+				return;
+				
+			}
+			else
+				ViewManager.instance.openView(ViewManager.VIEW_lOGPANEL);
 
 		}
 			

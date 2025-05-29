@@ -2,11 +2,11 @@
     "x":0,
     "type":"View",
     "selectedBox":5,
-    "selecteID":25,
+    "selecteID":6,
     "searchKey":"View",
     "props":{"width":1920,"sceneColor":"#ffffff","height":1080},
     "nodeParent":-1,
-    "maxID":41,
+    "maxID":46,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -46,9 +46,10 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image",
-                    "props":{"top":10,"skin":"uiCommonUpdate/radBg.png","right":30,"left":30,"height":950},
+                    "props":{"top":0,"skin":"uiCommonUpdate/radBg.png","right":30,"left":30,"height":950},
                     "nodeParent":5,
                     "label":"Image",
+                    "isOpen":true,
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
@@ -79,14 +80,13 @@
                     "props":{"y":59,"x":63,"width":296,"var":"leftpanel","height":865},
                     "nodeParent":5,
                     "label":"leftpanel",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":24,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"width":296,"skin":"uiCommonUpdate/grayFrame.png","sizeGrid":"3,3,3,3","height":330},
@@ -143,7 +143,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":338,"width":296,"skin":"uiCommonUpdate/grayFrame.png","sizeGrid":"3,3,3,3","height":330},
@@ -156,7 +155,6 @@
                             "compId":12,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"y":13,"x":8,"text":"反面","fontSize":18,"font":"SimHei"},
@@ -171,7 +169,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "searchKey":"Image,backimg",
                                     "props":{"y":43,"x":8,"width":280,"var":"backimg","skin":"comp/image.png","height":280},
@@ -186,7 +183,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "searchKey":"Image",
                                     "props":{"y":10,"x":264,"skin":"iconsNew/zoom.png"},
@@ -203,7 +199,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":676,"width":144,"skin":"uiCommonUpdate/grayFrame.png","sizeGrid":"3,3,3,3","height":188},
@@ -246,7 +241,6 @@
                             "$HIDDEN":false
                         },
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image",
                             "props":{"y":676,"x":151,"width":144,"skin":"uiCommonUpdate/grayFrame.png","sizeGrid":"3,3,3,3","height":188},
@@ -259,7 +253,6 @@
                             "compId":20,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "searchKey":"Label",
                                     "props":{"y":13,"x":8,"text":"局部铺白","fontSize":18,"font":"SimHei"},
@@ -274,7 +267,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "searchKey":"Image,partImg",
                                     "props":{"y":43,"x":8,"width":128,"var":"partImg","skin":"comp/image.png","height":128},
@@ -299,7 +291,7 @@
                     "props":{"y":59,"width":1476,"var":"rightpanel","right":62,"left":382,"height":763},
                     "nodeParent":5,
                     "label":"rightpanel",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
@@ -451,6 +443,76 @@
                     "compId":40,
                     "child":[
                         ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "searchKey":"Label",
+                    "props":{"y":857,"x":619,"text":"数量","fontSize":20,"font":"SimHei"},
+                    "nodeParent":5,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":45,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Box",
+                    "searchKey":"Box",
+                    "props":{"y":849,"x":684},
+                    "nodeParent":5,
+                    "label":"Box",
+                    "isOpen":true,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":41,
+                    "child":[
+                        {
+                            "x":45,
+                            "type":"TextInput",
+                            "searchKey":"TextInput,batchNumInput",
+                            "props":{"x":34,"width":52,"var":"batchNumInput","text":"1","skin":"commers/inputbg.png","sizeGrid":"3,3,3,3","height":36,"fontSize":18,"font":"SimHei","color":"#262B2E","align":"center"},
+                            "nodeParent":41,
+                            "label":"batchNumInput",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":42,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "searchKey":"Button,addBtn",
+                            "props":{"y":4,"x":91,"width":27,"var":"addBtn","skin":"uiCommonUpdate/blackbtn.png","sizeGrid":"4,4,4,4","rotation":0,"labelSize":25,"labelFont":"SimHei","labelColors":"#FFFFFF,#0,#FFFFFF","label":"+","height":27},
+                            "nodeParent":41,
+                            "label":"addBtn",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":43,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "searchKey":"Button,subBtn",
+                            "props":{"y":4,"width":27,"var":"subBtn","skin":"uiCommonUpdate/blackbtn.png","labelSize":25,"labelFont":"SimHei","labelColors":"#FFFFFF,#0,#FFFFFF","label":"-","height":27},
+                            "nodeParent":41,
+                            "label":"subBtn",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":44,
+                            "child":[
+                                ]
+                        }]
                 }],
             "$HIDDEN":false
         },

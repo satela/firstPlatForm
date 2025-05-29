@@ -35,6 +35,10 @@ package script.workpanel.items
 			{
 				matvo = product as ProductVo;
 				this.matbtn.label = matvo.prodName + (matvo.isClientProd?"(自有)":"");// + "\n(" + matvo.material_brand + "," + Math.round(matvo.unit_weight*1000) + ")" ;
+				if(matvo.materialColor != "")
+				{
+					this.matbtn.label +="("+ matvo.materialColor + ")";
+				}
 				this.on(Event.CLICK,this,onClickMat,[matvo]);
 				this.moreBtn.visible = false;
 				

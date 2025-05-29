@@ -239,9 +239,9 @@ package script.usercenter
 		{
 			if(b)
 			{
-				var params:String = "id=" + orderdata.id;
+				var params:Object = {"orderId":orderdata.id};
 				
-				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.deleteOrderList,this,deleteOrderListBack,params,"post");
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.deleteOrderList,this,deleteOrderListBack,JSON.stringify(params),"post");
 			}
 		}
 		private function deleteOrderListBack(data:*):void

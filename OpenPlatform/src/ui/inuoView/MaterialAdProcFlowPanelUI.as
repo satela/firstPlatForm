@@ -21,6 +21,9 @@ package ui.inuoView {
 		public var saveBtn:Text;
 		public var closeBtn:Button;
 		public var effectBtn:Button;
+		public var batchNumInput:TextInput;
+		public var addBtn:Button;
+		public var subBtn:Button;
 
 		override protected function createChildren():void {
 			super.createChildren();

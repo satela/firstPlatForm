@@ -158,7 +158,7 @@ package model.orderModel
 			{
 				if(arr[i].selected)
 				{
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) <0  || ignoreWidth || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >= 0 && picwidth + border > this.materialWidth && picheight + border> this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) <0  || ignoreWidth || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >= 0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						var peijian:String = "";
 						if(arr[i].selectAttachVoList != null)
@@ -359,7 +359,7 @@ package model.orderModel
 				if(arr[i].selected)
 				{
 					//if( arr[i].preProc_attachmentTypeList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].preProc_attachmentTypeList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.mat_width && picheight*100 + border > this.mat_width))
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						var totalprice:Number = 0;
 						var gross:Number = 0;
@@ -386,9 +386,9 @@ package model.orderModel
 							{
 								if(OrderConstant.yiXingCutProcess(arr[i].procCode))
 								{
-									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 									if(priceInfo[3] != null && priceInfo[3] != "")
-										gross =  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+										gross =  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 								}
 								else if(arr[i].procCode == OrderConstant.AVGCUT_TECHNO)
 								{
@@ -455,7 +455,7 @@ package model.orderModel
 				if(arr[i].selected)
 				{
 					//if( arr[i].preProc_attachmentTypeList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].preProc_attachmentTypeList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.mat_width && picheight*100 + border > this.mat_width))
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						var totalprice:Number = 0;
 						
@@ -477,9 +477,9 @@ package model.orderModel
 							{
 								if(OrderConstant.yiXingCutProcess(arr[i].procCode))
 								{
-									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 									if(priceInfo[3] != null && priceInfo[3] != "")
-										totalprice +=  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+										totalprice +=  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 								}
 								else if(arr[i].procCode == OrderConstant.AVGCUT_TECHNO)
 								{
@@ -552,7 +552,7 @@ package model.orderModel
 			{
 				if(arr[i].selected)
 				{
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						var totalprice:Number = 0;
 						var gross:Number = 0;
@@ -580,9 +580,9 @@ package model.orderModel
 							{
 								if(OrderConstant.yiXingCutProcess(arr[i].procCode))
 								{
-									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 									if(priceInfo[3] != null && priceInfo[3] != "")
-										gross =  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+										gross =  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 								}
 								else if(arr[i].procCode == OrderConstant.AVGCUT_TECHNO)
 								{
@@ -649,7 +649,7 @@ package model.orderModel
 				if(arr[i].selected)
 				{
 					//if( arr[i].preProc_attachmentTypeList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].preProc_attachmentTypeList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.mat_width  && picheight*100 + border > this.mat_width))
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						var procname:String = arr[i].procName + UtilTool.getAttachDesc(arr[i]);
 						if(arr[i].selectAttachVoList != null && arr[i].selectAttachVoList.length > 0)
@@ -669,9 +669,21 @@ package model.orderModel
 						
 						else if(arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0)
 						{
-							var procname:String = arr[i].procName + "(" + ["V","H"][orderitemvo.cuttype] + "-" +  orderitemvo.cutnum+ "-" + orderitemvo.eachCutLength.join(";") +")";//["竖拼裁切","横拼裁切"][orderitemvo.cuttype] + "(" + orderitemvo.cutnum+")";
+							var procname:String;
+							if(orderitemvo.cuttype == 0)
+							{
+								 procname = arr[i].procName + "(" + ["V","H"][orderitemvo.cuttype] + "-" +  orderitemvo.vCutnum+ "-" + orderitemvo.vEachCutLength.join(";") +")";
+							}
+							else if(orderitemvo.cuttype == 1)
+							{
+								 procname = arr[i].procName + "(" + ["V","H"][orderitemvo.cuttype] + "-" +  orderitemvo.hCutnum+ "-" + orderitemvo.hEachCutLength.reverse().join(";") +")";
+								 
+							}
+							else
+								procname = arr[i].procName + "(V-" + orderitemvo.vCutnum + "-" + orderitemvo.vEachCutLength.join(";") + ",H-" + orderitemvo.hCutnum + "-" + orderitemvo.hEachCutLength.join(";") + ")";
 							prolist.push({procCode:arr[i].procCode,procDescription:procname,procAttachPath:arr[i].attchMentFileId});
 						}
+						
 						else if(arr[i].attachmentList.indexOf(OrderConstant.AVERAGE_CUTOFF) >=0)
 						{
 							var procname:String = procname + "(H-" + orderitemvo.horiCutNum + ",V-" + orderitemvo.verCutNum+  ")";
@@ -770,7 +782,7 @@ package model.orderModel
 				{
 					//if( arr[i].preProc_attachmentTypeList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].preProc_attachmentTypeList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.mat_width && picheight*100 + border > this.mat_width))
 					//if( arr[i].attachmentList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].attachmentList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						
 						var attachvo:AttchCatVo;
@@ -882,7 +894,7 @@ package model.orderModel
 				if(arr[i].selected && (!justMatPrice || arr[i].attachmentList.indexOf(OrderConstant.ATTACH_PEIJIAN_MAT) >= 0))
 				{
 					//if( arr[i].preProc_attachmentTypeList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].preProc_attachmentTypeList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.mat_width && picheight*100 + border > this.mat_width))
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						var totalprice:Number = 0;
 						
@@ -987,7 +999,7 @@ package model.orderModel
 				if(arr[i].selected)
 				{
 					//if( arr[i].preProc_attachmentTypeList.toUpperCase() !=  OrderConstant.CUTOFF_H_V || (arr[i].preProc_attachmentTypeList.toUpperCase() == OrderConstant.CUTOFF_H_V && picwidth*100 + border > this.mat_width && picheight*100 + border > this.mat_width))
-					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && picwidth*100 + border > this.materialWidth && picheight*100 + border > this.materialWidth))
+					if( arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) < 0 || (arr[i].attachmentList.indexOf(OrderConstant.CUTOFF_H_V) >=0 && needCutOff(picwidth*100+border,picheight*100+border)))
 					{
 						var totalprice:Number = 0;
 						var gross:Number = 0;
@@ -1014,9 +1026,9 @@ package model.orderModel
 							{
 								if(OrderConstant.yiXingCutProcess(arr[i].procCode))
 								{
-									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight);
+									totalprice = UtilTool.getYixingPrice(picinfovo.picinfo,arr[i].baseprice,arr[i].preProc_Price,picwidth,picheight,arr[i].measure_unit);
 									if(priceInfo[3] != null && priceInfo[3] != "")
-										gross =  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight);
+										gross =  UtilTool.getYixingPrice(picinfovo.picinfo,0,priceInfo[3],picwidth,picheight,arr[i].measure_unit);
 								}
 								else if(arr[i].procCode == OrderConstant.AVGCUT_TECHNO)
 								{
@@ -1128,6 +1140,19 @@ package model.orderModel
 				}
 			}
 			return 1;
+		}
+		
+		private function needCutOff(picWidth:Number,picHeight:Number):void
+		{
+			var shortSide:Number = Math.min(picWidth,picHeight);
+			var longSide:Number = Math.max(picWidth,picHeight);
+			
+			if(longSide > this.materialLength)
+				return true;
+			
+			if(shortSide > this.materialWidth)
+				return true;
+			return false;
 		}
 	}
 }

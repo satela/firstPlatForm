@@ -4,6 +4,7 @@ package script.picUpload
 	
 	import laya.components.Script;
 	import laya.events.Event;
+	import laya.events.Keyboard;
 	import laya.maths.Point;
 	import laya.ui.Box;
 	import laya.ui.Label;
@@ -47,6 +48,7 @@ package script.picUpload
 		
 		private var curCustomer:CustomVo;
 		
+		private var mulitSelect:Boolean = false;
 		public function PicManagerController()
 		{
 			super();
@@ -84,6 +86,7 @@ package script.picUpload
 			uiSkin.picList.itemRender = PicInfoItem;
 			//uiSkin.picList.scrollBar.autoHide = true;
 			uiSkin.picList.selectEnable = false;
+			uiSkin.picList.scrollBar.scrollSize = 0;
 			uiSkin.picList.spaceY = 20;
 			uiSkin.picList.renderHandler = new Handler(this, updatePicInfoItem);
 			
@@ -168,7 +171,9 @@ package script.picUpload
 			EventCenter.instance.on(EventCenter.CREATE_FOLDER_SUCESS,this,onCreateDirBack);
 			EventCenter.instance.on(EventCenter.SELECT_CUSTOMER,this,onSelectCustomer);
 
-			
+			Laya.stage.on(Event.KEY_DOWN,this,onKeyDownHandler);
+			Laya.stage.on(Event.KEY_UP,this,onKeyUPHandler);
+
 			uiSkin.picList.on(Event.MOUSE_DOWN,this,onMouseDwons);
 			
 			uiSkin.picList.on(Event.MOUSE_UP,this,onMouseUpHandler);
@@ -756,19 +761,69 @@ package script.picUpload
 				
 			}
 		}
+		
+		private function onKeyDownHandler(e:Event):void
+		{
+			if(e.keyCode == Keyboard.SHIFT)
+				mulitSelect = true;
+		}
+		
+		private function onKeyUPHandler(e:Event):void
+		{
+			//if(e.keyCode == Keyboard.SHIFT)
+				mulitSelect = false;
+		}
+		
 		private function seletPicToOrder(data:Array):void
 		{
 			var fvo:PicInfoVo = data[0];
 			
 			if(UtilTool.checkFileIsImg(fvo) && fvo.picPhysicWidth != 0)
 			{
-				var hasfic:Boolean = DirectoryFileModel.instance.haselectPic.hasOwnProperty(fvo.fid)
+				var hasfic:Boolean = DirectoryFileModel.instance.haselectPic.hasOwnProperty(fvo.fid);
 				if( hasfic)
 				{
 					delete DirectoryFileModel.instance.haselectPic[fvo.fid];
 				}
 				else
+				{
 					DirectoryFileModel.instance.haselectPic[fvo.fid] = fvo;
+					
+					if(mulitSelect)
+					{
+						var arr:Array = uiSkin.picList.array;
+
+						var minIndex:int = arr.indexOf(fvo);
+						var maxIndex:int = arr.indexOf(fvo);
+						for each(var picinfo in DirectoryFileModel.instance.haselectPic)
+						{
+							if(arr.indexOf(picinfo) < minIndex)
+							{
+								minIndex = arr.indexOf(picinfo);
+							}
+							if(arr.indexOf(picinfo) > maxIndex)
+							{
+								maxIndex = arr.indexOf(picinfo);
+							}
+						}
+						if(maxIndex > minIndex)
+						{
+							for(var i:int=minIndex; i< maxIndex;i++)
+							{
+								var picinfoVo:PicInfoVo = arr[i];
+								hasfic = DirectoryFileModel.instance.haselectPic.hasOwnProperty(picinfoVo.fid)
+								if(!hasfic)
+								{
+									DirectoryFileModel.instance.haselectPic[picinfoVo.fid] = picinfoVo;
+									if(uiSkin.picList.cells[i] != null)
+										(uiSkin.picList.cells[i] as PicInfoItem).sel.selected = true;
+									
+								}
+							}
+						}
+					}
+					
+				}
 				var num:int = 0;
 				for each(var picvo in DirectoryFileModel.instance.haselectPic)
 				{
@@ -971,7 +1026,7 @@ package script.picUpload
 				//return;
 			}
 			file.click();
-			file.value;
+			//file.value;
 		}
 		
 		private function onSureCreeate():void

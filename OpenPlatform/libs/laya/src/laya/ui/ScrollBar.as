@@ -82,6 +82,9 @@ package laya.ui {
 		/**@private */
 		protected var _mouseWheelEnable:Boolean = UIConfig.mouseWheelEnable;
 		
+		/**滚动鼠标滑动幅度 */
+		public var scrollApmlitude:Number = 0.2;
+		
 		/**
 		 * 创建一个新的 <code>ScrollBar</code> 实例。
 		 * @param skin 皮肤资源地址。
@@ -421,7 +424,7 @@ package laya.ui {
 		/**@private */
 		protected function onTargetMouseWheel(e:Event):void {
 			
-			value -= e.delta * _scrollSize;
+			value -= e.delta * _scrollSize * scrollApmlitude;
 			target = _target;
 		}
 		

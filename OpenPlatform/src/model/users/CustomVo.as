@@ -18,6 +18,7 @@ package model.users
 		public var salerName:String;
 		public var salerId:String;
 		public var balanceMoney:Number;
+		public var discount:String;//客户折扣
 
 		public function CustomVo(data:Object)
 		{

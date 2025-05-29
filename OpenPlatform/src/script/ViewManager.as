@@ -69,6 +69,8 @@ package script
 	import ui.usercenter.OrderDetailPanelUI;
 	import ui.usercenter.PublicChargeRecordPanelUI;
 	import ui.usercenter.SellPriceSettingPanelUI;
+	import ui.usercenter.SellPriceSharePanelUI;
+	import ui.usercenter.SellPriceSharePhonePanelUI;
 	import ui.usercenter.UserMainPanelUI;
 
 	public class ViewManager
@@ -187,6 +189,8 @@ package script
 
 		public static const WRITE_OFF_ORDER_PANEL:String = "WRITE_OFF_ORDER_PANEL";//订单销账界面
 
+		public static const VIEW_SELL_PRICE_SHARE_PANEL:String = "VIEW_SELL_PRICE_SHARE_PANEL"; //价格分享界面
+
 		
 		public var viewDict:Object;
 		private var curZorder:int = 0;
@@ -227,6 +231,7 @@ package script
 				viewDict[VIEW_lOGPANEL] = LogPhonePanelUI;
 				viewDict[VIEW_REGPANEL] = RegisterPhonePanelUI;
 				viewDict[VIEW_POPUPDIALOG] = PopUpPhoneDialogUI;
+				viewDict[VIEW_SELL_PRICE_SHARE_PANEL] = SellPriceSharePhonePanelUI;
 
 			}
 			else
@@ -234,6 +239,7 @@ package script
 				viewDict[VIEW_lOGPANEL] = LogPanelUI;
 				viewDict[VIEW_REGPANEL] = RegisterPanelUI;
 				viewDict[VIEW_POPUPDIALOG] = PopUpDialogUI;
+				viewDict[VIEW_SELL_PRICE_SHARE_PANEL] = SellPriceSharePanelUI;
 
 			}
 			

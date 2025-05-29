@@ -16,6 +16,7 @@ package utils
 	{
 		private var uiSkin:PopUpDialogUI;
 		public var param:Object;
+		private var delayConfirmTime:int;
 		public function PopUpWindowControl()
 		{
 			super();
@@ -46,6 +47,15 @@ package utils
 				uiSkin.cancelbtn.visible = false;
 
 			}
+			if(param.delayTime != null)
+			{
+				delayConfirmTime = param.delayTime;
+				uiSkin.okbtn.label = "确定(" +delayConfirmTime + ")" ;
+
+				uiSkin.okbtn.disabled = true;
+				Laya.timer.loop(1000,this,onDelayCountDown);
+
+			}
 			uiSkin.btnSp.x = (640 - uiSkin.btnSp.getBounds().width)/2;
 
 			
@@ -63,6 +73,22 @@ package utils
 			uiSkin.okbtn.on(Event.CLICK,this,onConfirmHandler);
 			uiSkin.cancelbtn.on(Event.CLICK,this,onCancelHandler);
 
+		}
+		
+		private function onDelayCountDown():void
+		{
+			delayConfirmTime--;
+			if(delayConfirmTime <= 0)
+			{
+				uiSkin.okbtn.disabled = false;
+				uiSkin.okbtn.label = "确定";
+				Laya.timer.clear(this,onDelayCountDown);
+			}
+			else
+			{
+				uiSkin.okbtn.label = "确定(" +delayConfirmTime + ")" ;
+
+			}
 		}
 		private function onResizeBrower():void
 		{
@@ -96,6 +122,12 @@ package utils
 			
 			ViewManager.instance.closeView(ViewManager.VIEW_POPUPDIALOG);
 			EventCenter.instance.off(EventCenter.BROWER_WINDOW_RESIZE,this,onResizeBrower);
+
+		}
+		
+		public override function onDestroy():void
+		{
+			Laya.timer.clear(this,onDelayCountDown);
 
 		}
 	}

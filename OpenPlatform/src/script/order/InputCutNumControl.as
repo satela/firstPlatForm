@@ -11,6 +11,7 @@ package script.order
 	import laya.utils.Handler;
 	
 	import model.HttpRequestUtil;
+	import model.orderModel.CutImageData;
 	import model.orderModel.MaterialItemVo;
 	import model.orderModel.OrderConstant;
 	import model.orderModel.PaintOrderModel;
@@ -32,7 +33,7 @@ package script.order
 		private var param:Object;
 		private var leastCutNum:int;
 
-		private var cuttype:int;
+		//private var cuttype:int;
 		
 		private var linelist:Vector.<Sprite>;
 
@@ -76,6 +77,8 @@ package script.order
 			uiSkin.cancelBtn.on(Event.CLICK,this,closeScene);
 
 			var maxcutwidth:Number = curmat.materialWidth-2;
+			var maxcutlength:Number = curmat.materialLength-2;
+
 			//品赋阳光没有腹板
 			//if(hasFubai)
 			//	maxcutwidth = 120;
@@ -84,34 +87,53 @@ package script.order
 
 			if(PaintOrderModel.instance.curSelectOrderItem != null)
 			{
-				var cutdata:Object = {};
-				cutdata.finalWidth = PaintOrderModel.instance.curSelectOrderItem.finalWidth;
-				cutdata.finalHeight = PaintOrderModel.instance.curSelectOrderItem.finalHeight;
-				cutdata.fid = PaintOrderModel.instance.curSelectOrderItem.ordervo.picinfo.fid;
-				cutdata.maxwidth = maxcutwidth;
-
-				cutdata.border = UtilTool.getBorderDistance(PaintOrderModel.instance.curSelectMat.getAllSelectedTech() as Vector.<MaterialItemVo>);
+//				var cutdata:Object = {};
+//				cutdata.finalWidth = PaintOrderModel.instance.curSelectOrderItem.finalWidth;
+//				cutdata.finalHeight = PaintOrderModel.instance.curSelectOrderItem.finalHeight;
+//				cutdata.fid = PaintOrderModel.instance.curSelectOrderItem.ordervo.picinfo.fid;
+//				cutdata.maxwidth = maxcutwidth;
+//				cutdata.maxlength = maxcutlength;
+//
+//				cutdata.border = UtilTool.getBorderDistance(PaintOrderModel.instance.curSelectMat.getAllSelectedTech() as Vector.<MaterialItemVo>);
+//				
+//				cutdata.orderitemvo = PaintOrderModel.instance.curSelectOrderItem.ordervo;
+//				if((PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border) > curmat.materialLength && (PaintOrderModel.instance.curSelectOrderItem.finalHeight + cutdata.border) > curmat.materialLength)
+//					cutdata.orderitemvo.cuttype = 2;
+//				else
+//					cutdata.orderitemvo.cuttype = 0;
+//				
+//				//品赋阳光没有腹板
+//				//if(maxcutwidth < OrderConstant.MAX_CUT_THRESHOLD)		
+//				//{
+//					//cutdata.orderitemvo.cutnum = Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/OrderConstant.CUT_PRIOR_WIDTH);
+//				
+//			
+//				if(cutdata.orderitemvo.cuttype == 0 || cutdata.orderitemvo.cuttype == 2)
+//				{
+//					cutdata.orderitemvo.vCutnum = Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/maxcutwidth);
+//					if(cutdata.orderitemvo.vCutnum < 2)
+//						cutdata.orderitemvo.vCutnum = 2;
+//					
+//					var cutlen:Number = (PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/cutdata.orderitemvo.vCutnum;
+//					cutlen = parseFloat(cutlen.toFixed(2));
+//					cutdata.orderitemvo.vEachCutLength = [];
+//					for(var j:int=0;j < cutdata.orderitemvo.vCutnum;j++)
+//						cutdata.orderitemvo.vEachCutLength.push(cutlen);
+//				}
+//				if(cutdata.orderitemvo.cuttype == 2)
+//				{
+//					cutdata.orderitemvo.hCutnum = Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalHeight + cutdata.border)/maxcutwidth);
+//					if(cutdata.orderitemvo.hCutnum < 2)
+//						cutdata.orderitemvo.hCutnum = 2;
+//					
+//					var cutlen:Number = (PaintOrderModel.instance.curSelectOrderItem.finalHeight + cutdata.border)/cutdata.orderitemvo.hCutnum;
+//					cutlen = parseFloat(cutlen.toFixed(2));
+//					cutdata.orderitemvo.hEachCutLength = [];
+//					for(var j:int=0;j < cutdata.orderitemvo.hCutnum;j++)
+//						cutdata.orderitemvo.hEachCutLength.push(cutlen);
+//				}
+				var cutdata:CutImageData = getCutData(PaintOrderModel.instance.curSelectOrderItem,curmat);
 				
-				cutdata.orderitemvo = PaintOrderModel.instance.curSelectOrderItem.ordervo;
-				cutdata.orderitemvo.cuttype = 0;
-				
-				//品赋阳光没有腹板
-				//if(maxcutwidth < OrderConstant.MAX_CUT_THRESHOLD)		
-				//{
-					//cutdata.orderitemvo.cutnum = Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/OrderConstant.CUT_PRIOR_WIDTH);
-				cutdata.orderitemvo.cutnum = Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/maxcutwidth);
-					if(cutdata.orderitemvo.cutnum < 2)
-						cutdata.orderitemvo.cutnum = 2;
-				//}
-				//else
-				//	cutdata.orderitemvo.cutnum = Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/maxcutwidth);
-
-				
-				var cutlen:Number = (PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/cutdata.orderitemvo.cutnum;
-				cutlen = parseFloat(cutlen.toFixed(2));
-				cutdata.orderitemvo.eachCutLength = [];
-				for(var j:int=0;j < cutdata.orderitemvo.cutnum;j++)
-					cutdata.orderitemvo.eachCutLength.push(cutlen);
 				arr.push(cutdata);
 			}
 			else
@@ -122,38 +144,54 @@ package script.order
 				
 				for(var i:int=0;i < batchlist.length;i++)
 				{
-					if(batchlist[i].finalWidth + border > curmat.materialWidth && batchlist[i].finalHeight + border > curmat.materialWidth)
-					{
-						var cutdata:Object = {};
-						cutdata.finalWidth = batchlist[i].finalWidth;
-						cutdata.finalHeight = batchlist[i].finalHeight;
-						cutdata.fid = batchlist[i].ordervo.picinfo.fid;
-						cutdata.maxwidth = maxcutwidth;
-						
-						cutdata.border = UtilTool.getBorderDistance(PaintOrderModel.instance.curSelectMat.getAllSelectedTech() as Vector.<MaterialItemVo>);
+					//if(batchlist[i].finalWidth + border > curmat.materialWidth && batchlist[i].finalHeight + border > curmat.materialWidth)
+					//{
+//						var cutdata:Object = {};
+//						cutdata.finalWidth = batchlist[i].finalWidth;
+//						cutdata.finalHeight = batchlist[i].finalHeight;
+//						cutdata.fid = batchlist[i].ordervo.picinfo.fid;
+//						cutdata.maxwidth = maxcutwidth;
+//						
+//						cutdata.border = UtilTool.getBorderDistance(PaintOrderModel.instance.curSelectMat.getAllSelectedTech() as Vector.<MaterialItemVo>);
+//
+//						cutdata.orderitemvo = batchlist[i].ordervo;
+//						
+//						if((batchlist[i].finalWidth + cutdata.border) > curmat.materialLength && (batchlist[i].finalHeight + cutdata.border) > curmat.materialLength)
+//							cutdata.orderitemvo.cuttype = 2;
+//						else
+//							cutdata.orderitemvo.cuttype = 0;
+//						
+//						if(cutdata.orderitemvo.cuttype == 0 || cutdata.orderitemvo.cuttype == 2)
+//						{
+//						
+//							cutdata.orderitemvo.vCutnum = Math.ceil((batchlist[i].finalWidth + cutdata.border)/maxcutwidth);
+//							if(cutdata.orderitemvo.vCutnum < 2)
+//								cutdata.orderitemvo.vCutnum = 2;
+//														
+//							
+//							var cutlen:Number = (batchlist[i].finalWidth + cutdata.border)/cutdata.orderitemvo.vCutnum;
+//							cutlen = parseFloat(cutlen.toFixed(2));
+//							cutdata.orderitemvo.vEachCutLength = [];
+//							for(var j:int=0;j < cutdata.orderitemvo.vCutnum;j++)
+//								cutdata.orderitemvo.vEachCutLength.push(cutlen);
+//						}
+//						if(cutdata.orderitemvo.cuttype == 2)
+//						{
+//							cutdata.orderitemvo.hCutnum = Math.ceil((batchlist[i].finalHeight + cutdata.border)/maxcutwidth);
+//							if(cutdata.orderitemvo.hCutnum < 2)
+//								cutdata.orderitemvo.hCutnum = 2;
+//							
+//							var cutlen:Number = (batchlist[i].finalHeight + cutdata.border)/cutdata.orderitemvo.hCutnum;
+//							cutlen = parseFloat(cutlen.toFixed(2));
+//							cutdata.orderitemvo.hEachCutLength = [];
+//							for(var j:int=0;j < cutdata.orderitemvo.hCutnum;j++)
+//								cutdata.orderitemvo.hEachCutLength.push(cutlen);
+//						}
+						cutdata = getCutData(batchlist[i],curmat);
+						if(cutdata != null)
+							arr.push(cutdata);
 
-						cutdata.orderitemvo = batchlist[i].ordervo;
-						cutdata.orderitemvo.cuttype = 0;
-						//cutdata.orderitemvo.cutnum = Math.ceil((batchlist[i].finalWidth + cutdata.border)/maxcutwidth);
-						
-						//if(maxcutwidth < OrderConstant.MAX_CUT_THRESHOLD)					
-						//{
-							//cutdata.orderitemvo.cutnum = Math.ceil((batchlist[i].finalWidth + cutdata.border)/OrderConstant.CUT_PRIOR_WIDTH);
-							cutdata.orderitemvo.cutnum = Math.ceil((batchlist[i].finalWidth + cutdata.border)/maxcutwidth);
-							if(cutdata.orderitemvo.cutnum < 2)
-								cutdata.orderitemvo.cutnum = 2;
-						//}
-						//else
-						//	cutdata.orderitemvo.cutnum = Math.ceil((batchlist[i].finalWidth + cutdata.border)/maxcutwidth);
-						
-						
-						var cutlen:Number = (batchlist[i].finalWidth + cutdata.border)/cutdata.orderitemvo.cutnum;
-						cutlen = parseFloat(cutlen.toFixed(2));
-						cutdata.orderitemvo.eachCutLength = [];
-						for(var j:int=0;j < cutdata.orderitemvo.cutnum;j++)
-							cutdata.orderitemvo.eachCutLength.push(cutlen);
-						arr.push(cutdata);
-					}
+					//}
 				}
 			}
 			
@@ -168,6 +206,171 @@ package script.order
 
 		}
 		
+		private function getCutData(picorderItem:PicOrderItem,productVo:ProductVo):CutImageData
+		{
+			var cutdata:CutImageData = new CutImageData();
+			cutdata.finalWidth = picorderItem.finalWidth;
+			cutdata.finalHeight = picorderItem.finalHeight;
+			cutdata.fid = picorderItem.ordervo.picinfo.fid;
+			cutdata.maxwidth = productVo.materialWidth - 2;
+			cutdata.maxlength = productVo.materialLength - 2;
+			
+			cutdata.border = UtilTool.getBorderDistance(productVo.getAllSelectedTech() as Vector.<MaterialItemVo>);
+			
+			cutdata.orderitemvo = picorderItem.ordervo;
+//			if((picorderItem.finalWidth + cutdata.border) > productVo.materialLength && (picorderItem.finalHeight + cutdata.border) > productVo.materialLength)
+//				cutdata.orderitemvo.cuttype = 2;
+//			else
+//				cutdata.orderitemvo.cuttype = 0;
+			
+			var shortSide:Number = Math.min(picorderItem.finalWidth,picorderItem.finalHeight) + cutdata.border;
+			var longSide:Number = Math.max(picorderItem.finalWidth,picorderItem.finalHeight) + cutdata.border;
+			if(shortSide > productVo.materialWidth && longSide > productVo.materialWidth && shortSide <= productVo.materialLength && longSide <=  productVo.materialLength)
+			{
+				cutdata.orderitemvo.cutDirect = OrderConstant.CUT_TWO_SIDE;
+				cutdata.cutLength = [cutdata.maxwidth];
+				cutdata.orderitemvo.cuttype = 0;
+
+			}
+			else if(shortSide > productVo.materialWidth && longSide > productVo.materialWidth && shortSide <= productVo.materialLength && longSide > productVo.materialLength)
+			{
+				if(picorderItem.finalWidth >= picorderItem.finalHeight)
+				{
+					cutdata.orderitemvo.cutDirect = OrderConstant.CUT_WIDTH_ONLY;
+					cutdata.orderitemvo.cuttype = 0;
+
+				}
+				else
+				{
+					cutdata.orderitemvo.cutDirect = OrderConstant.CUT_HEIGHT_ONLY;
+					cutdata.orderitemvo.cuttype = 1;
+
+				}
+				
+				cutdata.cutLength = [cutdata.maxwidth];
+
+			}
+			else if(shortSide <= productVo.materialWidth &&  longSide > productVo.materialLength)
+			{
+				if(picorderItem.finalWidth >= picorderItem.finalHeight)
+				{
+					cutdata.orderitemvo.cutDirect = OrderConstant.CUT_WIDTH_ONLY;
+					cutdata.orderitemvo.cuttype = 0;
+
+				}
+				else
+				{
+					cutdata.orderitemvo.cutDirect = OrderConstant.CUT_HEIGHT_ONLY;
+					cutdata.orderitemvo.cuttype = 1;
+
+				}
+				
+				cutdata.cutLength = [cutdata.maxwidth,cutdata.maxlength];
+
+				
+			}
+			else if(shortSide > productVo.materialLength &&  longSide > productVo.materialLength)
+			{
+				cutdata.orderitemvo.cutDirect = OrderConstant.CUT_TWO_SIDE;
+				cutdata.cutLength = [cutdata.maxwidth,cutdata.maxlength];
+				cutdata.orderitemvo.cuttype = 2;
+
+			}
+			else return null;
+			
+			//品赋阳光没有腹板
+			//if(maxcutwidth < OrderConstant.MAX_CUT_THRESHOLD)		
+			//{
+			//cutdata.orderitemvo.cutnum = Math.ceil((PaintOrderModel.instance.curSelectOrderItem.finalWidth + cutdata.border)/OrderConstant.CUT_PRIOR_WIDTH);
+			
+			
+			//if(cutdata.orderitemvo.cuttype == 0 || cutdata.orderitemvo.cuttype == 2)
+			//{
+			if(cutdata.orderitemvo.cutDirect == OrderConstant.CUT_WIDTH_ONLY || cutdata.orderitemvo.cutDirect == OrderConstant.CUT_TWO_SIDE)
+			{
+				cutdata.orderitemvo.vCutnum = Math.ceil((picorderItem.finalWidth + cutdata.border)/cutdata.maxwidth);
+				if(cutdata.orderitemvo.vCutnum < 2)
+					cutdata.orderitemvo.vCutnum = 2;
+				cutdata.orderitemvo.vEachCutLength = [];
+
+				if(cutdata.orderitemvo.cuttype == 2)
+				{
+					var cutlen:Number = cutdata.maxwidth;//(picorderItem.finalWidth + cutdata.border)/cutdata.orderitemvo.vCutnum;
+					//cutlen = parseFloat(cutlen.toFixed(2));
+					for(var j:int=0;j < cutdata.orderitemvo.vCutnum;j++)
+					{
+						if(j < cutdata.orderitemvo.vCutnum - 1)
+							cutdata.orderitemvo.vEachCutLength.push(cutlen);
+						else
+							cutdata.orderitemvo.vEachCutLength.push(picorderItem.finalWidth + cutdata.border - cutlen * (cutdata.orderitemvo.vCutnum - 1));
+							
+						
+					}
+				}
+				else
+				{
+					cutlen = (picorderItem.finalWidth + cutdata.border)/cutdata.orderitemvo.vCutnum;
+					cutlen = parseFloat(cutlen.toFixed(2));
+					for(var j:int=0;j < cutdata.orderitemvo.vCutnum;j++)
+					{						
+						cutdata.orderitemvo.vEachCutLength.push(cutlen);						
+					}
+				}
+			}
+			else if(cutdata.orderitemvo.cutDirect == OrderConstant.CUT_HEIGHT_ONLY || cutdata.orderitemvo.cutDirect == OrderConstant.CUT_TWO_SIDE)
+			{
+				cutdata.orderitemvo.hCutnum = Math.ceil((picorderItem.finalHeight + cutdata.border)/cutdata.maxwidth);
+				if(cutdata.orderitemvo.hCutnum < 2)
+					cutdata.orderitemvo.hCutnum = 2;
+				cutdata.orderitemvo.hEachCutLength = [];
+
+				if(cutdata.orderitemvo.cuttype == 2)
+				{
+					var cutlen:Number = cutdata.maxwidth;//(picorderItem.finalHeight + cutdata.border)/cutdata.orderitemvo.hCutnum;
+					//cutlen = parseFloat(cutlen.toFixed(2));
+					for(var j:int=0;j < cutdata.orderitemvo.hCutnum;j++)
+					{
+						if(j < cutdata.orderitemvo.hCutnum - 1)
+							cutdata.orderitemvo.hEachCutLength.push(cutlen);
+						else
+							cutdata.orderitemvo.hEachCutLength.push(picorderItem.finalHeight + cutdata.border - cutlen * (cutdata.orderitemvo.hCutnum - 1));
+						
+					}
+				}
+				else
+				{
+					var cutlen:Number = (picorderItem.finalHeight + cutdata.border)/cutdata.orderitemvo.hCutnum;
+					cutlen = parseFloat(cutlen.toFixed(2));
+					for(var j:int=0;j < cutdata.orderitemvo.hCutnum;j++)
+					{
+						if(j < cutdata.orderitemvo.hCutnum - 1)
+							cutdata.orderitemvo.hEachCutLength.push(cutlen);
+						
+					}
+				}
+			}
+				
+			//}
+			if(cutdata.orderitemvo.cuttype == 2)
+			{
+				cutdata.orderitemvo.hCutnum = Math.ceil((picorderItem.finalHeight + cutdata.border)/cutdata.maxlength);
+				if(cutdata.orderitemvo.hCutnum < 2)
+					cutdata.orderitemvo.hCutnum = 2;
+				
+				var cutlen:Number = cutdata.maxlength;//(picorderItem.finalHeight + cutdata.border)/cutdata.orderitemvo.hCutnum;
+				//cutlen = parseFloat(cutlen.toFixed(2));
+				cutdata.orderitemvo.hEachCutLength = [];
+				for(var j:int=0;j < cutdata.orderitemvo.hCutnum;j++)
+				{
+					if(j < cutdata.orderitemvo.hCutnum - 1)
+						cutdata.orderitemvo.hEachCutLength.push(cutlen);
+					else
+						cutdata.orderitemvo.hEachCutLength.push(picorderItem.finalHeight + cutdata.border - cutlen * (cutdata.orderitemvo.hCutnum - 1));
+					
+				}
+			}
+			return cutdata;
+		}
 		private function onResizeBrower():void
 		{
 			//uiSkin.mainpanel.height = Browser.height;
@@ -197,40 +400,67 @@ package script.order
 		{
 			var arr:Array = uiSkin.productlist.array;
 			var hasUnSameLength:Boolean = false;
+
 			for(var i:int=0;i < arr.length;i++)
 			{
 				if(arr[i] != null)
 				{
-					var allcut:Array = arr[i].orderitemvo.eachCutLength;
-					for(var j:int=0;j < allcut.length;j++)
+					var horcutArr:Array;// = arr[i].orderitemvo.vEachCutLength;
+					var vertCutArr:Array;
+					if(arr[i].orderitemvo.cuttype == 0 || arr[i].orderitemvo.cuttype == 2)
 					{
-						if(allcut[j] <= 0 || allcut[j] > arr[i].maxwidth)
-						{
-							ViewManager.showAlert("请检查每份切割长度是否有效（切割不能为空或0，也不能大于最大长度" + arr[i].maxwidth + "cm)。" );
-							return;
-						}
-						if(hasUnSameLength == false)
-						{
-							for(var m:int=j+1;m < allcut.length;m++)
-							{
-								if(Math.abs(allcut[m] - allcut[j]) > 0.02)
-									hasUnSameLength = true;
-							}
-						}
+						horcutArr = arr[i].orderitemvo.vEachCutLength;
 					}
+					else
+					{
+						horcutArr = [(arr[i] as CutImageData).finalWidth];
+					}
+					
+					if(arr[i].orderitemvo.cuttype == 1 || arr[i].orderitemvo.cuttype == 2)
+					{
+						vertCutArr = arr[i].orderitemvo.hEachCutLength;
+					}
+					else
+					{
+						vertCutArr = [(arr[i] as CutImageData).finalHeight];
+					}
+					if(!checkValidCutNum(horcutArr,vertCutArr))
+					{
+						return;
+					}
+					 
 				}
 			}
-			if(hasUnSameLength)
-			{
-				ViewManager.instance.openView(ViewManager.VIEW_POPUPDIALOG,false,{msg:"您选择了非等分裁切下单，由此产生的少量色差或长度拼接问题，生产方不负责承担损失，请谨慎选择。",caller:this,callback:onFirmCut});
-				return;
-			}
+//			if(hasUnSameLength)
+//			{
+//				ViewManager.instance.openView(ViewManager.VIEW_POPUPDIALOG,false,{msg:"您选择了非等分裁切下单，由此产生的少量色差或长度拼接问题，生产方不负责承担损失，请谨慎选择。",caller:this,callback:onFirmCut});
+//				return;
+//			}
 			EventCenter.instance.off(EventCenter.BROWER_WINDOW_RESIZE,this,onResizeBrower);
 
 			ViewManager.instance.closeView(ViewManager.INPUT_CUT_NUM);
 			
 		}
 		
+		private function checkValidCutNum(horiCut:Array,vertCut:Array):Boolean
+		{
+			var hasUnSameLength:Boolean = false;
+
+			var curmat:ProductVo = PaintOrderModel.instance.curSelectMat;
+			for(var j:int=0;j < horiCut.length;j++)
+			{
+				for(var i:int=0;i < vertCut.length;i++)
+				{
+					if(Math.min(horiCut[j],vertCut[i]) > (curmat.materialWidth-2) || Math.max(horiCut[j],vertCut[i]) > (curmat.materialLength-2))
+					{
+						ViewManager.showAlert("请检查切割后每块板子的大小，短边不能大于" + (curmat.materialWidth - 2) + "cm，" + "长边不能大于" + (curmat.materialLength - 2) + "cm");
+						return false;
+					}
+				}
+			}
+			
+			return true;
+		}
 		private function onFirmCut(b:Boolean):void
 		{
 			if(b)
@@ -243,7 +473,8 @@ package script.order
 		
 		private function closeScene():void
 		{
-			ViewManager.instance.closeView(ViewManager.INPUT_CUT_NUM);
+			closeView();
+			//ViewManager.instance.closeView(ViewManager.INPUT_CUT_NUM);
 
 		}
 	}

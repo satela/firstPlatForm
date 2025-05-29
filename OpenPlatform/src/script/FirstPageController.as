@@ -150,6 +150,7 @@ package script
 				Userdata.instance.checkJumpUrl();
 					
 				Userdata.instance.dirId = result.data.dirId;
+				Userdata.instance.paymentQrCode = result.data.paymentQrCode;
 				
 				Userdata.instance.company = result.data.name;
 				Userdata.instance.companyShort = result.data.shortName;

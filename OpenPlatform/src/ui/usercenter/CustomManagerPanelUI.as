@@ -23,6 +23,8 @@ package ui.usercenter {
 		public var closeAddBtn:Button;
 		public var payType:ComboBox;
 		public var businessMan:ComboBox;
+		public var sellPriceRatio:TextInput;
+		public var delBtn:Button;
 
 		override protected function createChildren():void {
 			super.createChildren();

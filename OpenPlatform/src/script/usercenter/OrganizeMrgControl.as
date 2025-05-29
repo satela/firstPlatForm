@@ -6,6 +6,7 @@ package script.usercenter
 	import laya.components.Script;
 	import laya.events.Event;
 	import laya.ui.CheckBox;
+	import laya.utils.Browser;
 	import laya.utils.Handler;
 	
 	import model.Constast;
@@ -18,6 +19,8 @@ package script.usercenter
 	
 	import ui.usercenter.AccountSettingPanelUI;
 	
+	import utils.UtilTool;
+	
 	public class OrganizeMrgControl extends Script
 	{
 		private var uiSkin:AccountSettingPanelUI;
@@ -25,6 +28,15 @@ package script.usercenter
 		private var curMemberdata:Object;
 		
 		private var previlegeCheckBoxlst:Array;
+		
+		private var isUploading:Boolean = false;
+		private var clientParam:Object;
+		private var callbackparam:Object; //服务器回调参数
+
+		
+		private var file:Object;
+		private var ossFileName:String;//服务器指定的文件名
+
 		public function OrganizeMrgControl()
 		{
 			super();
@@ -83,11 +95,16 @@ package script.usercenter
 			uiSkin.moveOkbtn.on(Event.CLICK,this,onMoveMemberSure);
 			uiSkin.closeDist.on(Event.CLICK,this,onCloseDistribute);
 			uiSkin.btncloseCreate.on(Event.CLICK,this,onCloseCreate);
+			uiSkin.uploadQrCodeImg.on(Event.CLICK,this,onUploadQrCode);
 			uiSkin.applyListBtn.on(Event.CLICK,this,function(){
 				
 				ViewManager.instance.openView(ViewManager.APPLY_JOIN_LIST_PANEL);
 			});
-
+			Browser.window.uploadApp = this;
+			uiSkin.myQrCodeImg.skin = Userdata.instance.paymentQrCode;
+			uiSkin.myQrCodeImg.on(Event.LOADED,this,onLoadedImg);
+			uiSkin.deleteQrCodeImg.on(Event.CLICK,this,onDeleteQrcodeImg);
+			initFileOpen();
 			previlegeCheckBoxlst = [uiSkin.order_submit,uiSkin.order_submit_with_balances,uiSkin.order_price_display,uiSkin.order_list_self,uiSkin.order_list_org,uiSkin.asset_log_list];
 			
 			uiSkin.organizeBox.visible = Userdata.instance.privilege.indexOf(Constast.ADMIN_PREVILIGE) >= 0;
@@ -104,6 +121,213 @@ package script.usercenter
 
 		}
 		
+		private function initFileOpen():void
+		{
+			file = Browser.document.createElement("input");
+			
+			file.style="filter:alpha(opacity=0);opacity:0;width: 100;height:34px;left:395px;top:-248";
+			
+			//			if(param && param.type == "License")
+			//				file.multiple="";
+			//			else
+			//file.multiple="multiple";
+			
+			file.accept = ".jpg,.jpeg,.png";
+			file.type ="file";
+			file.style.position ="absolute";
+			file.style.zIndex = 999;
+			Browser.document.body.appendChild(file);//添加到舞台
+			file.onchange = function(e):void
+			{			
+				if(file.files[0] == null)
+					return;
+				
+				if(file.files[0] != null && file.files[0].type == "image/jpg" || file.files[0].type == "image/jpeg" || file.files[0].type == "image/png")
+				{
+					if(file.files[0].size > 500*1024)
+					{
+						ViewManager.showAlert("图片大小不能超过500K");
+						return;
+					}
+				}
+				else
+				{
+					ViewManager.showAlert("请选择jpg或者png图片");
+					return;
+				}
+				
+				if(isUploading)
+					return;
+				getSendRequest();
+			};
+			
+			Browser.window.uploadHandle = this;							
+			
+		}
+		
+		private function onUploadQrCode():void
+		{
+			file.click();
+
+		}
+		
+		private function getSendRequest():void
+		{
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.authorUploadUrl,this,onGetAuthor,null,null);
+		}
+		private function onGetAuthor(data:Object):void
+		{
+			if(this.destroyed)
+				return;
+			
+			var authordata:Object = JSON.parse(data as String);
+			if(authordata == null || authordata.data == null)
+				return;
+			clientParam = {};
+			clientParam.accessKeyId = authordata.data.accessKeyId;
+			clientParam.accessKeySecret = authordata.data.accessKeySecret;
+			clientParam.stsToken = authordata.data.securityToken;
+			//clientParam.endpoint = "oss-cn-hangzhou.aliyuncs.com";			
+			//clientParam.bucket = "original-image";
+			var json = Laya.loader.getRes("config.json?" + Userdata.instance.configVersion);
+			
+			clientParam.endpoint = "oss-cn-hangzhou.aliyuncs.com";			
+			clientParam.bucket = json["bucket"];
+			
+			trace("oss:" + typeof(Browser.window.OSS));
+			if(typeof(Browser.window.OSS) == "undefined")
+			{
+				script = Browser.document.createElement("script");
+				script.src = "aliOss.min.js";
+				script.onload = function(){
+					//
+					Browser.window.createossClient(clientParam);
+					onBeginUpload();
+					
+				}
+				script.onerror = function(e){
+					
+					trace("error" + e);
+					
+					//加载错误函数
+				}
+				Browser.document.body.appendChild(script);
+			}
+				
+			else
+			{
+				Browser.window.createossClient(clientParam);
+				onBeginUpload();
+			}
+		}
+		
+		private function onBeginUpload():void
+		{
+			
+			if(file.files[0] != null )
+			{
+				//var params:Object = {};
+				//params.dirId = "0";
+				//params.name = file.files[0].name;
+				
+				//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.noticeServerPreUpload,this,onReadyToUpload,JSON.stringify(params),"post");
+				uploadFileImmediate();
+
+			}
+			
+		}
+		
+//		private function onReadyToUpload(data:Object):void
+//		{
+//			if(this.destroyed)
+//				return;
+//			
+//			var result:Object = JSON.parse(data as String);
+//			if(result.code == "0")
+//			{
+//				callbackparam = {};
+//				
+//				callbackparam.url = "";
+//				callbackparam.body = result.data.callbackBody;
+//				callbackparam.contentType = 'application/x-www-form-urlencoded';
+//				
+//				var arr:Array = (file.files[0].name as String).split(".");
+//				
+//				ossFileName = result.data.objectName + "." + (arr[arr.length - 1] == null ?"jpg":arr[arr.length - 1]);
+//				uploadFileImmediate();
+//			}
+//			
+//		}
+		private function uploadFileImmediate():void
+		{
+			if(file.files[0] != null)
+			{
+				isUploading = true;
+				
+				var arr:Array = (file.files[0].name as String).split(".");
+								
+				ossFileName = UtilTool.uuid() + "." + (arr[arr.length - 1] == null ?"jpg":arr[arr.length - 1]);
+				trace("filename:" + ossFileName);
+				Browser.window.ossUpload({file:file.files[0]},0,null,ossFileName);
+				
+				//Browser.window.uploadPic({urlpath:HttpRequestUtil.httpUrl + HttpRequestUtil.uploadPic, path:DirectoryFileModel.instance.curSelectDir.dpath,file:fileListData[curUploadIndex]});
+				//HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.uploadPic,this,onCompleteUpload,{path:"0|11|",file:file.files[0]},"post",onProgressHandler);
+			}
+			
+		}
+		
+		private function onProgressHandler(e:Object,pro:Object):void
+		{
+			
+		}
+		private function onCompleteUpload(e:Object):void
+		{
+			
+			isUploading = false;
+			var params:Object = {"fileName":ossFileName};
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.noticeServerQrcodeComplete,this,onNoticeComplete,JSON.stringify(params),"post");
+		}
+		private function onDeleteQrcodeImg():void
+		{
+			isUploading = false;
+			var params:Object = {"fileName":""};
+			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.noticeServerQrcodeComplete,this,onNoticeComplete,JSON.stringify(params),"post");
+		}
+		private function onNoticeComplete(data:*):void{
+						
+			
+			var result:Object = JSON.parse(data as String);
+			if(result.code == "0")
+			{
+				Userdata.instance.paymentQrCode = result.data;
+				if(this.destroyed)
+					return;
+				uiSkin.myQrCodeImg.skin = Userdata.instance.paymentQrCode;
+				
+			}
+		}
+		
+		private function onLoadedImg(e:Event):void
+		{
+			var text = Laya.loader.getRes(Userdata.instance.paymentQrCode);
+			if(text == null)
+				return;
+			
+			var imgwidth:Number = text.width;
+			var imgheight:Number = text.height;
+			if(imgwidth > imgheight)
+			{
+				uiSkin.myQrCodeImg.width = 150;
+				uiSkin.myQrCodeImg.height = 150*imgheight/imgwidth;
+
+			}
+			else
+			{
+				uiSkin.myQrCodeImg.height = 150;
+				uiSkin.myQrCodeImg.width = 150*imgwidth/imgheight;
+			}
+
+		}
 		private function onGetAllOrganizeBack(data:*):void{
 			
 			if(this.destroyed)

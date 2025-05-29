@@ -506,7 +506,7 @@ package model.orderModel
 			{
 				for(var i:int=0;i < picorderitems.length;i++)
 				{
-					var cutlengths:Array = picorderitems[i].ordervo.eachCutLength;
+					var cutlengths:Array = picorderitems[i].ordervo.hEachCutLength;
 					if(cutlengths != null)
 					{
 						for(var j:int=0;j < cutlengths.length;j++)

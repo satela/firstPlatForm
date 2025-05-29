@@ -16,6 +16,8 @@ package script.usercenter
 	import model.ErrorCode;
 	import model.HttpRequestUtil;
 	import model.Userdata;
+	import model.orderModel.PaintOrderModel;
+	import model.picmanagerModel.DirectoryFileModel;
 	import model.users.BusinessManVo;
 	import model.users.CityAreaVo;
 	
@@ -132,7 +134,7 @@ package script.usercenter
 			uiSkin.contactPhone.maxChars = 11;
 			
 			
-			uiSkin.leaveGroupBtn.visible = false;
+			//uiSkin.leaveGroupBtn.visible = false;
 			uiSkin.leaveGrpPanel.visible = false;
 			uiSkin.closeLeaveBtn.on(Event.CLICK,this,function(){
 				
@@ -339,39 +341,44 @@ package script.usercenter
 		
 		private function onLeaveGroupRequest():void
 		{
-			ViewManager.instance.openView(ViewManager.VIEW_POPUPDIALOG,false,{caller:this,callback:showLeavePanel,msg:"确定退出公司系统将发送验证码到您的账号，请注意查收，是否确定退出公司"});
+			ViewManager.instance.openView(ViewManager.VIEW_POPUPDIALOG,false,{caller:this,callback:showLeavePanel,msg:"退出公司将清除相关数据，是否确定退出公司？",delayTime:6});
 		}
 		private function showLeavePanel(b:Boolean):void
 		{
 			if(b)
 			{
-				uiSkin.leaveGrpPanel.visible = true;				
-				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.getVerifyCode ,this,null,"phone=" + Userdata.instance.userAccount,"post");
+				//uiSkin.leaveGrpPanel.visible = true;				
+				HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.leaveGroupUrl ,this,leaveGroupBack,null,"post");
 
 			}
 		}
 		
-		private function confirmLeaveGroupNow():void
-		{
-			if(uiSkin.verifyCode.text == "")
-			{
-				ViewManager.showAlert("请输入验证码");
-				return;
-			}
-			var parm:String = "code=" + uiSkin.verifyCode.text;
-			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.leaveGroupUrl ,this,leaveGroupBack,parm,"post");
-			
-		}
+//		private function confirmLeaveGroupNow():void
+//		{
+//			if(uiSkin.verifyCode.text == "")
+//			{
+//				ViewManager.showAlert("请输入验证码");
+//				return;
+//			}
+//			var parm:String = "code=" + uiSkin.verifyCode.text;
+//			HttpRequestUtil.instance.Request(HttpRequestUtil.httpUrl + HttpRequestUtil.leaveGroupUrl ,this,leaveGroupBack,parm,"post");
+//			
+//		}
 		
 		private function leaveGroupBack(data:*):void
 		{
 			var result:Object = JSON.parse(data);
-			if(result.status == "0")
+			if(result.code == "0")
 			{
 				ViewManager.showAlert("退出公司成功");
-				ViewManager.instance.openView(ViewManager.VIEW_FIRST_PAGE,true);
-				Userdata.instance.accountType= -1;
-				Userdata.instance.founderPhone = null;
+				//ViewManager.instance.openView(ViewManager.VIEW_FIRST_PAGE,true);
+				UtilTool.setLocalVar("userToken","");
+				//UtilTool.setLocalVar("userpwd","");
+				PaintOrderModel.instance.resetData();
+				DirectoryFileModel.instance.resetData();
+				Userdata.instance.isLogin = false;
+				Userdata.instance.resetData();
+				ViewManager.instance.openView(ViewManager.VIEW_lOGPANEL,true);
 			}
 		}
 		

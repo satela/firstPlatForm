@@ -181,6 +181,8 @@ package script.usercenter
 			var requestStr:Object = {};
 			requestStr.mobileNumber = uiSkin.customPhone.text;
 			requestStr.customerName =  uiSkin.customName.text;
+			requestStr.discount = uiSkin.sellPriceRatio.text;
+			
 			if(uiSkin.businessMan.selectedIndex >= 0)
 			{
 				requestStr.salerId = businessManlist[uiSkin.businessMan.selectedIndex].id.toString();
@@ -235,6 +237,7 @@ package script.usercenter
 			uiSkin.customPhone.editable = false;
 			uiSkin.customName.text = curCustomer.customerName;
 			uiSkin.payType.selectedIndex = curCustomer.defaultPayment - 1;
+			uiSkin.sellPriceRatio.text = curCustomer.discount;
 			
 			for(var i:int=0;i < businessManlist.length;i++)
 			{
@@ -252,6 +255,7 @@ package script.usercenter
 			uiSkin.customPhone.text = "";
 			 uiSkin.customName.text = "";
 			 uiSkin.customPhone.editable = true;
+			 uiSkin.sellPriceRatio.text = "1";
 
 			 addOrEdit = 0;
 		}

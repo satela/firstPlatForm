@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":187,
-    "selecteID":189,
+    "selectedBox":224,
+    "selecteID":186,
     "searchKey":"View",
     "props":{"width":1624,"top":0,"sceneColor":"#ffffff","right":0,"left":0,"height":1080,"bottom":0},
     "nodeParent":-1,
@@ -78,7 +78,7 @@
                     "x":30,
                     "type":"Button",
                     "searchKey":"Button,leaveGroupBtn",
-                    "props":{"y":582,"x":318,"width":222,"visible":false,"var":"leaveGroupBtn","stateNum":"3","skin":"uiCommonUpdate/matBtn.png","sizeGrid":"5,9,6,7","labelSize":36,"labelFont":"SimHei","labelColors":"#B1B1B1,#003dc6,#003dc6","labelAlign":"center","label":"退出公司","height":66},
+                    "props":{"y":582,"x":318,"width":222,"visible":true,"var":"leaveGroupBtn","stateNum":"3","skin":"uiCommonUpdate/matBtn.png","sizeGrid":"5,9,6,7","labelSize":36,"labelFont":"SimHei","labelColors":"#B1B1B1,#003dc6,#003dc6","labelAlign":"center","label":"退出公司","height":66},
                     "nodeParent":224,
                     "label":"leaveGroupBtn",
                     "isDirectory":false,
@@ -474,7 +474,7 @@
             "props":{"y":0,"x":0,"var":"leaveGrpPanel","top":0,"right":0,"left":0,"bottom":0},
             "nodeParent":2,
             "label":"leaveGrpPanel",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
@@ -598,7 +598,7 @@
                     "child":[
                         ]
                 }],
-            "$HIDDEN":false
+            "$HIDDEN":true
         },
         {
             "x":15,
